@@ -53,9 +53,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     useEffect(() => {
         if (initialDay) {
             setRouteDay(initialDay);
-        } else if (activeWeekend.saturday?.isDry) {
+        }
+        else if (activeWeekend.saturday?.isDry) {
             setRouteDay("saturday");
-        } else if (activeWeekend.sunday?.isDry) {
+        }
+        else if (activeWeekend.sunday?.isDry) {
             setRouteDay("sunday");
         }
     }, [activeTab, activeWeekend, initialDay]);
@@ -122,7 +124,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             mapInstanceRef.current = map;
             setTimeout(() => map.invalidateSize(), 100);
         }
-        return () => { if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; } }
+        return () => { if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; } };
     }, [cityCoords]);
 
     useEffect(() => {
@@ -158,7 +160,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 if (validRoutes.length > 0) {
                     setFoundRoutes(validRoutes);
                     setRouteStatus(`Найдено маршрутов: ${validRoutes.length}`);
-                } else {
+                }
+                else {
                     setFoundRoutes([]);
                     setRouteStatus(`Маршрут под ${activeStats.windDirFull.toLowerCase()} ветер не сделан`);
                 }
@@ -184,7 +187,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13, animate: false });
                 }
             }, 100);
-        } else if (routeStatus !== "Поиск...") {
+        }
+        else if (routeStatus !== "Поиск...") {
             map.setView([cityCoords.lat, cityCoords.lon], 11);
         }
     }, [activeStats, cityCoords, currentRouteData, routeStatus]);
@@ -227,7 +231,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     title: "GPX Route",
                     text: `GPX route for ${data.cityName}`,
                 });
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Error sharing", error);
             }
         }
@@ -401,7 +406,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeStartCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateYandexLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                            className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'}`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -413,7 +418,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeEndCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateYandexLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                            className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'}`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -426,12 +431,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                        className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'}`}
                     >
                         <span className="flex items-center">Вкусные места<RoutesIcon /></span>
                     </a>
                     <button
-                        className={`w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection === "одежда" ? "text-[#1E1E1E] hover:text-[#777777]" : openSection === null ? "text-[#1E1E1E] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
+                        className={`w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection === "одежда" ? "text-[#1E1E1E] hover:text-[#777777]" : openSection === null ? "text-[#1E1E1E] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
                         onClick={() => toggleSection("одежда")}
                     >
                         <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>

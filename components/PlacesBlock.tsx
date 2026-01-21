@@ -89,7 +89,7 @@ const PlacesBlock: React.FC<PlacesBlockProps> = ({ startCity, endCity }) => {
                 href="https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-full p-4 bg-yellow-400 text-slate-900 rounded-full font-bold hover:bg-yellow-300 transition-colors shadow-sm gap-2"
+                className="flex items-center justify-center w-full p-4 bg-yellow-400 text-slate-900 rounded-full font-bold hover:bg-yellow-300 transition-colors shadow-sm gap-2 text-lg"
              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
