@@ -1,0 +1,5 @@
+{
+  "name": "Weekend Weather Planner",
+  "description": "Find the perfect rain-free weekend getaway in Central Russia. Analyzes weather forecasts for popular destinations to find sunny and dry spots.",
+  "requestFramePermissions": []
+}
