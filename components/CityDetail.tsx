@@ -7,6 +7,8 @@ import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
 import ArrowUp from "./icons/ArrowUp";
+import MinusIcon from "./icons/MinusIcon";
+import PlusIcon from "./icons/PlusIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 
@@ -30,6 +32,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
     const [openSection, setOpenSection] = useState<string | null>(null);
+    const [speed, setSpeed] = useState<number>(30);
 
     const toggleSection = (section: string) => {
         setOpenSection(openSection === section ? null : section);
@@ -258,6 +261,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     // Prepare markers
     const markers: { coords: [number, number]; label: string }[] = [];
 
+    const calculateDuration = (distKm: number, speedKmH: number) => {
+        const hours = Math.floor(distKm / speedKmH);
+        const minutes = Math.round((distKm / speedKmH - hours) * 60);
+        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    };
+
     return (
         <div className="mx-auto text-black flex-grow flex flex-col" style={{ backgroundColor: "#F5F5F5" }}>
             <div className="sticky top-0 bg-[#F5F5F5] z-10">
@@ -339,17 +348,31 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             {renderWeatherValue(Math.round(currentRouteData.elevationM).toString(), " м")}
                         </div>
                         <div className="flex flex-col">
-                            <p className="text-xs text-neutral-400">ТЕМП</p>
-                            {renderWeatherValue("30", " км/ч")}
-                        </div>
-                        {activeStats?.rideDuration && (
-                            <div className="flex flex-col">
-                                <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                                <p className="text-base font-unbounded font-bold text-[#1E1E1E]">
-                                    {activeStats.rideDuration}
-                                </p>
+                            <div className="flex items-center gap-2">
+                                <p className="text-xs text-neutral-400">ТЕМП</p>
+                                <div className="flex items-center gap-1">
+                                    <button 
+                                        onClick={() => setSpeed(s => Math.max(10, s - 1))} 
+                                        className="text-neutral-400 hover:text-black hover:bg-gray-200 rounded transition-colors"
+                                    >
+                                        <MinusIcon width="12" height="12" />
+                                    </button>
+                                    <button 
+                                        onClick={() => setSpeed(s => Math.min(60, s + 1))} 
+                                        className="text-neutral-400 hover:text-black hover:bg-gray-200 rounded transition-colors"
+                                    >
+                                        <PlusIcon width="12" height="12" />
+                                    </button>
+                                </div>
                             </div>
-                        )}
+                            {renderWeatherValue(speed.toString(), " км/ч")}
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
+                            <p className="text-base font-unbounded font-bold text-[#1E1E1E]">
+                                {calculateDuration(currentRouteData.distanceKm, speed)}
+                            </p>
+                        </div>
                     </div>
                 )}
 
