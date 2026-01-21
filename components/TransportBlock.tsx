@@ -22,6 +22,7 @@ const STATIONS = [
     { name: "Подсолнечная", id: "s9603468", lat: 56.182, lon: 36.974, moscowStation: "Ленинградский вокзал" },
     { name: "Александров-1", id: "s9601547", lat: 56.394, lon: 38.729, moscowStation: "Ярославский вокзал" },
     { name: "Сергиев Посад", id: "s9601389", lat: 56.302, lon: 38.134, moscowStation: "Ярославский вокзал" },
+    { name: "Рязань-1", id: "s9600624", lat: 54.9669, lon: 39.7356, moscowStation: "Казанский вокзал" },
 ];
 
 interface TransportBlockProps {
@@ -50,10 +51,11 @@ const getDist = (lat1: number, lon1: number, lat2: number, lon2: number) => {
 };
 
 const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, startCoords, endCoords, date, showTo = true, showFrom = true }) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    const dateStrYandex = `${year}-${month}-${day}`;
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    const dateStrYandex = `${day}.${month}.${year}`;
     const dateStrAeroflot = `${year}${month}${day}`;
 
     const findNearestStation = (coords?: { lat: number; lon: number }) => {
