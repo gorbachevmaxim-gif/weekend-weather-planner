@@ -8,6 +8,19 @@ interface TransportConfig {
     moscowStation: string;
 }
 
+export const MOSCOW_STATION_YANDEX_IDS: Record<string, string> = {
+    "Ярославский вокзал": "s9600234",
+    "Казанский вокзал": "s9600213",
+    "Курский вокзал": "s9600216",
+    "Савёловский вокзал": "s9600235",
+    "Ленинградский вокзал": "s9600224",
+    "Белорусский вокзал": "s9600215",
+    "Киевский вокзал": "s9600217",
+    "Павелецкий вокзал": "s9600238",
+    "Рижский вокзал": "s9600225",
+    // Add more if needed
+};
+
 export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
     "Александров": {
         apiName: "Александров-1",

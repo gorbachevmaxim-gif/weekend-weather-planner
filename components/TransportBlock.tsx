@@ -1,6 +1,6 @@
 import * as React from "react";
 import YandexIcon from "./YandexIcon";
-import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
+import { CITY_TRANSPORT_CONFIG, MOSCOW_STATION_YANDEX_IDS } from "../transportConfig";
 
 const STATIONS = [
     { name: "Большая Волга", id: "s9601720", lat: 56.723, lon: 37.143, moscowStation: "Савёловский вокзал" },
@@ -122,9 +122,18 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
             if (fromConfig.yandexId)
                 params.append("fromId", fromConfig.yandexId);
             params.append("fromName", fromConfig.apiName);
-            if (toConfig.yandexId)
-                params.append("toId", toConfig.yandexId);
-            params.append("toName", toConfig.apiName);
+
+            let actualToId = toConfig.yandexId;
+            let actualToName = toConfig.apiName;
+
+            if (toConfig.apiName === "Москва" && fromConfig.moscowStation && MOSCOW_STATION_YANDEX_IDS[fromConfig.moscowStation]) {
+                actualToId = MOSCOW_STATION_YANDEX_IDS[fromConfig.moscowStation];
+                actualToName = fromConfig.moscowStation;
+            }
+
+            if (actualToId)
+                params.append("toId", actualToId);
+            params.append("toName", actualToName);
             params.append("when", dateStrYandex);
             return `https://rasp.yandex.ru/search/suburban/?${params.toString()}`;
         }
