@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
-import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService"; // Import MOUNTAIN_CITIES
+import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
-import * as L from "leaflet";
 import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
 import ArrowUp from "./icons/ArrowUp";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
+import { MapView } from "./MapView";
 
 interface CityDetailProps {
     data: CityAnalysisResult;
@@ -29,10 +29,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
-    const mapContainerRef = useRef<HTMLDivElement>(null);
-    const mapInstanceRef = useRef<L.Map | null>(null);
-    const polylineRef = useRef<L.Polyline | null>(null);
-    const decorativeMarkersRef = useRef<L.Marker[]>([]);
     const [openSection, setOpenSection] = useState<string | null>(null);
 
     const toggleSection = (section: string) => {
@@ -68,8 +64,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const isFlightDestination = FLIGHT_CITIES.includes(data.cityName);
 
     const moscow = CITIES["Москва"];
-    const moscowLat = moscow ? moscow.lat : 55.75;
-    const moscowLon = moscow ? moscow.lon : 37.61;
+    // const moscowLat = moscow ? moscow.lat : 55.75;
+    // const moscowLon = moscow ? moscow.lon : 37.61;
 
     let routeStartLat = cityCoords.lat, routeStartLon = cityCoords.lon;
     let routeEndLat = cityCoords.lat, routeEndLon = cityCoords.lon;
@@ -107,25 +103,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const endStation = getStationName(routeEndCity);
     const startMoscowStation = getMoscowStationName(routeStartCity);
     const endMoscowStation = getMoscowStationName(routeEndCity);
-
-    useEffect(() => {
-        if (!mapContainerRef.current || !cityCoords) return;
-        if (!mapInstanceRef.current) {
-            const map = L.map(mapContainerRef.current, {
-                scrollWheelZoom: false,
-                dragging: !L.Browser.mobile,
-                touchZoom: true,
-                doubleClickZoom: true,
-                zoomControl: false
-            });
-            L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-                attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OSM</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>"
-            }).addTo(map);
-            mapInstanceRef.current = map;
-            setTimeout(() => map.invalidateSize(), 100);
-        }
-        return () => { if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; } };
-    }, [cityCoords]);
 
     useEffect(() => {
         let isMounted = true;
@@ -168,31 +145,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             });
         return () => { isMounted = false; };
     }, [activeStats, cityCoords, data.cityName, isFlightDestination]);
-
-    useEffect(() => {
-        const map = mapInstanceRef.current;
-        if (!map || !activeStats || !cityCoords) return;
-        map.invalidateSize();
-        if (polylineRef.current) { polylineRef.current.remove(); polylineRef.current = null; }
-        decorativeMarkersRef.current.forEach(m => m.remove());
-        decorativeMarkersRef.current = [];
-
-        if (currentRouteData?.points.length) {
-            const polyline = L.polyline(currentRouteData.points, { color: "black", weight: 3, opacity: 0.9 }).addTo(map);
-            polylineRef.current = polyline;
-
-            setTimeout(() => {
-                const bounds = polyline.getBounds();
-                if (bounds.isValid()) {
-                    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13, animate: false });
-                }
-            }, 100);
-        }
-        else if (routeStatus !== "Поиск...") {
-            map.setView([cityCoords.lat, cityCoords.lon], 11);
-        }
-    }, [activeStats, cityCoords, currentRouteData, routeStatus]);
-
 
     const handleDownloadGpx = () => {
         const selectedRoute = foundRoutes[selectedRouteIdx];
@@ -286,6 +238,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const temperatureSubValue = isMountainCity && activeStats?.temperature900hPa !== undefined && activeStats?.temperature850hPa !== undefined
         ? `1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º`
         : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
+
+    // Prepare markers
+    const markers: { coords: [number, number]; label: string }[] = [];
 
     return (
         <div className="mx-auto text-black flex-grow flex flex-col" style={{ backgroundColor: "#F5F5F5" }}>
@@ -382,9 +337,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 )}
 
-                <div className="relative w-full h-[250px] bg-slate-100 z-.0">
-                    <div ref={mapContainerRef} className="w-full h-full" />
-                </div>
+                <MapView 
+                    cityCoords={cityCoords}
+                    currentRouteData={currentRouteData}
+                    routeStatus={routeStatus}
+                    markers={markers}
+                />
 
                 <div className="flex flex-col sm:flex-row p-4 space-y-2 sm:space-y-0 sm:space-x-2">
                     <button

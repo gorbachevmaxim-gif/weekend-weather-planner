@@ -1,66 +1,150 @@
-import React, { useEffect, useRef } from "react";
-import * as L from "leaflet";
+import React, { useEffect, useMemo, useRef } from "react";
+import Map, { Source, Layer, NavigationControl, MapRef, Marker } from "react-map-gl/mapbox";
+import mapboxgl from "mapbox-gl";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
+import "mapbox-gl/dist/mapbox-gl.css";
+
+interface MarkerData {
+    coords: [number, number]; // [lat, lon]
+    label: string;
+}
 
 interface MapViewProps {
     cityCoords: CityCoordinates;
     currentRouteData?: RouteData;
     routeStatus: string;
+    markers?: MarkerData[];
 }
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus }) => {
-    const mapContainerRef = useRef<HTMLDivElement>(null);
-    const mapInstanceRef = useRef<L.Map | null>(null);
-    const polylineRef = useRef<L.Polyline | null>(null);
+const MAPBOX_TOKEN = "pk.eyJ1IjoiZ29yYmllIiwiYSI6ImNtazhtcGtjbDFnb3QzZ3Exbm4ybjNmMXMifQ._zGWX07nBhvxyJmke98snA";
+
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers }) => {
+    const mapRef = useRef<MapRef>(null);
+
+    const geoJsonData = useMemo(() => {
+        if (!currentRouteData?.points?.length) return null;
+        
+        // Convert [lat, lon] to [lon, lat] for GeoJSON
+        const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
+
+        return {
+            type: "Feature",
+            geometry: {
+                type: "LineString",
+                coordinates: coordinates
+            },
+            properties: {}
+        } as GeoJSON.Feature<GeoJSON.LineString>;
+    }, [currentRouteData]);
 
     useEffect(() => {
-        if (!mapContainerRef.current || !cityCoords) return;
-        if (!mapInstanceRef.current) {
-            const map = L.map(mapContainerRef.current, {
-                scrollWheelZoom: false,
-                dragging: !L.Browser.mobile,
-                touchZoom: true,
-                doubleClickZoom: true,
-                zoomControl: false
+        if (!mapRef.current) return;
+
+        if (geoJsonData) {
+            const bounds = new mapboxgl.LngLatBounds();
+            geoJsonData.geometry.coordinates.forEach((coord) => {
+                bounds.extend(coord as [number, number]);
             });
-            L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            }).addTo(map);
-            mapInstanceRef.current = map;
-            setTimeout(() => map.invalidateSize(), 100);
-        }
-        return () => { if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; } }
-    }, [cityCoords]);
 
-    useEffect(() => {
-        const map = mapInstanceRef.current;
-        if (!map) return;
-        map.invalidateSize();
-        if (polylineRef.current) { polylineRef.current.remove(); polylineRef.current = null; }
-
-        if (currentRouteData?.points.length) {
-            const polyline = L.polyline(currentRouteData.points, { color: "black", weight: 3, opacity: 0.9 }).addTo(map);
-            polylineRef.current = polyline;
-
+            // Delay slightly to ensure map is ready
             setTimeout(() => {
-                const bounds = polyline.getBounds();
-                if (bounds.isValid()) {
-                    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13, animate: false });
-                }
+                 if (mapRef.current) {
+                    mapRef.current.fitBounds(bounds, {
+                        padding: 60,
+                        maxZoom: 13,
+                        animate: false
+                    });
+                 }
             }, 100);
         } else if (routeStatus !== "Поиск...") {
-            map.setView([cityCoords.lat, cityCoords.lon], 11);
+             mapRef.current.flyTo({
+                center: [cityCoords.lon, cityCoords.lat],
+                zoom: 11,
+                animate: true
+            });
         }
-    }, [cityCoords, currentRouteData, routeStatus]);
+    }, [geoJsonData, routeStatus, cityCoords.lon, cityCoords.lat]);
 
     return (
-        <div className="relative w-full h-[250px] bg-slate-100 z-.0">
-            <div ref={mapContainerRef} className="w-full h-full" />
-            <div className="absolute top-2 left-2 z-[1000] bg-white p-1 rounded-full shadow flex">
-                <button className="px-2 text-lg">+</button>
-                <button className="px-2 text-lg">-</button>
-            </div>
+        <div className="relative w-full aspect-square bg-slate-100 z-0 rounded-lg overflow-hidden">
+             <Map
+                ref={mapRef}
+                initialViewState={{
+                    longitude: cityCoords.lon,
+                    latitude: cityCoords.lat,
+                    zoom: 11
+                }}
+                style={{ width: "100%", height: "100%" }}
+                mapStyle="mapbox://styles/mapbox/light-v11"
+                mapboxAccessToken={MAPBOX_TOKEN}
+                scrollZoom={false}
+                attributionControl={false}
+            >
+                <NavigationControl position="top-left" showCompass={false} />
+                
+                {geoJsonData && (
+                    <Source id="route-source" type="geojson" data={geoJsonData}>
+                        <Layer
+                            id="route-layer"
+                            type="line"
+                            paint={{
+                                "line-color": "black",
+                                "line-width": 3,
+                                "line-opacity": 0.9
+                            }}
+                        />
+                    </Source>
+                )}
+
+                {currentRouteData?.points?.[0] && (
+                    <Marker
+                        longitude={currentRouteData.points[0][1]}
+                        latitude={currentRouteData.points[0][0]}
+                        anchor="center"
+                    >
+                        <div className="flex items-center justify-center w-6 h-6 bg-black rounded-full text-white text-xs font-bold shadow-md">
+                            A
+                        </div>
+                    </Marker>
+                )}
+
+                {currentRouteData?.points?.[currentRouteData.points.length - 1] && (
+                    <Marker
+                        longitude={currentRouteData.points[currentRouteData.points.length - 1][1]}
+                        latitude={currentRouteData.points[currentRouteData.points.length - 1][0]}
+                        anchor="center"
+                    >
+                        <div className="flex items-center justify-center w-6 h-6 bg-black rounded-full text-white text-xs font-bold shadow-md">
+                            B
+                        </div>
+                    </Marker>
+                )}
+
+                {markers?.map((marker, index) => (
+                    <Marker
+                        key={index}
+                        longitude={marker.coords[1]}
+                        latitude={marker.coords[0]}
+                        anchor="bottom"
+                    >
+                        <div style={{
+                            backgroundColor: "white",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                            whiteSpace: "nowrap",
+                            fontSize: "11px",
+                            fontWeight: "bold",
+                            color: "black",
+                            fontFamily: "sans-serif",
+                            marginBottom: "4px"
+                        }}>
+                            {marker.label}
+                        </div>
+                    </Marker>
+                ))}
+            </Map>
         </div>
     );
 };
