@@ -1,0 +1,5 @@
+The 'В СЕДЛЕ' block (rideDuration component) in CityDetail.tsx is rendered conditionally. It will only be displayed if the `activeStats.rideDuration` property holds a truthy value. 
+
+`activeStats` is derived from either `data.weekend1.saturday`, `data.weekend1.sunday`, `data.weekend2.saturday`, or `data.weekend2.sunday`, depending on the selected tab ('Эти выходные' or 'Через неделю') and day ('СБ' or 'ВС').
+
+Therefore, the 'В СЕДЛЕ' block will not be shown if `activeStats.rideDuration` is `null`, `undefined`, `0`, or an empty string for the currently selected weekend and day.

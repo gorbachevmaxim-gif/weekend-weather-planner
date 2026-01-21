@@ -235,6 +235,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     };
 
+    const generateYandexLink = (fromStation: string, toStation: string) => {
+        const encodedFrom = encodeURIComponent(fromStation);
+        const encodedTo = encodeURIComponent(toStation);
+        return `https://rasp.yandex.ru/suburban?from=${encodedFrom}&to=${encodedTo}`;
+    };
+
     const renderWeatherValue = (value: string, unit: string) => (
         <p className="text-base font-unbounded font-bold text-black">
             {value.replace("-", "–")}
@@ -314,7 +320,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 {activeStats && (
                     <div className="p-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..")[0] + "°", `..${activeStats.tempRange.split("..")[1]}°`, `Ощущ: ${activeStats.feelsRange.split("..")[0]}°..${activeStats.feelsRange.split("..")[1]}°`)}
+                            {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, `Ощущ: ${activeStats.feelsRange.split("..",)[0]}°..${activeStats.feelsRange.split("..",)[1]}°`)}
                             <div className="flex flex-col flex-1">
                                 <p className="text-xs text-neutral-400">ВЕТЕР</p>
                                 {renderWeatherValue(activeStats.windRange, " км/ч")}
@@ -383,10 +389,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 <div className="mt-6 space-y-2 p-4 mb-12">
                     {routeStartCity !== "Москва" && (
                         <a
-                            href="#"
+                            href={generateYandexLink(startMoscowStation, startStation)}
                             className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
                             openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
                             } hover:text-[#777777]`}
+                            target="_blank"
                         >
                             <div className="flex flex-col">
                                 <span className="flex items-center">Туда<RoutesIcon /></span>
@@ -396,10 +403,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     )}
                     {routeEndCity !== "Москва" && (
                         <a
-                            href="#"
+                            href={generateYandexLink(endStation, endMoscowStation)}
                             className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
                             openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
                             } hover:text-[#777777]`}
+                            target="_blank"
                         >
                             <div className="flex flex-col">
                                 <span className="flex items-center">Обратно<RoutesIcon /></span>
