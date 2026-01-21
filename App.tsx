@@ -77,7 +77,7 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen text-slate-900 pb-10 bg-[#F5F5F5] flex flex-col">
+        <div className="min-h-screen text-slate-900 pb-10 bg-[#F5F5F5] flex flex-col app-mobile-width">
       
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-auto max-w-2xl mt-4" role="alert">
@@ -86,7 +86,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow flex flex-col">
+      <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow flex flex-col w-full">
         
         {!selectedCity ? (
             <NewSummaryView 

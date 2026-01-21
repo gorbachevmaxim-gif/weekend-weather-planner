@@ -62,7 +62,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Суббота<ArrowDown isOpen={openSection === "saturday"} /></span>
           </button>
           {openSection === "saturday" && (
-            <div className="mt-4 flex flex-wrap gap-0">
+            <div className="mt-4 flex flex-wrap gap-0 pl-4">
               {sunnyCities.saturday.map((city: CityAnalysisResult) => (
                 <button
                   key={city.cityName}
@@ -89,7 +89,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Воскресенье<ArrowDown isOpen={openSection === "sunday"} /></span>
           </button>
           {openSection === "sunday" && (
-            <div className="mt-4 flex flex-wrap gap-0">
+            <div className="mt-4 flex flex-wrap gap-0 pl-4">
               {sunnyCities.sunday.map((city: CityAnalysisResult) => (
                 <button
                   key={city.cityName}
@@ -118,7 +118,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           {openSection === "sunny" && (
             <div className="mt-4 space-y-4">
               <div>
-                <div className="flex flex-wrap items-center gap-0">
+                <div className="flex flex-wrap items-center gap-0 pl-4">
                   <span className="font-normal text-15 bg-[#1E1E1E] text-[#F3F3F3] rounded-full px-4 py-2">СБ</span>
                   {sunnyCities.saturday.map((city: CityAnalysisResult) => (
                     <button
@@ -132,7 +132,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 </div>
               </div>
               <div>
-                <div className="flex flex-wrap items-center gap-0">
+                <div className="flex flex-wrap items-center gap-0 pl-4">
                   <span className="font-normal text-15 bg-[#1E1E1E] text-[#F3F3F3] rounded-full px-4 py-2">ВС</span>
                   {sunnyCities.sunday.map((city: CityAnalysisResult) => (
                     <button
@@ -162,7 +162,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Города<ArrowDown isOpen={openSection === "cities"} /></span>
           </button>
           {openSection === "cities" && (
-            <div className="mt-4 flex flex-wrap gap-0">
+            <div className="mt-4 flex flex-wrap gap-0 pl-4">
               {allCities.map((city: string) => (
                 <button
                   key={city}
@@ -182,7 +182,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             rel="noopener noreferrer"
             className={`flex items-center w-full text-3xl font-unbounded font-semibold text-left px-4 py-px ${
               openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
-            } hover:text-[#777777]`}
+            } hover:text-[#777777]`}            
           >
             <span className="flex items-center">Маршруты<RoutesIcon /></span>
           </a>
