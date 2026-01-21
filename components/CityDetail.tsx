@@ -441,6 +441,22 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     >
                         <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
                     </button>
+                    {openSection === "одежда" && (activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                        <div className="mt-4 flex flex-wrap pl-4">
+                            {activeStats.clothingHints.map((hint: string) => (
+                                <span
+                                    key={hint}
+                                    className="bg-white text-black text-15 tracking-tighter rounded-full px-4 py-2"
+                                >
+                                    {hint}
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="mt-4 pl-4 text-neutral-500">
+                            Нет рекомендаций по одежде для данной погоды.
+                        </div>
+                    ))}
                 </div>
                 <footer className="text-center text-xs text-neutral-400 p-4 mt-auto border-t border-[#D9D9D9]">
                     <a href="https://open-meteo.com/">
