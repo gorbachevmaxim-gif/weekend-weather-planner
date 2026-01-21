@@ -22,7 +22,7 @@ const STATIONS = [
     { name: "Подсолнечная", id: "s9603468", lat: 56.182, lon: 36.974, moscowStation: "Ленинградский вокзал" },
     { name: "Александров-1", id: "s9601547", lat: 56.394, lon: 38.729, moscowStation: "Ярославский вокзал" },
     { name: "Сергиев Посад", id: "s9601389", lat: 56.302, lon: 38.134, moscowStation: "Ярославский вокзал" },
-    { name: "Рязань-1", id: "s9600624", lat: 54.9669, lon: 39.7356, moscowStation: "Казанский вокзал" },
+    { name: "Рязань-1", id: "s9600786", lat: 54.9669, lon: 39.7356, moscowStation: "Казанский вокзал" },
 ];
 
 interface TransportBlockProps {
