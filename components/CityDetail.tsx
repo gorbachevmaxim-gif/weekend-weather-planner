@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
-import { getCardinal } from "../services/weatherService";
+import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService"; // Import MOUNTAIN_CITIES
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
 import * as L from "leaflet";
 import RoutesIcon from "./icons/RoutesIcon";
@@ -230,8 +230,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             } catch (error) {
                 console.error("Error sharing", error);
             }
-        } else {
-            alert("Web Share API is not supported for files in your browser.");
         }
     };
 
@@ -278,6 +276,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             <p className="text-xs text-neutral-400">{subValue.replace("-", "–")}</p>
         </div>
     );
+
+    const isMountainCity = MOUNTAIN_CITIES.includes(data.cityName);
+    const temperatureSubValue = isMountainCity && activeStats?.temperature900hPa !== undefined && activeStats?.temperature850hPa !== undefined
+        ? `[1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º]`
+        : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
 
     return (
         <div className="mx-auto text-black flex-grow flex flex-col" style={{ backgroundColor: "#F5F5F5" }}>
@@ -328,7 +331,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 {activeStats && (
                     <div className="p-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, `Ощущ: ${activeStats.feelsRange.split("..",)[0]}°..${activeStats.feelsRange.split("..",)[1]}°`)}
+                            {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, temperatureSubValue)}
                             <div className="flex flex-col flex-1">
                                 <p className="text-xs text-neutral-400">ВЕТЕР</p>
                                 {renderWeatherValue(activeStats.windRange, " км/ч")}

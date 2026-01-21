@@ -1,9 +1,11 @@
 import React from "react";
 import { CityAnalysisResult } from "../types";
 import ArrowUp from "./icons/ArrowUp";
+import { MOUNTAIN_CITIES } from "../services/weatherService";
 
 interface WeatherBlockProps {
-    activeStats: CityAnalysisResult['weekend1']['saturday'];
+    activeStats: CityAnalysisResult["weekend1"]["saturday"];
+    cityName: string; // Add cityName prop
 }
 
 const renderWeatherValue = (value: string, unit: string) => (
@@ -28,19 +30,24 @@ const renderWeatherBlock = (title: string, value: string, unit: string, subValue
     </div>
 );
 
-export const WeatherBlock: React.FC<WeatherBlockProps> = ({ activeStats }) => {
+export const WeatherBlock: React.FC<WeatherBlockProps> = ({ activeStats, cityName }) => {
     if (!activeStats) return null;
+
+    const isMountainCity = MOUNTAIN_CITIES.includes(cityName);
+    const temperatureSubValue = isMountainCity && activeStats.temperature900hPa !== undefined && activeStats.temperature850hPa !== undefined
+        ? `[1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º]`
+        : `Ощущ: ${activeStats.feelsRange.split("..",)[0]}°..${activeStats.feelsRange.split("..",)[1]}°`;
 
     return (
         <div className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..")[0] + "°", `..${activeStats.tempRange.split("..")[1]}°`, `Ощущ: ${activeStats.feelsRange.split("..")[0]}°..${activeStats.feelsRange.split("..")[1]}°`)}
+                {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, temperatureSubValue)}
                 <div className="flex flex-col flex-1">
                     <p className="font-sans text-xs text-neutral-400">ВЕТЕР</p>
                     {renderWeatherValue(activeStats.windRange, " км/ч")}
                     <p className="text-xs text-neutral-400 flex items-center">
                         {activeStats.windDirection}
-                        <ArrowUp width="14" height="14" style={{ transform: `rotate(${activeStats.windDeg + 180}deg)`, marginLeft: '4px', marginRight: '4px' }} />
+                        <ArrowUp width="14" height="14" style={{ transform: `rotate(${activeStats.windDeg + 180}deg)`, marginLeft: "4px", marginRight: "4px" }} />
                         Порывы {activeStats.windGusts}
                     </p>
                 </div>
