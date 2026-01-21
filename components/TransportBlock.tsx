@@ -111,7 +111,7 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
         yandexId: "c213",
     };
 
-    const getUrl = (fromConfig: any, toConfig: any) => {
+    const getUrl = (fromConfig: any, toConfig: any): string => {
         const provider = fromConfig.provider === "aeroflot" || toConfig.provider === "aeroflot" ? "aeroflot" : "yandex";
         if (provider === "aeroflot") {
             const fromCode = fromConfig.apiName === "Москва" ? "MOW" : fromConfig.apiName;
