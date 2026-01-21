@@ -130,8 +130,19 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
         }
     };
 
-    const toUrl = getUrl(moscowConfig, startConfig);
-    const fromUrl = getUrl(endConfig, moscowConfig);
+    let toUrl: string;
+    let fromUrl: string;
+
+    if (endCity === "Москва") {
+        toUrl = getUrl(startConfig, endConfig);
+        fromUrl = getUrl(endConfig, startConfig);
+    } else if (startCity === "Москва") {
+        toUrl = getUrl(startConfig, endConfig);
+        fromUrl = getUrl(endConfig, startConfig);
+    } else {
+        toUrl = getUrl(moscowConfig, startConfig);
+        fromUrl = getUrl(endConfig, moscowConfig);
+    }
 
     if (!showTo && !showFrom)
         return null;
@@ -150,10 +161,21 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
                         <a href={toUrl} target="_blank" rel="noopener noreferrer" className="station-container flex items-center justify-between px-4 py-3 bg-white border border-2 border-[#edebe5] rounded-full hover-border-3px hover:border-[#4f6814] transition-all group">
                             <div className="flex flex-col pr-6">
                                 <span className="text-xs font-medium uppercase mb-1" style={{ color: "#404823" }}>Туда</span>
-                                <span className="text-[15px] station-name">
-                                    {startConfig.stationTo}
-                                </span>
-                                <span className="text-xs text-gray-500">{startConfig.moscowStation}</span>
+                                {endCity === "Москва" ? (
+                                    <>
+                                        <span className="text-[15px] station-name">
+                                            со станции {startConfig.stationTo}
+                                        </span>
+                                        <span className="text-xs text-gray-500">на станцию {startConfig.moscowStation}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="text-[15px] station-name">
+                                            {startConfig.stationTo}
+                                        </span>
+                                        <span className="text-xs text-gray-500">{startConfig.moscowStation}</span>
+                                    </>
+                                )}
                             </div>
                             <YandexIcon idSuffix="to" />
                         </a>
@@ -162,10 +184,28 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
                         <a href={fromUrl} target="_blank" rel="noopener noreferrer" className="station-container flex items-center justify-between px-4 py-3 bg-white border border-2 border-[#edebe5] rounded-full hover-border-3px hover:border-[#4f6814] transition-all group">
                             <div className="flex flex-col pr-6">
                                 <span className="text-xs font-medium uppercase mb-1" style={{ color: "#404823" }}>Обратно</span>
-                                <span className="text-[15px] station-name">
-                                    {endConfig.stationFrom}
-                                </span>
-                                <span className="text-xs text-gray-500">{endConfig.moscowStation}</span>
+                                {startCity === "Москва" ? (
+                                    <>
+                                        <span className="text-[15px] station-name">
+                                            со станции {endConfig.stationFrom}
+                                        </span>
+                                        <span className="text-xs text-gray-500">на станцию {endConfig.moscowStation}</span>
+                                    </>
+                                ) : endCity === "Москва" ? (
+                                    <>
+                                        <span className="text-[15px] station-name">
+                                            со станции {startConfig.moscowStation}
+                                        </span>
+                                        <span className="text-xs text-gray-500">на станцию {startConfig.stationTo}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="text-[15px] station-name">
+                                            {endConfig.stationFrom}
+                                        </span>
+                                        <span className="text-xs text-gray-500">{endConfig.moscowStation}</span>
+                                    </>
+                                )}
                             </div>
                             <YandexIcon idSuffix="from" />
                         </a>
