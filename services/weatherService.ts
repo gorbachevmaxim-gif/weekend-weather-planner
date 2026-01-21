@@ -18,7 +18,7 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 100): Promise
   import { parseGpx, RouteData } from './gpxUtils';
   import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types';
 
-  export const MOUNTAIN_CITIES: string[] = ["Kemer"];
+  export const MOUNTAIN_CITIES: string[] = ["Кемер", "Фетхие"];
 
   function toLocalISODate(d: Date): string {
       const year = d.getFullYear();
@@ -240,8 +240,10 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 100): Promise
               const windSlice = hourly.wind_speed_10m.slice(actStart, actEnd) as number[];
               const windGustSlice = hourly.wind_gusts_10m.slice(actStart, actEnd) as number[];
               const windDirSlice = hourly.wind_direction_10m.slice(actStart, actEnd) as number[];
-              const temp900hPaSlice = hourly.temperature_900hPa.slice(actStart, actEnd) as number[];
-              const temp850hPaSlice = hourly.temperature_850hPa.slice(actStart, actEnd) as number[];
+              
+              // Mountain temps (1000m and 1500m) 10:00 to 17:00
+              const temp900hPaSlice = hourly.temperature_900hPa.slice(sIdx + 10, sIdx + 18) as number[];
+              const temp850hPaSlice = hourly.temperature_850hPa.slice(sIdx + 10, sIdx + 18) as number[];
 
               const pActiveSlice = hourly.precipitation.slice(actStart, actEnd) as number[];
               const activeRainSum = pActiveSlice.reduce((a: number, b: number) => a + (b || 0), 0);
@@ -257,8 +259,8 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 100): Promise
               const wMin = windSlice.length ? Math.min(...windSlice) : 0;
               const wMax = windSlice.length ? Math.max(...windSlice) : 0;
               const gMax = windGustSlice.length ? Math.max(...windGustSlice) : 0;
-              const temp900hPaAvg = temp900hPaSlice.length ? (temp900hPaSlice.reduce((a, b) => a + b, 0) / temp900hPaSlice.length) : 0;
-              const temp850hPaAvg = temp850hPaSlice.length ? (temp850hPaSlice.reduce((a, b) => a + b, 0) / temp850hPaSlice.length) : 0;
+              const temp900hPaMin = temp900hPaSlice.length ? Math.min(...temp900hPaSlice) : 0;
+              const temp850hPaMin = temp850hPaSlice.length ? Math.min(...temp850hPaSlice) : 0;
 
               let windDirStr = "";
               let windDirFullStr = "";
@@ -349,10 +351,10 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 100): Promise
                   rideDuration: rideDuration,
                   startTemperature: startTemperature,
                   endTemperature: endTemperature,
-                  temperature900hPa: Math.round(temp900hPaAvg),
+                  temperature900hPa: Math.round(temp900hPaMin),
                   startTemperature900hPa: startTemperature900hPa,
                   endTemperature900hPa: endTemperature900hPa,
-                  temperature850hPa: Math.round(temp850hPaAvg),
+                  temperature850hPa: Math.round(temp850hPaMin),
                   startTemperature850hPa: startTemperature850hPa,
                   endTemperature850hPa: endTemperature850hPa
               };

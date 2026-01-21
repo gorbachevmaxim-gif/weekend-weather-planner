@@ -284,7 +284,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     const isMountainCity = MOUNTAIN_CITIES.includes(data.cityName);
     const temperatureSubValue = isMountainCity && activeStats?.temperature900hPa !== undefined && activeStats?.temperature850hPa !== undefined
-        ? `[1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º]`
+        ? `1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º`
         : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
 
     return (
