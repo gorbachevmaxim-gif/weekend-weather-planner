@@ -203,7 +203,7 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationFrom: "Подольск",
         moscowStation: "Курский вокзал",
     },
-    "Павловский Посад": {
+    "Павловский Посад": {
         apiName: "Павловский Посад",
         displayName: "Павловский Посад",
         provider: "yandex",
@@ -234,7 +234,7 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         lat: 54.9669,
         lon: 39.7356,
     },
-    "Сергиев Посад": {
+    "Сергиев Посад": {
         apiName: "Сергиев Посад",
         displayName: "Сергиев Посад",
         provider: "yandex",
