@@ -78,4 +78,11 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         moscowStation: "Казанский вокзал",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
     },
+    "Солнечногорск": {
+        apiName: "Подсолнечная",
+        displayName: "Подсолнечная",
+        provider: "yandex",
+        moscowStation: "Ленинградский вокзал",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
+    },
 };
