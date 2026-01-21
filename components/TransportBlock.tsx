@@ -2,29 +2,6 @@ import * as React from "react";
 import YandexIcon from "./YandexIcon";
 import { CITY_TRANSPORT_CONFIG, MOSCOW_STATION_YANDEX_IDS } from "../transportConfig";
 
-const STATIONS = [
-    { name: "Большая Волга", id: "s9601720", lat: 56.723, lon: 37.143, moscowStation: "Савёловский вокзал" },
-    { name: "Дубна", id: "s9600984", lat: 56.745, lon: 37.193, moscowStation: "Савёловский вокзал" },
-    { name: "Голутвин", id: "s9600716", lat: 55.08, lon: 38.792, moscowStation: "Казанский вокзал" },
-    { name: "Коломна", id: "s9601262", lat: 55.102, lon: 38.761, moscowStation: "Казанский вокзал" },
-    { name: "88 км", id: "s9601844", lat: 55.323, lon: 38.665, moscowStation: "Казанский вокзал" },
-    { name: "Воскресенск", id: "s9600709", lat: 55.316, lon: 38.681, moscowStation: "Казанский вокзал" },
-    { name: "Истра", id: "s9601053", lat: 55.914, lon: 36.857, moscowStation: "Рижский вокзал" },
-    { name: "Новоиерусалимская", id: "s9600742", lat: 55.925, lon: 36.84, moscowStation: "Рижский вокзал" },
-    { name: "Завидово", id: "9602593", lat: 56.525, lon: 36.527, moscowStation: "Ленинградский вокзал" },
-    { name: "Серпухов", id: "s9600830", lat: 54.931, lon: 37.452, moscowStation: "Курский вокзал" },
-    { name: "Звенигород", id: "s9601368", lat: 55.719, lon: 36.883, moscowStation: "Белорусский вокзал" },
-    { name: "Можайск", id: "s9601006", lat: 55.495, lon: 36.035, moscowStation: "Белорусский вокзал" },
-    { name: "Дмитров", id: "s9601815", lat: 56.345, lon: 37.514, moscowStation: "Савёловский вокзал" },
-    { name: "Яхрома", id: "s9737523", lat: 56.287, lon: 37.489, moscowStation: "Савёловский вокзал" },
-    { name: "Турист", id: "s9601874", lat: 56.242, lon: 37.498, moscowStation: "Савёловский вокзал" },
-    { name: "Зеленоград-Крюково", id: "s9600212", lat: 55.98, lon: 37.172, moscowStation: "Ленинградский вокзал" },
-    { name: "Подсолнечная", id: "s9603468", lat: 56.182, lon: 36.974, moscowStation: "Ленинградский вокзал" },
-    { name: "Александров-1", id: "s9601547", lat: 56.394, lon: 38.729, moscowStation: "Ярославский вокзал" },
-    { name: "Сергиев Посад", id: "s9601389", lat: 56.302, lon: 38.134, moscowStation: "Ярославский вокзал" },
-    { name: "Рязань-1", id: "s9600786", lat: 54.9669, lon: 39.7356, moscowStation: "Казанский вокзал" },
-];
-
 interface TransportBlockProps {
     startCity: string;
     endCity: string;
@@ -62,8 +39,13 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
         if (!coords) return null;
         let closest = null;
         let minD = Infinity;
-        for (const st of STATIONS) {
-            const d = getDist(coords.lat, coords.lon, st.lat, st.lon);
+
+        const allConfiguredStationsWithCoords = Object.values(CITY_TRANSPORT_CONFIG).filter(
+            (config) => config.lat !== undefined && config.lon !== undefined
+        );
+
+        for (const st of allConfiguredStationsWithCoords) {
+            const d = getDist(coords.lat, coords.lon, st.lat!, st.lon!); // Use '!' for non-null assertion as we filtered them
             if (d < minD) {
                 minD = d;
                 closest = st;
@@ -83,12 +65,12 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
         const station = findNearestStation(coords);
         if (station) {
             return {
-                apiName: station.name,
-                displayName: station.name,
+                apiName: station.apiName,
+                displayName: station.displayName,
                 provider: "yandex",
-                yandexId: station.id,
-                stationTo: station.name,
-                stationFrom: station.name,
+                yandexId: station.yandexId,
+                stationTo: station.stationTo,
+                stationFrom: station.stationFrom,
                 moscowStation: station.moscowStation,
             };
         }

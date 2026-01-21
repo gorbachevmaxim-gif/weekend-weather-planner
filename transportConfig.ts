@@ -6,6 +6,8 @@ interface TransportConfig {
     stationTo: string;
     stationFrom: string;
     moscowStation: string;
+    lat?: number;
+    lon?: number;
 }
 
 export const MOSCOW_STATION_YANDEX_IDS: Record<string, string> = {
@@ -30,6 +32,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Александров-1",
         stationFrom: "Александров-1",
         moscowStation: "Ярославский вокзал",
+        lat: 56.394,
+        lon: 38.729,
     },
     "Воскресенск": {
         apiName: "88 км",
@@ -39,6 +43,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "88 км",
         stationFrom: "88 км",
         moscowStation: "Казанский вокзал",
+        lat: 55.316,
+        lon: 38.681,
     },
     "Волоколамск": {
         apiName: "Волоколамск",
@@ -57,6 +63,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Большая Волга",
         stationFrom: "Большая Волга",
         moscowStation: "Савёловский вокзал",
+        lat: 56.723,
+        lon: 37.143,
     },
     "Жуковский": {
         apiName: "Отдых",
@@ -75,6 +83,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Новозавидовский",
         stationFrom: "Новозавидовский",
         moscowStation: "Ленинградский вокзал",
+        lat: 56.525,
+        lon: 36.527,
     },
     "Звенигород": {
         apiName: "Звенигород",
@@ -84,6 +94,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Звенигород",
         stationFrom: "Звенигород",
         moscowStation: "Белорусский вокзал",
+        lat: 55.719,
+        lon: 36.883,
     },
     "Зеленоград": {
         apiName: "Крюково",
@@ -93,6 +105,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Крюково",
         stationFrom: "Крюково",
         moscowStation: "Ленинградский вокзал",
+        lat: 55.98,
+        lon: 37.172,
     },
     "Истра": {
         apiName: "Истра",
@@ -102,6 +116,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Истра",
         stationFrom: "Истра",
         moscowStation: "Курский вокзал",
+        lat: 55.914,
+        lon: 36.857,
     },
     "Коломна": {
         apiName: "Голутвин",
@@ -111,6 +127,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Голутвин",
         stationFrom: "Голутвин",
         moscowStation: "Казанский вокзал",
+        lat: 55.08,
+        lon: 38.792,
     },
     "Кубинка": {
         apiName: "Кубинка 1",
@@ -146,6 +164,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Можайск",
         stationFrom: "Можайск",
         moscowStation: "Белорусский вокзал",
+        lat: 55.495,
+        lon: 36.035,
     },
     "Наро-Фоминск": {
         apiName: "Нара",
@@ -191,6 +211,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Павловский Посад",
         stationFrom: "Павловский Посад",
         moscowStation: "Курский вокзал",
+        lat: 55.776,
+        lon: 38.675,
     },
     "Пушкино": {
         apiName: "Пушкино",
@@ -209,6 +231,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Рязань-1",
         stationFrom: "Рязань-1",
         moscowStation: "Казанский вокзал",
+        lat: 54.9669,
+        lon: 39.7356,
     },
     "Сергиев Посад": {
         apiName: "Сергиев Посад",
@@ -218,6 +242,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Сергиев Посад",
         stationFrom: "Сергиев Посад",
         moscowStation: "Ярославский вокзал",
+        lat: 56.302,
+        lon: 38.134,
     },
     "Солнечногорск": {
         apiName: "Подсолнечная",
@@ -227,6 +253,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Подсолнечная",
         stationFrom: "Подсолнечная",
         moscowStation: "Ленинградский вокзал",
+        lat: 56.182,
+        lon: 36.974,
     },
     "Серпухов": {
         apiName: "Серпухов",
@@ -236,6 +264,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Серпухов",
         stationFrom: "Серпухов",
         moscowStation: "Курский вокзал",
+        lat: 54.931,
+        lon: 37.452,
     },
     "Ступино": {
         apiName: "Ступино",
@@ -271,6 +301,8 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Яхрома",
         stationFrom: "Яхрома",
         moscowStation: "Савёловский вокзал",
+        lat: 56.287,
+        lon: 37.489,
     },
     "Москва": {
         apiName: "Москва",
