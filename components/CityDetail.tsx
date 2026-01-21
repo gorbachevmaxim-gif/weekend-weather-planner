@@ -326,7 +326,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <h2 className="font-unbounded font-bold text-base">
                         Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
                     </h2>
-                    <p className="text-[15px]">{routeStartCity}—{routeEndCity}</p>
+                    <p className="text-[15px] text-[#666666]">{routeStartCity}—{routeEndCity}</p>
                 </div>
                 {currentRouteData && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b border-neutral-200">
@@ -385,7 +385,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         >
                             <div className="flex flex-col">
                                 <span className="flex items-center">Туда<RoutesIcon /></span>
-                                <span className="text-sm text-gray-500 station-name">{startMoscowStation} – {startStation}</span>
+                                <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
                             </div>
                         </a>
                     )}
@@ -397,7 +397,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         >
                             <div className="flex flex-col">
                                 <span className="flex items-center">Обратно<RoutesIcon /></span>
-                                <span className="text-sm text-gray-500 station-name">{endStation} – {endMoscowStation}</span>
+                                <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
                             </div>
                         </a>
                     )}
@@ -431,7 +431,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 ))}
                             </div>
                         ) : (
-                            <div className="mt-0 pl-0 text-neutral-500">
+                            <div className="mt-0 pl-0 text-[#666666]">
                                 Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º.
                             </div>
                         )}
