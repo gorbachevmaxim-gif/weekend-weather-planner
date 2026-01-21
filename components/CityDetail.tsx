@@ -441,22 +441,27 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     >
                         <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
                     </button>
-                    {openSection === "одежда" && (activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
-                        <div className="mt-4 flex flex-wrap pl-0">
-                            {activeStats.clothingHints.map((hint: string) => (
-                                <span
-                                    key={hint}
-                                    className="bg-white text-black text-15 tracking-tighter rounded-full px-4 py-2"
-                                >
-                                    {hint}
-                                </span>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="mt-4 pl-0 text-neutral-500">
-                            Не подходят условия для рекомендаций одежды для райда. Ждем температуру выше +5º и без осадков.
-                        </div>
-                    ))}
+                    <div
+                        className={`transition-all duration-300 ease-in-out overflow-hidden`}
+                        style={{ maxHeight: openSection === "одежда" ? "200px" : "0" }}
+                    >
+                        {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                            <div className="mt-0 flex flex-wrap pl-0">
+                                {activeStats.clothingHints.map((hint: string) => (
+                                    <span
+                                        key={hint}
+                                        className="bg-white text-black text-15 tracking-tighter rounded-full px-4 py-2"
+                                    >
+                                        {hint}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="mt-0 pl-0 text-neutral-500">
+                                Не подходят условия для рекомендаций одежды для райда. Ждем температуру выше +5º и без осадков.
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <footer className="text-center text-xs text-neutral-400 p-4 mt-auto border-t border-[#D9D9D9]">
                     <a href="https://open-meteo.com/">
