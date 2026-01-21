@@ -434,7 +434,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     }`}
                     onClick={() => toggleSection("одежда")}
                 >
-                    <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
+                    <span className="flex items-center">Что надеть?<ArrowDown isOpen={openSection === "одежда"} /></span>
                 </button>
             </div>
             <footer className="text-center text-xs text-neutral-400 p-4">
