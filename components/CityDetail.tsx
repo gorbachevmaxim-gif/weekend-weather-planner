@@ -406,7 +406,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeStartCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateYandexLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'}`}
+                            className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -418,7 +418,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeEndCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateYandexLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'}`}
+                            className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -431,7 +431,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'}`}
+                        className={`flex items-center w-full text-xl font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'`}
                     >
                         <span className="flex items-center">Вкусные места<RoutesIcon /></span>
                     </a>
@@ -454,7 +454,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </div>
                     ) : (
                         <div className="mt-4 pl-4 text-neutral-500">
-                            Нет рекомендаций по одежде для данной погоды.
+                            Слишком холодно для рекомендаций одежды для райда. Ждем температуру выше +5º и без осадков.
                         </div>
                     ))}
                 </div>
