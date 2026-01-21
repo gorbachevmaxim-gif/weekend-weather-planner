@@ -190,11 +190,27 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     };
 
-    const generateYandexLink = (fromCityName: string, toCityName: string, date: Date) => {
+    const generateTransportLink = (fromCityName: string, toCityName: string, date: Date) => {
         const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
         const toConfig = CITY_TRANSPORT_CONFIG[toCityName];
 
-        if (!fromConfig || !toConfig || !fromConfig.yandexId || !toConfig.yandexId) {
+        if (!fromConfig || !toConfig) {
+            return "#";
+        }
+
+        const isFlight = fromConfig.provider === "aeroflot" || toConfig.provider === "aeroflot";
+
+        if (isFlight) {
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            
+            const fromCode = fromConfig.apiName === "Москва" ? "MOW" : fromConfig.apiName;
+            const toCode = toConfig.apiName === "Москва" ? "MOW" : toConfig.apiName;
+
+            return `https://www.aviasales.ru/search/${fromCode}${day}${month}${toCode}1`;
+        }
+
+        if (!fromConfig.yandexId || !toConfig.yandexId) {
             console.error("Missing transport config for Yandex link generation", { fromCityName, toCityName, fromConfig, toConfig });
             return "#";
         }
@@ -363,8 +379,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 <div className="mt-6 space-y-2 p-4 mb-12">
                     {routeStartCity !== "Москва" && (
                         <a
-                            href={activeStats?.dateObj ? generateYandexLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'`}
+                            href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
+                            className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -375,8 +391,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     )}
                     {routeEndCity !== "Москва" && (
                         <a
-                            href={activeStats?.dateObj ? generateYandexLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'`}
+                            href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
+                            className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -389,12 +405,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]'`}
+                        className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                     >
                         <span className="flex items-center">Вкусные места<RoutesIcon /></span>
                     </a>
                     <button
-                        className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" ? "text-[#1E1E1E] hover:text-[#777777]" : openSection === null ? "text-[#1E1E1E] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
+                        className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} hover:text-[#777777]`}
                         onClick={() => toggleSection("одежда")}
                     >
                         <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
