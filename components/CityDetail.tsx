@@ -313,20 +313,20 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <ArrowLeftDiagonal />
                     </button>
                     <button
-                        className={`py-2 px-4 rounded-full ${routeDay === "saturday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
+                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "saturday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
                         style={{ width: "54px", height: "38px" }}
                         onClick={() => setRouteDay("saturday")}
                     >
                         СБ
                     </button>
                     <button
-                        className={`py-2 px-4 rounded-full ${routeDay === "sunday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
+                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "sunday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
                         style={{ width: "54px", height: "38px" }}
                         onClick={() => setRouteDay("sunday")}
                     >
                         ВС
                     </button>
-                    <div className="py-2 px-4 rounded-full text-black" style={{ backgroundColor: "#FFFFFF" }}>
+                    <div className="text-[13px] py-2 px-4 rounded-full text-black" style={{ backgroundColor: "#FFFFFF" }}>
                         {data.cityName}
                     </div>
                 </div>
@@ -458,7 +458,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </div>
                         ) : (
                             <div className="mt-0 pl-0 text-neutral-500">
-                                Не подходят условия для рекомендаций одежды для райда. Ждем температуру выше +5º и без осадков.
+                                Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º.
                             </div>
                         )}
                     </div>
