@@ -259,183 +259,183 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     return (
         <div className="mx-auto text-black flex-grow flex flex-col" style={{ backgroundColor: "#F5F5F5" }}>
-            <div className="flex">
-                <button
-                    className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w1" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
-                    onClick={() => setActiveTab("w1")}
-                >
-                    Эти выходные
-                </button>
-                <button
-                    className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w2" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
-                    onClick={() => setActiveTab("w2")}
-                >
-                    Через неделю
-                </button>
-            </div>
-            <div className="flex items-center px-4 mt-4 pb-4 border-b border-[#D9D9D9]">
-                <button
-                    onClick={onClose}
-                    className="p-2 rounded-full flex items-center justify-center bg-[#000DFF] hover:bg-[#000BD5]"
-                    style={{ width: "54px", height: "38px" }}
-                >
-                    <ArrowLeftDiagonal />
-                </button>
-                <button
-                    className={`py-2 px-4 rounded-full ${
-                        routeDay === "saturday"
-                            ? "text-white bg-black"
-                            : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"
-                    }`}
-                    style={{ width: "54px", height: "38px" }}
-                    onClick={() => setRouteDay("saturday")}
-                >
-                    СБ
-                </button>
-                <button
-                    className={`py-2 px-4 rounded-full ${
-                        routeDay === "sunday"
-                            ? "text-white bg-black"
-                            : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"
-                    }`}
-                    style={{ width: "54px", height: "38px" }}
-                    onClick={() => setRouteDay("sunday")}
-                >
-                    ВС
-                </button>
-                <div className="py-2 px-4 rounded-full text-black" style={{ backgroundColor: "#FFFFFF" }}>
-                    {data.cityName}
-                </div>
-            </div>
-
-            {activeStats && (
-                <div className="p-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..")[0] + "°", `..${activeStats.tempRange.split("..")[1]}°`, `Ощущ: ${activeStats.feelsRange.split("..")[0]}°..${activeStats.feelsRange.split("..")[1]}°`)}
-                        <div className="flex flex-col flex-1">
-                            <p className="text-xs text-neutral-400">ВЕТЕР</p>
-                            {renderWeatherValue(activeStats.windRange, " км/ч")}
-                            <p className="text-xs text-neutral-400 flex items-center">
-                                {activeStats.windDirection}
-                                <ArrowUp width="14" height="14" style={{ transform: `rotate(${activeStats.windDeg + 180}deg)`, marginLeft: '4px', marginRight: '4px' }} />
-                                Порывы {activeStats.windGusts}
-                            </p>
-                        </div>
-                        {renderWeatherBlock("ОСАДКИ", activeStats.isDry ? "0" : activeStats.precipSum.toFixed(1), " мм", `Вероятность ${activeStats.precipitationProbability}%`)}
-                        {renderWeatherBlock("СОЛНЦЕ", activeStats.sunStr.split(" ")[0], ` ч ${activeStats.sunStr.split(" ")[2]} мин`, "09:00 – 18:00")}
-                    </div>
-                </div>
-            )}
-            <div className="p-4 mt-0 border-t border-[#D9D9D9]">
-                <h2 className="font-unbounded font-bold text-base">
-                    Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
-                </h2>
-                <p className="text-[15px]">{routeStartCity}—{routeEndCity}</p>
-            </div>
-            {currentRouteData && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b border-neutral-200">
-                    <div className="flex flex-col">
-                        <p className="text-xs text-neutral-400">ДИСТАНЦИЯ</p>
-                        {renderWeatherValue(currentRouteData.distanceKm.toFixed(0), " км")}
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-xs text-neutral-400">НАБОР</p>
-                        {renderWeatherValue(Math.round(currentRouteData.elevationM).toString(), " м")}
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-xs text-neutral-400">ТЕМП</p>
-                        {renderWeatherValue("30", " км/ч")}
-                    </div>
-                    {activeStats?.rideDuration && (
-                        <div className="flex flex-col">
-                            <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                            <p className="text-base font-unbounded font-bold text-[#1E1E1E]">
-                                {activeStats.rideDuration}
-                            </p>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            <div className="relative w-full h-[250px] bg-slate-100 z-.0">
-                <div ref={mapContainerRef} className="w-full h-full" />
-                <div className="absolute top-2 left-2 z-[1000] bg-white p-1 rounded-full shadow flex">
-                    <button className="px-2 text-lg">+</button>
-                    <button className="px-2 text-lg">-</button>
-                </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row p-4 space-y-2 sm:space-y-0 sm:space-x-2">
-                <button
-                    onClick={handleDownloadGpx}
-                    className="flex-1 py-3 px-4 bg-white text-black rounded-full font-bold flex justify-center hover:bg-[#E1E1E2]"
-                >
-                    <span>Скачать GPX</span>
-                </button>
-                {canShare && (
+            <div className="sticky top-0 bg-[#F5F5F5] z-10">
+                <div className="flex">
                     <button
-                        onClick={handleShareGpx}
+                        className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w1" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
+                        onClick={() => setActiveTab("w1")}
+                    >
+                        Эти выходные
+                    </button>
+                    <button
+                        className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w2" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
+                        onClick={() => setActiveTab("w2")}
+                    >
+                        Через неделю
+                    </button>
+                </div>
+                <div className="flex items-center px-4 mt-4 pb-4 border-b border-[#D9D9D9]">
+                    <button
+                        onClick={onClose}
+                        className="p-2 rounded-full flex items-center justify-center bg-[#000DFF] hover:bg-[#000BD5]"
+                        style={{ width: "54px", height: "38px" }}
+                    >
+                        <ArrowLeftDiagonal />
+                    </button>
+                    <button
+                        className={`py-2 px-4 rounded-full ${
+                            routeDay === "saturday"
+                                ? "text-white bg-black"
+                                : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"
+                        }`}
+                        style={{ width: "54px", height: "38px" }}
+                        onClick={() => setRouteDay("saturday")}
+                    >
+                        СБ
+                    </button>
+                    <button
+                        className={`py-2 px-4 rounded-full ${
+                            routeDay === "sunday"
+                                ? "text-white bg-black"
+                                : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"
+                        }`}
+                        style={{ width: "54px", height: "38px" }}
+                        onClick={() => setRouteDay("sunday")}
+                    >
+                        ВС
+                    </button>
+                    <div className="py-2 px-4 rounded-full text-black" style={{ backgroundColor: "#FFFFFF" }}>
+                        {data.cityName}
+                    </div>
+                </div>
+            </div>
+
+            <div className="overflow-y-auto">
+                {activeStats && (
+                    <div className="p-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..")[0] + "°", `..${activeStats.tempRange.split("..")[1]}°`, `Ощущ: ${activeStats.feelsRange.split("..")[0]}°..${activeStats.feelsRange.split("..")[1]}°`)}
+                            <div className="flex flex-col flex-1">
+                                <p className="text-xs text-neutral-400">ВЕТЕР</p>
+                                {renderWeatherValue(activeStats.windRange, " км/ч")}
+                                <p className="text-xs text-neutral-400 flex items-center">
+                                    {activeStats.windDirection}
+                                    <ArrowUp width="14" height="14" style={{ transform: `rotate(${activeStats.windDeg + 180}deg)`, marginLeft: '4px', marginRight: '4px' }} />
+                                    Порывы {activeStats.windGusts}
+                                </p>
+                            </div>
+                            {renderWeatherBlock("ОСАДКИ", activeStats.isDry ? "0" : activeStats.precipSum.toFixed(1), " мм", `Вероятность ${activeStats.precipitationProbability}%`)}
+                            {renderWeatherBlock("СОЛНЦЕ", activeStats.sunStr.split(" ")[0], ` ч ${activeStats.sunStr.split(" ")[2]} мин`, "09:00 – 18:00")}
+                        </div>
+                    </div>
+                )}
+                <div className="p-4 mt-0 border-t border-[#D9D9D9]">
+                    <h2 className="font-unbounded font-bold text-base">
+                        Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
+                    </h2>
+                    <p className="text-[15px]">{routeStartCity}—{routeEndCity}</p>
+                </div>
+                {currentRouteData && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b border-neutral-200">
+                        <div className="flex flex-col">
+                            <p className="text-xs text-neutral-400">ДИСТАНЦИЯ</p>
+                            {renderWeatherValue(currentRouteData.distanceKm.toFixed(0), " км")}
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="text-xs text-neutral-400">НАБОР</p>
+                            {renderWeatherValue(Math.round(currentRouteData.elevationM).toString(), " м")}
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="text-xs text-neutral-400">ТЕМП</p>
+                            {renderWeatherValue("30", " км/ч")}
+                        </div>
+                        {activeStats?.rideDuration && (
+                            <div className="flex flex-col">
+                                <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
+                                <p className="text-base font-unbounded font-bold text-[#1E1E1E]">
+                                    {activeStats.rideDuration}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <div className="relative w-full h-[250px] bg-slate-100 z-.0">
+                    <div ref={mapContainerRef} className="w-full h-full" />
+                </div>
+
+                <div className="flex flex-col sm:flex-row p-4 space-y-2 sm:space-y-0 sm:space-x-2">
+                    <button
+                        onClick={handleDownloadGpx}
                         className="flex-1 py-3 px-4 bg-white text-black rounded-full font-bold flex justify-center hover:bg-[#E1E1E2]"
                     >
-                        <span>Открыть GPX</span>
+                        <span>Скачать GPX</span>
                     </button>
-                )}
-            </div>
-            <div className="mt-6 space-y-2 p-4 mb-12">
-                {routeStartCity !== "Москва" && (
+                    {canShare && (
+                        <button
+                            onClick={handleShareGpx}
+                            className="flex-1 py-3 px-4 bg-white text-black rounded-full font-bold flex justify-center hover:bg-[#E1E1E2]"
+                        >
+                            <span>Открыть GPX</span>
+                        </button>
+                    )}
+                </div>
+                <div className="mt-6 space-y-2 p-4 mb-12">
+                    {routeStartCity !== "Москва" && (
+                        <a
+                            href="#"
+                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
+                            openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
+                            } hover:text-[#777777]`}
+                        >
+                            <div className="flex flex-col">
+                                <span className="flex items-center">Туда<RoutesIcon /></span>
+                                <span className="text-sm text-gray-500 station-name">{startMoscowStation} – {startStation}</span>
+                            </div>
+                        </a>
+                    )}
+                    {routeEndCity !== "Москва" && (
+                        <a
+                            href="#"
+                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
+                            openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
+                            } hover:text-[#777777]`}
+                        >
+                            <div className="flex flex-col">
+                                <span className="flex items-center">Обратно<RoutesIcon /></span>
+                                <span className="text-sm text-gray-500 station-name">{endStation} – {endMoscowStation}</span>
+                            </div>
+                        </a>
+                    )}
                     <a
-                        href="#"
+                        href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
                         openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
                         } hover:text-[#777777]`}
                     >
-                        <div className="flex flex-col">
-                            <span className="flex items-center">Туда<RoutesIcon /></span>
-                            <span className="text-sm text-gray-500 station-name">{startMoscowStation} – {startStation}</span>
-                        </div>
+                        <span className="flex items-center">Вкусные места<RoutesIcon /></span>
                     </a>
-                )}
-                {routeEndCity !== "Москва" && (
-                    <a
-                        href="#"
-                        className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                        openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
-                        } hover:text-[#777777]`}
+                    <button
+                        className={`w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
+                        openSection === "одежда"
+                            ? "text-[#1E1E1E] hover:text-[#777777]"
+                            : openSection === null
+                            ? "text-[#1E1E1E] hover:text-[#777777]"
+                            : "text-[#B2B2B2] hover:text-[#777777]"
+                        }`}
+                        onClick={() => toggleSection("одежда")}
                     >
-                        <div className="flex flex-col">
-                            <span className="flex items-center">Обратно<RoutesIcon /></span>
-                            <span className="text-sm text-gray-500 station-name">{endStation} – {endMoscowStation}</span>
-                        </div>
+                        <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
+                    </button>
+                </div>
+                <footer className="text-center text-xs text-neutral-400 p-4 mt-auto border-t border-[#D9D9D9]">
+                    <a href="https://open-meteo.com/">
+                        Weather data by Open-Meteo.com
                     </a>
-                )}
-                <a
-                    href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                    openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
-                    } hover:text-[#777777]`}
-                >
-                    <span className="flex items-center">Вкусные места<RoutesIcon /></span>
-                </a>
-                <button
-                    className={`w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                    openSection === "одежда"
-                        ? "text-[#1E1E1E] hover:text-[#777777]"
-                        : openSection === null
-                        ? "text-[#1E1E1E] hover:text-[#777777]"
-                        : "text-[#B2B2B2] hover:text-[#777777]"
-                    }`}
-                    onClick={() => toggleSection("одежда")}
-                >
-                    <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
-                </button>
+                </footer>
             </div>
-            <footer className="text-center text-xs text-neutral-400 p-4 mt-auto border-t border-[#D9D9D9]">
-                <a href="https://open-meteo.com/">
-                    Weather data by Open-Meteo.com
-                </a>
-            </footer>
         </div>
     );
 };

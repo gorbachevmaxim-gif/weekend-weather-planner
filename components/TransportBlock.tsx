@@ -85,6 +85,8 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
                 displayName: station.name,
                 provider: "yandex",
                 yandexId: station.id,
+                stationTo: station.name,
+                stationFrom: station.name,
                 moscowStation: station.moscowStation,
             };
         }
@@ -92,6 +94,8 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
             apiName: city,
             displayName: city,
             provider: "yandex",
+            stationTo: city,
+            stationFrom: city,
             moscowStation: "Вокзал",
         };
     };
@@ -145,8 +149,9 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
                             <div className="flex flex-col pr-6">
                                 <span className="text-xs font-medium uppercase mb-1" style={{ color: "#404823" }}>Туда</span>
                                 <span className="text-[15px] station-name">
-                                    {startConfig.displayName}
+                                    {startConfig.stationTo}
                                 </span>
+                                <span className="text-xs text-gray-500">{startConfig.moscowStation}</span>
                             </div>
                             <YandexIcon idSuffix="to" />
                         </a>
@@ -156,8 +161,9 @@ const TransportBlock: React.FC<TransportBlockProps> = ({ startCity, endCity, sta
                             <div className="flex flex-col pr-6">
                                 <span className="text-xs font-medium uppercase mb-1" style={{ color: "#404823" }}>Обратно</span>
                                 <span className="text-[15px] station-name">
-                                    {endConfig.displayName}
+                                    {endConfig.stationFrom}
                                 </span>
+                                <span className="text-xs text-gray-500">{endConfig.moscowStation}</span>
                             </div>
                             <YandexIcon idSuffix="from" />
                         </a>
