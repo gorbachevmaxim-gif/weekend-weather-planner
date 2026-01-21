@@ -358,6 +358,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     currentRouteData={currentRouteData}
                     routeStatus={routeStatus}
                     markers={markers}
+                    windDeg={activeStats?.windDeg}
+                    windSpeed={activeStats?.windRange}
+                    windDirection={activeStats?.windDirection}
                 />
 
                 <div className="flex flex-col sm:flex-row p-4 space-y-2 sm:space-y-0 sm:space-x-2">

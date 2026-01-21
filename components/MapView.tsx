@@ -15,11 +15,14 @@ interface MapViewProps {
     currentRouteData?: RouteData;
     routeStatus: string;
     markers?: MarkerData[];
+    windDeg?: number;
+    windSpeed?: string;
+    windDirection?: string;
 }
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiZ29yYmllIiwiYSI6ImNtazhtcGtjbDFnb3QzZ3Exbm4ybjNmMXMifQ._zGWX07nBhvxyJmke98snA";
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection }) => {
     const mapRef = useRef<MapRef>(null);
 
     const geoJsonData = useMemo(() => {
@@ -65,6 +68,18 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             });
         }
     }, [geoJsonData, routeStatus, cityCoords.lon, cityCoords.lat]);
+
+    const getAverageWindSpeed = (range?: string) => {
+        if (!range) return "";
+        const parts = range.split("..");
+        if (parts.length === 2) {
+            const min = parseInt(parts[0], 10);
+            const max = parseInt(parts[1], 10);
+            const avg = Math.round((min + max) / 2);
+            return `${avg} км/ч`;
+        }
+        return `${range} км/ч`;
+    };
 
     return (
         <div className="relative w-full aspect-square bg-slate-100 z-0 rounded-lg overflow-hidden">
@@ -145,6 +160,39 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     </Marker>
                 ))}
             </Map>
+            {windDeg !== undefined && (
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                    <div 
+                        className="w-6 h-6 rounded-full bg-[#E1E1E2]/80 flex items-center justify-center"
+                        title={`Ветер ${windDeg}°`}
+                    >
+                        <svg 
+                            width="14" 
+                            height="14" 
+                            viewBox="0 0 24 24" 
+                            fill="#777777" 
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{ transform: `rotate(${windDeg + 180}deg)` }}
+                        >
+                            <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
+                        </svg>
+                    </div>
+                    {(windSpeed || windDirection) && (
+                        <div className="flex flex-col items-start">
+                             {windSpeed && (
+                                <span className="text-xs text-[#777777] font-sans leading-none mb-0.5">
+                                    {getAverageWindSpeed(windSpeed)}
+                                </span>
+                             )}
+                             {windDirection && (
+                                <span className="text-[10px] text-[#777777] uppercase font-sans leading-none">
+                                    {windDirection}
+                                </span>
+                             )}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
