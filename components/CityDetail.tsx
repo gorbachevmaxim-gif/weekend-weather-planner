@@ -117,7 +117,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 zoomControl: false
             });
             L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OSM</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>"
             }).addTo(map);
             mapInstanceRef.current = map;
             setTimeout(() => map.invalidateSize(), 100);
@@ -235,10 +235,26 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     };
 
-    const generateYandexLink = (fromStation: string, toStation: string) => {
-        const encodedFrom = encodeURIComponent(fromStation);
-        const encodedTo = encodeURIComponent(toStation);
-        return `https://rasp.yandex.ru/suburban?from=${encodedFrom}&to=${encodedTo}`;
+    const generateYandexLink = (fromCityName: string, toCityName: string, date: Date) => {
+        const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
+        const toConfig = CITY_TRANSPORT_CONFIG[toCityName];
+
+        if (!fromConfig || !toConfig || !fromConfig.yandexId || !toConfig.yandexId) {
+            console.error("Missing transport config for Yandex link generation", { fromCityName, toCityName, fromConfig, toConfig });
+            return "#";
+        }
+
+        const fromId = fromConfig.yandexId;
+        const fromName = encodeURIComponent(fromConfig.displayName);
+        const toId = toConfig.yandexId;
+        const toName = encodeURIComponent(toConfig.displayName);
+
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+        const year = date.getFullYear();
+        const when = encodeURIComponent(`${day}.${month}.${year}`);
+
+        return `https://rasp.yandex.ru/search/suburban/?fromId=${fromId}&fromName=${fromName}&toId=${toId}&toName=${toName}&when=${when}`;
     };
 
     const renderWeatherValue = (value: string, unit: string) => (
@@ -289,22 +305,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <ArrowLeftDiagonal />
                     </button>
                     <button
-                        className={`py-2 px-4 rounded-full ${
-                            routeDay === "saturday"
-                                ? "text-white bg-black"
-                                : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"
-                        }`}
+                        className={`py-2 px-4 rounded-full ${routeDay === "saturday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
                         style={{ width: "54px", height: "38px" }}
                         onClick={() => setRouteDay("saturday")}
                     >
                         СБ
                     </button>
                     <button
-                        className={`py-2 px-4 rounded-full ${
-                            routeDay === "sunday"
-                                ? "text-white bg-black"
-                                : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"
-                        }`}
+                        className={`py-2 px-4 rounded-full ${routeDay === "sunday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
                         style={{ width: "54px", height: "38px" }}
                         onClick={() => setRouteDay("sunday")}
                     >
@@ -389,10 +397,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 <div className="mt-6 space-y-2 p-4 mb-12">
                     {routeStartCity !== "Москва" && (
                         <a
-                            href={generateYandexLink(startMoscowStation, startStation)}
-                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                            openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
-                            } hover:text-[#777777]`}
+                            href={activeStats?.dateObj ? generateYandexLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
+                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -403,10 +409,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     )}
                     {routeEndCity !== "Москва" && (
                         <a
-                            href={generateYandexLink(endStation, endMoscowStation)}
-                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                            openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
-                            } hover:text-[#777777]`}
+                            href={activeStats?.dateObj ? generateYandexLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
+                            className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -419,20 +423,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                        openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
-                        } hover:text-[#777777]`}
+                        className={`flex items-center w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                     >
                         <span className="flex items-center">Вкусные места<RoutesIcon /></span>
                     </a>
                     <button
-                        className={`w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${
-                        openSection === "одежда"
-                            ? "text-[#1E1E1E] hover:text-[#777777]"
-                            : openSection === null
-                            ? "text-[#1E1E1E] hover:text-[#777777]"
-                            : "text-[#B2B2B2] hover:text-[#777777]"
-                        }`}
+                        className={`w-full text-[26px] font-unbounded font-bold text-left px-4 py-px ${openSection === "одежда" ? "text-[#1E1E1E] hover:text-[#777777]" : openSection === null ? "text-[#1E1E1E] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
                         onClick={() => toggleSection("одежда")}
                     >
                         <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>

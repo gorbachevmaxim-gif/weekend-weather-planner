@@ -240,4 +240,13 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationFrom: "Яхрома",
         moscowStation: "Савёловский вокзал",
     },
+    "Москва": {
+        apiName: "Москва",
+        displayName: "Москва",
+        provider: "yandex",
+        yandexId: "c213",
+        stationTo: "Москва",
+        stationFrom: "Москва",
+        moscowStation: "Москва",
+    },
 };
