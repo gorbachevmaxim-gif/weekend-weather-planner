@@ -356,7 +356,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2">
                                 <p className="text-xs text-neutral-400">ТЕМП</p>
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1.5">
                                     <button 
                                         onClick={() => setSpeed(s => Math.max(23, s - 1))} 
                                         className="text-neutral-400 hover:text-black hover:bg-gray-200 rounded transition-colors"
