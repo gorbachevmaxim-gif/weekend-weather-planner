@@ -19,7 +19,6 @@ export const MOSCOW_STATION_YANDEX_IDS: Record<string, string> = {
     "Белорусский вокзал": "s2000006",
     "Киевский вокзал": "s2000007",
     "Павелецкий вокзал": "s2000005",
-    "Рижский вокзал": "s2000008",
     // Add more if needed
 };
 
@@ -53,7 +52,7 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         yandexId: "s9600696",
         stationTo: "Волоколамск",
         stationFrom: "Волоколамск",
-        moscowStation: "Рижский вокзал",
+        moscowStation: "Курский вокзал",
     },
     "Дубна": {
         apiName: "Большая Волга",
