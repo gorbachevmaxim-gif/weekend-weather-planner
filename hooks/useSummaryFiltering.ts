@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { CityAnalysisResult } from "../types";
-import { gpxFiles, CITY_FILENAMES, MIN_SUN_HOURS } from "../constants";
+import { gpxFiles, CITY_FILENAMES } from "../constants";
+import { getCardinal } from "../services/weatherService";
 
 interface UseSummaryFilteringProps {
   data: CityAnalysisResult[];
@@ -23,12 +24,22 @@ export const useSummaryFiltering = ({ data, isSecondWeekend }: UseSummaryFilteri
   const weekendKey = isSecondWeekend ? "weekend2" : "weekend1";
 
   const getSunnyCities = (day: "saturday" | "sunday") => {
-    const minSunSeconds = MIN_SUN_HOURS * 3600;
-
     return data
       .filter(city => {
         const dayData = city[weekendKey]?.[day];
-        return dayData?.isRideable && dayData.sunSeconds >= minSunSeconds;
+        if (!dayData || !dayData.isRideable) return false;
+
+        const windDirCode = getCardinal(dayData.windDeg);
+        const fileCityName = CITY_FILENAMES[city.cityName] || city.cityName;
+        const prefix = `${fileCityName}_${windDirCode}`;
+        
+        const hasRoute = gpxFiles.some(path => {
+            const parts = path.split('/');
+            const filename = parts[parts.length - 1].replace('.gpx', '');
+            return filename === prefix || filename.startsWith(prefix + '_');
+        });
+
+        return hasRoute;
       })
       .sort((a, b) => {
         const sunA = a[weekendKey]?.[day]?.sunSeconds ?? 0;
