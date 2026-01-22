@@ -262,8 +262,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const markers: { coords: [number, number]; label: string }[] = [];
 
     const calculateDuration = (distKm: number, speedKmH: number) => {
-        const hours = Math.floor(distKm / speedKmH);
-        const minutes = Math.round((distKm / speedKmH - hours) * 60);
+        let hours = Math.floor(distKm / speedKmH);
+        let minutes = Math.round((distKm / speedKmH - hours) * 60);
+
+        if (minutes === 60) {
+            hours += 1;
+            minutes = 0;
+        }
+
         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     };
 
@@ -312,7 +318,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
             </div>
 
-            <div className="overflow-y-auto">
+            <div className="overflow-y-auto flex-1">
                 {activeStats && (
                     <div className="p-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -463,12 +469,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         )}
                     </div>
                 </div>
-                <footer className="text-center text-xs text-neutral-400 p-4 mt-auto border-t border-[#D9D9D9]">
-                    <a href="https://open-meteo.com/">
-                        Weather data by Open-Meteo.com
-                    </a>
-                </footer>
             </div>
+            <footer className="shrink-0 text-center text-xs text-neutral-400 p-4 border-t border-[#D9D9D9] bg-[#F5F5F5]">
+                <a href="https://open-meteo.com/">
+                    Weather data by Open-Meteo.com
+                </a>
+            </footer>
         </div>
     );
 };
