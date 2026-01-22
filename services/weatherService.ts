@@ -268,6 +268,14 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
               const morningRainSum = pMorningSlice.reduce((a: number, b: number) => a + (b || 0), 0);
               const isMorningRideSuitable = morningRainSum <= 0.1;
 
+              // Check if any hour from 05:00 to 13:00 (inclusive, i.e., up to 14:00) has rain > 0.1
+              // wetHours contains hours (integers) where precipitation > 0.1
+              // We want to avoid rain in hours 5, 6, 7, 8, 9, 10, 11, 12, 13.
+              // If rain starts at 14:00 (hour 14), it is allowed.
+              // If rain ends before 05:00 (hour 4), it is allowed.
+              const forbiddenHours = [5, 6, 7, 8, 9, 10, 11, 12, 13];
+              const isRideable = !wetHours.some(h => forbiddenHours.includes(h));
+
               const tMin = tempSlice.length ? Math.min(...tempSlice) : 0;
               const tMax = tempSlice.length ? Math.max(...tempSlice) : 0;
               const fMin = feelsSlice.length ? Math.min(...feelsSlice) : 0;
@@ -348,6 +356,7 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
                   dateStr: tStr,
                   dayName: targetDate.getDay() === 6 ? "Суббота" : "Воскресенье",
                   isDry: isDry,
+                  isRideable: isRideable,
                   isMorningRideSuitable: isMorningRideSuitable,
                   hasRoute: hasRoute,
                   precipSum: totalRain,

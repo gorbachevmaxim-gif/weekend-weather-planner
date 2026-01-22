@@ -20,6 +20,7 @@ export interface WeatherDayStats {
   dateStr: string;
   dayName: string;
   isDry: boolean;
+  isRideable: boolean;
   isMorningRideSuitable: boolean;
   hasRoute: boolean; // New field to indicate if a GPX file exists
   precipSum: number;

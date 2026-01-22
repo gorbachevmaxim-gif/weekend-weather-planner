@@ -28,7 +28,7 @@ export const useSummaryFiltering = ({ data, isSecondWeekend }: UseSummaryFilteri
     return data
       .filter(city => {
         const dayData = city[weekendKey]?.[day];
-        return dayData?.isDry && dayData.sunSeconds >= minSunSeconds;
+        return dayData?.isRideable && dayData.sunSeconds >= minSunSeconds;
       })
       .sort((a, b) => {
         const sunA = a[weekendKey]?.[day]?.sunSeconds ?? 0;
