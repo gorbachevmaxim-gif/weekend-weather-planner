@@ -416,7 +416,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             target="_blank"
                         >
                             <div className="flex flex-col">
-                                <span className="flex items-center">Туда<RoutesIcon /></span>
+                                <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
                                 <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
                             </div>
                         </a>
@@ -428,7 +428,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             target="_blank"
                         >
                             <div className="flex flex-col">
-                                <span className="flex items-center">Обратно<RoutesIcon /></span>
+                                <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
                                 <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
                             </div>
                         </a>
@@ -439,13 +439,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         rel="noopener noreferrer"
                         className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                     >
-                        <span className="flex items-center">Вкусные места<RoutesIcon /></span>
+                        <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
                     </a>
                     <button
                         className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} hover:text-[#777777]`}
                         onClick={() => toggleSection("одежда")}
                     >
-                        <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} /></span>
+                        <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
                     </button>
                     <div
                         className={`transition-all duration-300 ease-in-out overflow-hidden`}

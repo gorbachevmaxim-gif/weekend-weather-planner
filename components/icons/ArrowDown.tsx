@@ -4,13 +4,14 @@ interface ArrowDownProps extends React.SVGProps<SVGSVGElement> {
   isOpen: boolean;
 }
 
-const ArrowDown: React.FC<ArrowDownProps> = ({ isOpen, ...props }) => (
+const ArrowDown: React.FC<ArrowDownProps> = ({ isOpen, style, ...props }) => (
     <svg 
         style={{ 
             position: 'relative', 
             top: '-5px', 
             transform: isOpen ? 'rotate(-180deg)' : 'rotate(0deg)',
             transition: 'transform 0.3s ease-in-out',
+            ...style,
         }} 
         width="25" 
         height="25" 
