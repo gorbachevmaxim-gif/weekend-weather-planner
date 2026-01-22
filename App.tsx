@@ -26,10 +26,10 @@ const App: React.FC = () => {
 
       setLoading({ total, current: 0, status: "Загрузка списка..." });
 
-      const BATCH_SIZE = 3;
+      const BATCH_SIZE = 10;
       
       for (let i = 0; i < total; i += BATCH_SIZE) {
-         if (i > 0) await new Promise(resolve => setTimeout(resolve, 300));
+         if (i > 0) await new Promise(resolve => setTimeout(resolve, 50));
 
          const batch = cityNames.slice(i, i + BATCH_SIZE);
          const promises = batch.map(name => {

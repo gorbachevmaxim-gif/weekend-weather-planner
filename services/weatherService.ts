@@ -1,18 +1,31 @@
-async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 100): Promise<T | null> {
-      for (let i = 0; i < retries; i++) {
-          try {
-              return await fn();
-          } catch (error: any) {
-              if (i < retries - 1) {
-                  console.warn(`Retry attempt ${i + 1}/${retries} failed. Retrying in ${delay}ms...`, error.message);
-                  await new Promise(res => setTimeout(res, delay));
-              } else {
-                  throw error; // Last attempt failed, re-throw the error
-              }
-          }
-      }
-      return null;
-  }
+async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error: any) {
+            if (i < retries - 1) {
+                console.warn(`Retry attempt ${i + 1}/${retries} failed. Retrying in ${delay}ms...`, error.message);
+                await new Promise(res => setTimeout(res, delay));
+            } else {
+                throw error;
+            }
+        }
+    }
+    throw new Error("Retry failed");
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000): Promise<Response> {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+}
 
   import { API_URL, CITY_FILENAMES, FLIGHT_CITIES } from '../constants';
   import { parseGpx, RouteData } from './gpxUtils';
@@ -202,8 +215,11 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 100): Promise
       });
 
       try {
-          const response = await fetch(`${API_URL}?${params.toString()}`);
-          if (!response.ok) throw new Error("API Error");
+          const response = await retry(async () => {
+              const res = await fetchWithTimeout(`${API_URL}?${params.toString()}`);
+              if (!res.ok) throw new Error(`API Error: ${res.status}`);
+              return res;
+          });
           const data = await response.json();
           const hourly = data.hourly;
           const result: CityAnalysisResult = {
