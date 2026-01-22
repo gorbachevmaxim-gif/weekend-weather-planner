@@ -105,9 +105,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             id="route-layer"
                             type="line"
                             paint={{
-                                "line-color": "black",
+                                "line-color": "#444444",
                                 "line-width": 3,
-                                "line-opacity": 0.7
+                                "line-opacity": 1
                             }}
                         />
                     </Source>
@@ -119,7 +119,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         latitude={currentRouteData.points[0][0]}
                         anchor="center"
                     >
-                        <div className="flex items-center justify-center w-6 h-6 bg-black rounded-full text-white text-xs font-bold shadow-md">
+                        <div className="flex items-center justify-center w-5 h-5 bg-[#444444] rounded-full text-white text-[10px] font-bold shadow-md">
                             A
                         </div>
                     </Marker>
@@ -131,7 +131,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         latitude={currentRouteData.points[currentRouteData.points.length - 1][0]}
                         anchor="center"
                     >
-                        <div className="flex items-center justify-center w-6 h-6 bg-black rounded-full text-white text-xs font-bold shadow-md">
+                        <div className="flex items-center justify-center w-5 h-5 bg-[#444444] rounded-full text-white text-[10px] font-bold shadow-md">
                             B
                         </div>
                     </Marker>
