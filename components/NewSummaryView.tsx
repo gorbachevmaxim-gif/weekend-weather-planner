@@ -6,8 +6,8 @@ import RoutesIcon from "./icons/RoutesIcon";
 
 interface NewSummaryViewProps {
   data: CityAnalysisResult[];
-  onCityClick: (city: string, day: "saturday" | "sunday") => void;
-  onCityClickW2: (city: string, day: "saturday" | "sunday") => void;
+  onCityClick: (city: string, day: string) => void;
+  onCityClickW2: (city: string, day: string) => void;
 }
 
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
@@ -102,6 +102,41 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             </div>
           )}
         </div>
+        {sunnyCities.holidays.map((group: any) => {
+          const dateStr = group.dateObj.toISOString().split('T')[0];
+          const sectionKey = `holiday_${dateStr}`;
+          const isOpen = openSection === sectionKey;
+          
+          return (
+            <div key={sectionKey}>
+              <button
+                className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+                  isOpen
+                    ? "text-[#1E1E1E] hover:text-[#777777]"
+                    : openSection === null
+                    ? "text-[#1E1E1E] hover:text-[#777777]"
+                    : "text-[#B2B2B2] hover:text-[#777777]"
+                }`}
+                onClick={() => toggleSection(sectionKey)}
+              >
+                <span className="flex items-center">{group.dayName}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
+              </button>
+              {isOpen && (
+                <div className="mt-0 flex flex-wrap gap-0 pl-4">
+                  {group.cities.map((city: CityAnalysisResult) => (
+                    <button
+                      key={city.cityName}
+                      className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
+                      onClick={() => handleCityClick(city.cityName, dateStr)}
+                    >
+                      {city.cityName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
         <div>
           <button
             className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${

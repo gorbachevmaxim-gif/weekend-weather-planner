@@ -59,6 +59,7 @@ export interface CityAnalysisResult {
     saturday: WeatherDayStats | null;
     sunday: WeatherDayStats | null;
   };
+  extraDays: WeatherDayStats[];
 }
 
 export interface LoadingState {

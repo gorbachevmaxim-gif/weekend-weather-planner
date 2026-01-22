@@ -15,7 +15,7 @@ import { MapView } from "./MapView";
 interface CityDetailProps {
     data: CityAnalysisResult;
     initialTab?: "w1" | "w2";
-    initialDay?: "saturday" | "sunday";
+    initialDay?: string;
     onClose: () => void;
 }
 
@@ -24,10 +24,23 @@ interface FoundRoute {
     gpxString: string;
 }
 
+const getShortDayName = (fullName: string) => {
+    const map: { [key: string]: string } = {
+        "Понедельник": "ПН",
+        "Вторник": "ВТ",
+        "Среда": "СР",
+        "Четверг": "ЧТ",
+        "Пятница": "ПТ",
+        "Суббота": "СБ",
+        "Воскресенье": "ВС"
+    };
+    return map[fullName] || fullName.slice(0, 2).toUpperCase();
+};
+
 const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initialDay, onClose }) => {
     const [canShare, setCanShare] = useState(false);
     const [activeTab, setActiveTab] = useState<"w1" | "w2">(initialTab);
-    const [routeDay, setRouteDay] = useState<"saturday" | "sunday" | null>(null);
+    const [routeDay, setRouteDay] = useState<string | null>(null);
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
@@ -61,14 +74,21 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     }, [activeTab, activeWeekend, initialDay]);
 
-    const activeStats = routeDay === "saturday" ? activeWeekend.saturday : activeWeekend.sunday;
+    let activeStats = null;
+    if (routeDay === "saturday") activeStats = activeWeekend.saturday;
+    else if (routeDay === "sunday") activeStats = activeWeekend.sunday;
+    else {
+        activeStats = data.extraDays?.find(d => d.dateStr === routeDay) || null;
+    }
+
+    // Fallback if activeStats is null (e.g. switched tab and routeDay was saturday but saturday is null?)
+    // But routeDay is state.
+    
     const cityCoords = CITIES[data.cityName];
     const currentRouteData = foundRoutes[selectedRouteIdx]?.routeData;
     const isFlightDestination = FLIGHT_CITIES.includes(data.cityName);
 
     const moscow = CITIES["Москва"];
-    // const moscowLat = moscow ? moscow.lat : 55.75;
-    // const moscowLon = moscow ? moscow.lon : 37.61;
 
     let routeStartLat = cityCoords.lat, routeStartLon = cityCoords.lon;
     let routeEndLat = cityCoords.lat, routeEndLon = cityCoords.lon;
@@ -290,29 +310,39 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         Через неделю
                     </button>
                 </div>
-                <div className="flex items-center px-4 mt-4 pb-4 border-b border-[#D9D9D9]">
+                <div className="flex items-center px-4 mt-4 pb-4 border-b border-[#D9D9D9] overflow-x-auto whitespace-nowrap gap-2">
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full flex items-center justify-center bg-[#000DFF] hover:bg-[#000BD5]"
+                        className="p-2 rounded-full flex items-center justify-center bg-[#000DFF] hover:bg-[#000BD5] shrink-0"
                         style={{ width: "54px", height: "38px" }}
                     >
                         <ArrowLeftDiagonal />
                     </button>
                     <button
-                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "saturday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
+                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "saturday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
                         style={{ width: "54px", height: "38px" }}
                         onClick={() => setRouteDay("saturday")}
                     >
                         СБ
                     </button>
                     <button
-                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "sunday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
+                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "sunday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
                         style={{ width: "54px", height: "38px" }}
                         onClick={() => setRouteDay("sunday")}
                     >
                         ВС
                     </button>
-                    <div className="text-[13px] py-2 px-4 rounded-full text-black" style={{ backgroundColor: "#FFFFFF" }}>
+                    {data.extraDays?.map(day => (
+                        <button
+                            key={day.dateStr}
+                            className={`text-[13px] py-2 px-4 rounded-full ${routeDay === day.dateStr ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
+                            style={{ width: "auto", minWidth: "54px", height: "38px" }}
+                            onClick={() => setRouteDay(day.dateStr)}
+                        >
+                            {getShortDayName(day.dayName)}
+                        </button>
+                    ))}
+                    <div className="text-[13px] py-2 px-4 rounded-full text-black shrink-0" style={{ backgroundColor: "#FFFFFF" }}>
                         {data.cityName}
                     </div>
                 </div>
@@ -332,17 +362,19 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     Порывы {activeStats.windGusts}
                                 </p>
                             </div>
-                            {renderWeatherBlock("ОСАДКИ", activeStats.isDry ? "0" : activeStats.precipSum.toFixed(1), " мм", `Вероятность ${activeStats.precipitationProbability}%`)}
+                            {renderWeatherBlock("ОСАДКИ", activeStats.isDry ? "0" : activeStats.precipSum.toFixed(1), " мм", (activeStats.isRideable && activeStats.rainHours) ? activeStats.rainHours : `Вероятность ${activeStats.precipitationProbability}%`)}
                             {renderWeatherBlock("СОЛНЦЕ", activeStats.sunStr.split(" ")[0], ` ч ${activeStats.sunStr.split(" ")[2]} мин`, "09:00 – 18:00")}
                         </div>
                     </div>
                 )}
+                {activeStats && (
                 <div className="p-4 mt-0 border-t border-[#D9D9D9]">
                     <h2 className="font-unbounded font-bold text-base">
                         Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
                     </h2>
                     <p className="text-[15px] text-[#666666]">{routeStartCity}—{routeEndCity}</p>
                 </div>
+                )}
                 {currentRouteData && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b border-neutral-200">
                         <div className="flex flex-col">

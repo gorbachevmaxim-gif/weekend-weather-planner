@@ -14,7 +14,7 @@ const App: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [initialTab, setInitialTab] = useState<"w1" | "w2">("w1");
-  const [initialDay, setInitialDay] = useState<"saturday" | "sunday">("saturday");
+  const [initialDay, setInitialDay] = useState<string>("saturday");
 
   const dates = useMemo(() => getWeekendDates(), []);
 
@@ -66,7 +66,7 @@ const App: React.FC = () => {
       return data.find(c => c.cityName === selectedCity) || null;
   }, [data, selectedCity]);
 
-  const handleCitySelect = (city: string, tab: "w1" | "w2", day: "saturday" | "sunday") => {
+  const handleCitySelect = (city: string, tab: "w1" | "w2", day: string) => {
       setInitialTab(tab);
       setSelectedCity(city);
       setInitialDay(day);
