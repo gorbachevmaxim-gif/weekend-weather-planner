@@ -95,6 +95,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 mapboxAccessToken={MAPBOX_TOKEN}
                 scrollZoom={false}
                 attributionControl={false}
+                cooperativeGestures={true}
             >
                 <NavigationControl position="top-left" showCompass={false} />
                 
