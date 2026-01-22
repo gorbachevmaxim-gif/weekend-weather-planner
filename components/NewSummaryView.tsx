@@ -31,6 +31,49 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
 
   const allCities = useMemo(() => data.map(city => city.cityName), [data]);
 
+  const sections = useMemo(() => {
+    const activeWeekend = activeTab === "w1" ? "weekend1" : "weekend2";
+    const refCity = data.find(c => c[activeWeekend].saturday);
+    
+    const list = [];
+    
+    const satDate = refCity?.[activeWeekend].saturday?.dateObj;
+    const sunDate = refCity?.[activeWeekend].sunday?.dateObj;
+    
+    list.push({
+        key: "saturday",
+        label: "Суббота",
+        cities: sunnyCities.saturday,
+        date: satDate || new Date(0), 
+        isStandard: true
+    });
+    
+    list.push({
+        key: "sunday",
+        label: "Воскресенье",
+        cities: sunnyCities.sunday,
+        date: sunDate || new Date(86400000), 
+        isStandard: true
+    });
+    
+    sunnyCities.holidays.forEach((h: any) => {
+        list.push({
+            key: `holiday_${h.dateObj.toISOString().split('T')[0]}`,
+            label: h.dayName,
+            cities: h.cities,
+            date: h.dateObj,
+            isStandard: false,
+            dateStr: h.dateObj.toISOString().split('T')[0]
+        });
+    });
+    
+    if (satDate && sunDate) {
+        list.sort((a, b) => a.date.getTime() - b.date.getTime());
+    }
+    
+    return list;
+  }, [data, activeTab, sunnyCities]);
+
   return (
     <div>
       <div className="flex">
@@ -48,67 +91,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         </button>
       </div>
       <div className="mt-6 space-y-1">
-        <div>
-          <button
-            className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
-              openSection === "saturday"
-                ? "text-[#1E1E1E] hover:text-[#777777]"
-                : openSection === null
-                ? "text-[#1E1E1E] hover:text-[#777777]"
-                : "text-[#B2B2B2] hover:text-[#777777]"
-            }`}
-            onClick={() => toggleSection("saturday")}
-          >
-            <span className="flex items-center">Суббота<ArrowDown isOpen={openSection === "saturday"} width="20" height="20" style={{ top: "-7px" }} /></span>
-          </button>
-          {openSection === "saturday" && (
-            <div className="mt-0 flex flex-wrap gap-0 pl-4">
-              {sunnyCities.saturday.map((city: CityAnalysisResult) => (
-                <button
-                  key={city.cityName}
-                  className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                  onClick={() => handleCityClick(city.cityName, "saturday")}
-                >
-                  {city.cityName}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div>
-          <button
-            className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
-              openSection === "sunday"
-                ? "text-[#1E1E1E] hover:text-[#777777]"
-                : openSection === null
-                ? "text-[#1E1E1E] hover:text-[#777777]"
-                : "text-[#B2B2B2] hover:text-[#777777]"
-            }`}
-            onClick={() => toggleSection("sunday")}
-          >
-            <span className="flex items-center">Воскресенье<ArrowDown isOpen={openSection === "sunday"} width="20" height="20" style={{ top: "-7px" }} /></span>
-          </button>
-          {openSection === "sunday" && (
-            <div className="mt-0 flex flex-wrap gap-0 pl-4">
-              {sunnyCities.sunday.map((city: CityAnalysisResult) => (
-                <button
-                  key={city.cityName}
-                  className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                  onClick={() => handleCityClick(city.cityName, "sunday")}
-                >
-                  {city.cityName}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        {sunnyCities.holidays.map((group: any) => {
-          const dateStr = group.dateObj.toISOString().split('T')[0];
-          const sectionKey = `holiday_${dateStr}`;
-          const isOpen = openSection === sectionKey;
-          
+        {sections.map((section) => {
+          const isOpen = openSection === section.key;
           return (
-            <div key={sectionKey}>
+            <div key={section.key}>
               <button
                 className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
                   isOpen
@@ -117,17 +103,17 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                     ? "text-[#1E1E1E] hover:text-[#777777]"
                     : "text-[#B2B2B2] hover:text-[#777777]"
                 }`}
-                onClick={() => toggleSection(sectionKey)}
+                onClick={() => toggleSection(section.key)}
               >
-                <span className="flex items-center">{group.dayName}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
+                <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
               {isOpen && (
                 <div className="mt-0 flex flex-wrap gap-0 pl-4">
-                  {group.cities.map((city: CityAnalysisResult) => (
+                  {section.cities.map((city: CityAnalysisResult) => (
                     <button
                       key={city.cityName}
                       className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                      onClick={() => handleCityClick(city.cityName, dateStr)}
+                      onClick={() => handleCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                     >
                       {city.cityName}
                     </button>
