@@ -82,7 +82,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     };
 
     return (
-        <div className="relative w-full aspect-square bg-slate-100 z-0 rounded-lg overflow-hidden">
+        <div className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
              <Map
                 ref={mapRef}
                 initialViewState={{
@@ -107,7 +107,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             paint={{
                                 "line-color": "black",
                                 "line-width": 3,
-                                "line-opacity": 0.9
+                                "line-opacity": 0.7
                             }}
                         />
                     </Source>
@@ -161,6 +161,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     </Marker>
                 ))}
             </Map>
+            {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
+                    <div className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm">
+                        <p className="text-xs font-bold text-center text-[#1E1E1E]">
+                            {routeStatus}
+                        </p>
+                    </div>
+                </div>
+            )}
             {windDeg !== undefined && (
                 <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
                     <div 

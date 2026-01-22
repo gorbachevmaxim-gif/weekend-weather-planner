@@ -143,7 +143,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 }
                 else {
                     setFoundRoutes([]);
-                    setRouteStatus(`Маршрут под ${activeStats.windDirFull.toLowerCase()} ветер не сделан`);
+                    setRouteStatus("Нет маршрута под такое направление ветра");
                 }
             });
         return () => { isMounted = false; };
