@@ -187,6 +187,18 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Маршруты<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
           </a>
         </div>
+        <div>
+          <a
+            href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0&source=copy_link"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`flex items-center w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
+            } hover:text-[#777777]`}            
+          >
+            <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
+          </a>
+        </div>
       </div>
     </div>
   );
