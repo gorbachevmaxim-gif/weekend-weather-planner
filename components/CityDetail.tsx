@@ -188,31 +188,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         URL.revokeObjectURL(url);
     };
 
-    const handleShareGpx = async () => {
-        const selectedRoute = foundRoutes[selectedRouteIdx];
-        if (!selectedRoute || !activeStats) return;
-
-        const fileCityName = CITY_FILENAMES[data.cityName] || data.cityName;
-        const windDirCode = getCardinal(activeStats.windDeg);
-        const filename = `${fileCityName}_${windDirCode}${foundRoutes.length > 1 ? `_${selectedRouteIdx + 1}` : ""}.gpx`;
-
-        const blob = new Blob([selectedRoute.gpxString], { type: "application/gpx+xml" });
-        const file = new File([blob], filename, { type: "application/gpx+xml" });
-
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: "GPX Route",
-                    text: `GPX route for ${data.cityName}`,
-                });
-            }
-            catch (error) {
-                console.error("Error sharing", error);
-            }
-        }
-    };
-
     const handleForwardGpx = async () => {
         const selectedRoute = foundRoutes[selectedRouteIdx];
         if (!selectedRoute || !activeStats) return;
@@ -477,26 +452,19 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
-                        className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
+                        className="text-sm text-[#222222] hover:text-[#777777] flex items-center gap-1"
                     >
-                        Скачать
+                        <span className="underline decoration-1 underline-offset-4">Скачать</span>
+                        <ArrowUp width="14" height="14" style={{ transform: "rotate(135deg)" }} />
                     </a>
                     {canShare && (
                         <a
                             href="#"
-                            onClick={(e) => { e.preventDefault(); handleShareGpx(); }}
-                            className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
-                        >
-                            Открыть
-                        </a>
-                    )}
-                    {canShare && (
-                        <a
-                            href="#"
                             onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
-                            className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
+                            className="text-sm text-[#222222] hover:text-[#777777] flex items-center gap-1"
                         >
-                            Переслать
+                            <span className="underline decoration-1 underline-offset-4">Переслать</span>
+                            <ArrowUp width="14" height="14" style={{ transform: "rotate(45deg)" }} />
                         </a>
                     )}
                 </div>
