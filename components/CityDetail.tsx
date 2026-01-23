@@ -452,19 +452,19 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
-                        className="text-sm text-[#222222] hover:text-[#777777] flex items-center gap-1"
+                        className="text-sm text-[#222222] hover:text-[#777777] flex items-baseline gap-1"
                     >
                         <span className="underline decoration-1 underline-offset-4">Скачать</span>
-                        <ArrowUp width="14" height="14" style={{ transform: "rotate(135deg)" }} />
+                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px" }} />
                     </a>
                     {canShare && (
                         <a
                             href="#"
                             onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
-                            className="text-sm text-[#222222] hover:text-[#777777] flex items-center gap-1"
+                            className="text-sm text-[#222222] hover:text-[#777777] flex items-baseline gap-1"
                         >
                             <span className="underline decoration-1 underline-offset-4">Переслать</span>
-                            <ArrowUp width="14" height="14" style={{ transform: "rotate(45deg)" }} />
+                            <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px" }} />
                         </a>
                     )}
                 </div>
