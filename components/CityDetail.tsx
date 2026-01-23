@@ -473,7 +473,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     windDirection={activeStats?.windDirection}
                 />
 
-                <div className={`grid gap-4 px-4 pt-4 pb-2 ${canShare ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                <div className={`grid gap-4 px-4 pt-4 pb-2 ${canShare ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
