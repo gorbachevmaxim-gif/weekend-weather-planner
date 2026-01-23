@@ -78,13 +78,13 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
     <div>
       <div className="flex">
         <button
-          className={`flex-1 text-center py-2 font-sans text-lg font-semibold tracking-tighter ${activeTab === "w1" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
+          className={`flex-1 text-center py-2 font-sans text-lg font-semibold tracking-tighter ${activeTab === "w1" ? "text-[#333333] border-b-2 border-[#333333]" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
           onClick={() => setActiveTab("w1")}
         >
           Эти выходные
         </button>
         <button
-          className={`flex-1 text-center py-2 font-sans text-lg font-semibold tracking-tighter ${activeTab === "w2" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
+          className={`flex-1 text-center py-2 font-sans text-lg font-semibold tracking-tighter ${activeTab === "w2" ? "text-[#333333] border-b-2 border-[#333333]" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
           onClick={() => setActiveTab("w2")}
         >
           Через неделю
@@ -98,9 +98,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
               <button
                 className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
                   isOpen
-                    ? "text-[#1E1E1E] hover:text-[#777777]"
+                    ? "text-[#333333] hover:text-[#777777]"
                     : openSection === null
-                    ? "text-[#1E1E1E] hover:text-[#777777]"
+                    ? "text-[#333333] hover:text-[#777777]"
                     : "text-[#B2B2B2] hover:text-[#777777]"
                 }`}
                 onClick={() => toggleSection(section.key)}
@@ -127,9 +127,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           <button
             className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
               openSection === "sunny"
-                ? "text-[#1E1E1E] hover:text-[#777777]"
+                ? "text-[#333333] hover:text-[#777777]"
                 : openSection === null
-                ? "text-[#1E1E1E] hover:text-[#777777]"
+                ? "text-[#333333] hover:text-[#777777]"
                 : "text-[#B2B2B2] hover:text-[#777777]"
             }`}
             onClick={() => toggleSection("sunny")}
@@ -140,7 +140,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <div className="mt-0 space-y-4">
               <div>
                 <div className="flex flex-wrap items-center gap-0 pl-4">
-                  <span className="font-normal text-[13px] bg-[#1E1E1E] text-[#F3F3F3] rounded-full px-4 py-2">СБ</span>
+                  <span className="font-normal text-[13px] bg-[#333333] text-[#F3F3F3] rounded-full px-4 py-2">СБ</span>
                   {sunnyCities.saturday.map((city: CityAnalysisResult) => (
                     <button
                       key={city.cityName}
@@ -154,7 +154,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-0 pl-4">
-                  <span className="font-normal text-[13px] bg-[#1E1E1E] text-[#F3F3F3] rounded-full px-4 py-2">ВС</span>
+                  <span className="font-normal text-[13px] bg-[#333333] text-[#F3F3F3] rounded-full px-4 py-2">ВС</span>
                   {sunnyCities.sunday.map((city: CityAnalysisResult) => (
                     <button
                       key={city.cityName}
@@ -173,9 +173,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           <button
             className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
               openSection === "cities"
-                ? "text-[#1E1E1E] hover:text-[#777777]"
+                ? "text-[#333333] hover:text-[#777777]"
                 : openSection === null
-                ? "text-[#1E1E1E] hover:text-[#777777]"
+                ? "text-[#333333] hover:text-[#777777]"
                 : "text-[#B2B2B2] hover:text-[#777777]"
             }`}
             onClick={() => toggleSection("cities")}
@@ -202,7 +202,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             target="_blank"
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
-              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
+              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#333333]'
             } hover:text-[#777777]`}            
           >
             <span className="flex items-center">Маршруты<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
@@ -214,7 +214,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             target="_blank"
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
-              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#1E1E1E]'
+              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#333333]'
             } hover:text-[#777777]`}            
           >
             <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>

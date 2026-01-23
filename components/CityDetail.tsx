@@ -360,7 +360,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         return daysList.map(dayItem => (
                             <button
                                 key={dayItem.id}
-                                className={`text-[13px] py-2 px-4 rounded-full shrink-0 ${routeDay === dayItem.id ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
+                                className={`text-[13px] py-2 px-4 rounded-full shrink-0 ${routeDay === dayItem.id ? "text-white bg-[#333333]" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
                                 style={{ width: dayItem.id === "saturday" || dayItem.id === "sunday" ? "54px" : "auto", minWidth: "54px", height: "38px" }}
                                 onClick={() => setRouteDay(dayItem.id)}
                             >
