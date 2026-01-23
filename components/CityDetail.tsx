@@ -521,7 +521,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 ))}
                             </div>
                         ) : (
-                            <div className="mt-0 pl-0 text-[#666666]">
+                            <div className="mt-0 pl-0 text-[#222222] text-sm">
                                 Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º.
                             </div>
                         )}
