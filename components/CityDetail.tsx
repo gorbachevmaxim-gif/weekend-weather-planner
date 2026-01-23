@@ -318,30 +318,56 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     >
                         <ArrowLeftDiagonal />
                     </button>
-                    <button
-                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "saturday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
-                        style={{ width: "54px", height: "38px" }}
-                        onClick={() => setRouteDay("saturday")}
-                    >
-                        СБ
-                    </button>
-                    <button
-                        className={`text-[13px] py-2 px-4 rounded-full ${routeDay === "sunday" ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
-                        style={{ width: "54px", height: "38px" }}
-                        onClick={() => setRouteDay("sunday")}
-                    >
-                        ВС
-                    </button>
-                    {data.extraDays?.map(day => (
-                        <button
-                            key={day.dateStr}
-                            className={`text-[13px] py-2 px-4 rounded-full ${routeDay === day.dateStr ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
-                            style={{ width: "auto", minWidth: "54px", height: "38px" }}
-                            onClick={() => setRouteDay(day.dateStr)}
-                        >
-                            {getShortDayName(day.dayName)}
-                        </button>
-                    ))}
+                    {(() => {
+                        const daysList = [];
+                        if (activeWeekend.saturday) {
+                            daysList.push({ id: "saturday", label: "СБ", date: activeWeekend.saturday.dateObj });
+                        }
+                        if (activeWeekend.sunday) {
+                            daysList.push({ id: "sunday", label: "ВС", date: activeWeekend.sunday.dateObj });
+                        }
+                        
+                        const w1Sat = data.weekend1.saturday?.dateObj;
+                        const w2Sat = data.weekend2.saturday?.dateObj;
+                        
+                        if (data.extraDays) {
+                            if (w1Sat && w2Sat) {
+                                const cutoff = w1Sat.getTime() + (w2Sat.getTime() - w1Sat.getTime()) / 2;
+                                data.extraDays.forEach(day => {
+                                    const isW1 = day.dateObj.getTime() < cutoff;
+                                    const isTabW1 = activeTab === "w1";
+                                    if (isW1 === isTabW1) {
+                                        daysList.push({ 
+                                            id: day.dateStr, 
+                                            label: getShortDayName(day.dayName), 
+                                            date: day.dateObj 
+                                        });
+                                    }
+                                });
+                            } else {
+                                data.extraDays.forEach(day => {
+                                    daysList.push({ 
+                                        id: day.dateStr, 
+                                        label: getShortDayName(day.dayName), 
+                                        date: day.dateObj 
+                                    });
+                                });
+                            }
+                        }
+                        
+                        daysList.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+                        return daysList.map(dayItem => (
+                            <button
+                                key={dayItem.id}
+                                className={`text-[13px] py-2 px-4 rounded-full ${routeDay === dayItem.id ? "text-white bg-black" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5] shrink-0"}`}
+                                style={{ width: dayItem.id === "saturday" || dayItem.id === "sunday" ? "54px" : "auto", minWidth: "54px", height: "38px" }}
+                                onClick={() => setRouteDay(dayItem.id)}
+                            >
+                                {dayItem.label}
+                            </button>
+                        ));
+                    })()}
                     <div className="text-[13px] py-2 px-4 rounded-full text-black shrink-0" style={{ backgroundColor: "#FFFFFF" }}>
                         {data.cityName}
                     </div>
