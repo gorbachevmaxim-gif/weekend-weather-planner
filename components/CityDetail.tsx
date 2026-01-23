@@ -466,7 +466,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </button>
                     )}
                 </div>
-                <div className="mt-6 space-y-2 p-4 mb-12">
+                <div className="mt-6 p-4 mb-12 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[#D9D9D9]">
                     {routeStartCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
@@ -495,36 +495,38 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                        className={`self-start flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                     >
                         <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
                     </a>
-                    <button
-                        className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} hover:text-[#777777]`}
-                        onClick={() => toggleSection("одежда")}
-                    >
-                        <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
-                    </button>
-                    <div
-                        className={`transition-all duration-300 ease-in-out overflow-hidden`}
-                        style={{ maxHeight: openSection === "одежда" ? "200px" : "0" }}
-                    >
-                        {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
-                            <div className="mt-0 flex flex-wrap pl-0">
-                                {activeStats.clothingHints.map((hint: string) => (
-                                    <span
-                                        key={hint}
-                                        className="bg-white text-black text-15 tracking-tighter rounded-full px-4 py-2"
-                                    >
-                                        {hint}
-                                    </span>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="mt-0 pl-0 text-[#222222] text-sm">
-                                Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º.
-                            </div>
-                        )}
+                    <div className="flex flex-col">
+                        <button
+                            className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} hover:text-[#777777]`}
+                            onClick={() => toggleSection("одежда")}
+                        >
+                            <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
+                        </button>
+                        <div
+                            className={`transition-all duration-300 ease-in-out overflow-hidden`}
+                            style={{ maxHeight: openSection === "одежда" ? "200px" : "0" }}
+                        >
+                            {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                                <div className="mt-0 flex flex-wrap pl-0">
+                                    {activeStats.clothingHints.map((hint: string) => (
+                                        <span
+                                            key={hint}
+                                            className="bg-white text-black text-15 tracking-tighter rounded-full px-4 py-2"
+                                        >
+                                            {hint}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="mt-0 pl-0 text-[#222222] text-sm">
+                                    Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
