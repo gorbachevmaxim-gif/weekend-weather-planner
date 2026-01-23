@@ -213,6 +213,29 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     };
 
+    const handleForwardGpx = async () => {
+        const selectedRoute = foundRoutes[selectedRouteIdx];
+        if (!selectedRoute || !activeStats) return;
+
+        const fileCityName = CITY_FILENAMES[data.cityName] || data.cityName;
+        const windDirCode = getCardinal(activeStats.windDeg);
+        const filename = `${fileCityName}_${windDirCode}${foundRoutes.length > 1 ? `_${selectedRouteIdx + 1}` : ""}.gpx`;
+
+        const blob = new Blob([selectedRoute.gpxString], { type: "application/gpx+xml" });
+        const file = new File([blob], filename, { type: "application/gpx+xml" });
+
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file]
+                });
+            }
+            catch (error) {
+                console.error("Error sharing", error);
+            }
+        }
+    };
+
     const generateTransportLink = (fromCityName: string, toCityName: string, date: Date) => {
         const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
         const toConfig = CITY_TRANSPORT_CONFIG[toCityName];
@@ -450,13 +473,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     windDirection={activeStats?.windDirection}
                 />
 
-                <div className="grid grid-cols-2 gap-4 px-4 pt-4 pb-2">
+                <div className={`grid gap-4 px-4 pt-4 pb-2 ${canShare ? 'grid-cols-3' : 'grid-cols-2'}`}>
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
                         className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
                     >
-                        Скачать GPX
+                        Скачать
                     </a>
                     {canShare && (
                         <a
@@ -464,7 +487,16 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             onClick={(e) => { e.preventDefault(); handleShareGpx(); }}
                             className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
                         >
-                            Открыть GPX
+                            Открыть
+                        </a>
+                    )}
+                    {canShare && (
+                        <a
+                            href="#"
+                            onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
+                            className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
+                        >
+                            Переслать
                         </a>
                     )}
                 </div>
