@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
@@ -46,47 +46,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
     const [openSection, setOpenSection] = useState<string | null>(null);
     const [speed, setSpeed] = useState<number>(30);
-    
-    // Scroll behavior state
-    const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-    const [headerHeight, setHeaderHeight] = useState(0);
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const headerRef = useRef<HTMLDivElement>(null);
-    const lastScrollTop = useRef(0);
 
     const toggleSection = (section: string) => {
         setOpenSection(openSection === section ? null : section);
     };
 
     const activeWeekend = activeTab === "w1" ? data.weekend1 : data.weekend2;
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollTop = window.scrollY;
-            const diff = scrollTop - lastScrollTop.current;
-
-            // Threshold to avoid jitter
-            if (Math.abs(diff) > 5) {
-                if (diff > 0 && scrollTop > 50) {
-                    // Scrolling down and not at top
-                    setIsHeaderVisible(false);
-                } else if (diff < 0) {
-                    // Scrolling up
-                    setIsHeaderVisible(true);
-                }
-            }
-            lastScrollTop.current = scrollTop;
-        };
-
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-
-    useEffect(() => {
-        if (headerRef.current) {
-            setHeaderHeight(headerRef.current.offsetHeight);
-        }
-    }, [activeTab, data]); // Update height if content changes
 
     useEffect(() => {
         if ("share" in navigator && "canShare" in navigator) {
@@ -330,14 +295,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     return (
         <div className="mx-auto text-black flex-grow flex flex-col" style={{ backgroundColor: "#F5F5F5" }}>
-            <div 
-                ref={headerRef}
-                className="sticky top-0 bg-[#F5F5F5] z-10 transition-all duration-300 ease-in-out"
-                style={{ 
-                    top: isHeaderVisible ? "0px" : `-${headerHeight}px`,
-                    marginBottom: isHeaderVisible ? "0px" : `-${headerHeight}px`
-                }}
-            >
+            <div className="sticky top-0 bg-[#F5F5F5] z-10">
                 <div className="flex">
                     <button
                         className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w1" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
@@ -416,7 +374,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
             </div>
 
-            <div ref={scrollRef} className="overflow-y-auto flex-1">
+            <div className="overflow-y-auto flex-1">
                 {activeStats && (
                     <div className="p-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
