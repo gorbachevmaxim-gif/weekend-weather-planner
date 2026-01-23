@@ -450,20 +450,22 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     windDirection={activeStats?.windDirection}
                 />
 
-                <div className="flex flex-col sm:flex-row p-4 space-y-2 sm:space-y-0 sm:space-x-2">
-                    <button
-                        onClick={handleDownloadGpx}
-                        className="flex-1 py-3 px-4 bg-white text-black rounded-full font-bold flex justify-center hover:bg-[#E1E1E2]"
+                <div className="grid grid-cols-2 gap-4 px-4 pt-4 pb-2">
+                    <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
+                        className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
                     >
-                        <span>Скачать GPX</span>
-                    </button>
+                        Скачать GPX
+                    </a>
                     {canShare && (
-                        <button
-                            onClick={handleShareGpx}
-                            className="flex-1 py-3 px-4 bg-white text-black rounded-full font-bold flex justify-center hover:bg-[#E1E1E2]"
+                        <a
+                            href="#"
+                            onClick={(e) => { e.preventDefault(); handleShareGpx(); }}
+                            className="text-sm text-[#222222] hover:text-[#777777] underline decoration-1 underline-offset-4"
                         >
-                            <span>Открыть GPX</span>
-                        </button>
+                            Открыть GPX
+                        </a>
                     )}
                 </div>
                 <div className="mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[#D9D9D9]">
