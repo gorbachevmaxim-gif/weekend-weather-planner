@@ -37,7 +37,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             zoom: 11,
             attributionControl: {
                 compact: true
-            }
+            },
+            cooperativeGestures: true
         });
 
         map.on('rotate', () => {
@@ -197,7 +198,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     return (
         <div className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
-            <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
+            <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: "grayscale(100%)" }} />
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
