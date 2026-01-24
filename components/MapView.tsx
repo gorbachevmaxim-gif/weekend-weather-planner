@@ -110,8 +110,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 const bounds = new maplibregl.LngLatBounds();
                 coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                 
-                const isMobile = window.innerWidth < 768;
-                const padding = isMobile ? 30 : 40;
+                const padding = 60;
 
                 map.fitBounds(bounds, {
                     padding: padding,
@@ -210,7 +209,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 </div>
             )}
 
-            <div className="absolute right-4 top-4 bottom-4 z-20 flex flex-col items-center justify-between py-2">
+            <div className="absolute left-4 top-4 bottom-4 z-20 flex flex-col items-center justify-between py-2">
                 {/* Zoom Controls */}
                 <div className="flex flex-col gap-2">
                     <button
@@ -254,8 +253,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                     const bounds = new maplibregl.LngLatBounds();
                                     coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                                     
-                                    const isMobile = window.innerWidth < 768;
-                                    const padding = isMobile ? 30 : 40;
+                                    const padding = 60;
 
                                     map.fitBounds(bounds, {
                                         padding: padding,
