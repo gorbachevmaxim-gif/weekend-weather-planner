@@ -105,17 +105,30 @@ function formatRainHours(hours: number[]): string | null {
 export function getWeekendDates(): TargetDate[] {
     const today = new Date();
     today.setHours(12, 0, 0, 0);
-    const dayOfWeek = today.getDay();
+    const dayOfWeek = today.getDay(); // 0 is Sunday, 6 is Saturday
+
     let sat1: Date;
-    if (dayOfWeek === 6) {
+    let sat2: Date;
+
+    if (dayOfWeek === 0) {
+        // If it's Sunday, "This Weekend" (w1) should include this very Sunday.
+        // We set sat1 to yesterday (the Saturday that just passed).
         sat1 = new Date(today);
+        sat1.setDate(today.getDate() - 1);
+
+        // "Next Weekend" (w2) should be next Sat/Sun (7 days from sat1).
+        sat2 = new Date(sat1);
+        sat2.setDate(sat1.getDate() + 7);
     } else {
         const daysUntilSat = (6 - dayOfWeek + 7) % 7 || 7;
         sat1 = new Date(today);
         sat1.setDate(today.getDate() + (dayOfWeek === 6 ? 0 : daysUntilSat));
+
+        sat2 = new Date(sat1);
+        sat2.setDate(sat1.getDate() + 7);
     }
+
     const sun1 = new Date(sat1); sun1.setDate(sat1.getDate() + 1);
-    const sat2 = new Date(sat1); sat2.setDate(sat1.getDate() + 7);
     const sun2 = new Date(sat2); sun2.setDate(sat2.getDate() + 1);
 
     const targets: TargetDate[] = [

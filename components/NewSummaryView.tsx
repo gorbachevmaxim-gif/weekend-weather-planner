@@ -40,21 +40,28 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
     const satDate = refCity?.[activeWeekend].saturday?.dateObj;
     const sunDate = refCity?.[activeWeekend].sunday?.dateObj;
     
-    list.push({
-        key: "saturday",
-        label: "Суббота",
-        cities: sunnyCities.saturday,
-        date: satDate || new Date(0), 
-        isStandard: true
-    });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (satDate && satDate >= today) {
+        list.push({
+            key: "saturday",
+            label: "Суббота",
+            cities: sunnyCities.saturday,
+            date: satDate, 
+            isStandard: true
+        });
+    }
     
-    list.push({
-        key: "sunday",
-        label: "Воскресенье",
-        cities: sunnyCities.sunday,
-        date: sunDate || new Date(86400000), 
-        isStandard: true
-    });
+    if (sunDate && sunDate >= today) {
+        list.push({
+            key: "sunday",
+            label: "Воскресенье",
+            cities: sunnyCities.sunday,
+            date: sunDate, 
+            isStandard: true
+        });
+    }
     
     sunnyCities.holidays.forEach((h: any) => {
         list.push({
