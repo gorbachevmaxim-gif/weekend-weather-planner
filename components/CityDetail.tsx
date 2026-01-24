@@ -468,7 +468,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </a>
                     )}
                 </div>
-                <div className="mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[#D9D9D9]">
+                <div className={`mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 ${routeStartCity === "Москва" || routeEndCity === "Москва" ? "" : "md:grid-cols-2"} gap-4 border-t border-[#D9D9D9]`}>
                     {routeStartCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
