@@ -266,21 +266,49 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {/* Wind Control */}
                 {windDeg !== undefined && (
                     <div className="flex flex-col items-center gap-1">
-                        <div 
-                            className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center"
-                            title={`Ветер ${windDeg}°`}
+                        <button 
+                            className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center shadow-md active:bg-white transition-colors"
+                            title="Центрировать маршрут"
+                            onClick={() => {
+                                const map = mapInstanceRef.current;
+                                if (!map) return;
+                                
+                                // Reset rotation
+                                map.getView().animate({ rotation: 0, duration: 350 });
+                                
+                                // Re-fit bounds if we have route data
+                                if (currentRouteData?.points?.length && routeLayerRef.current) {
+                                    const vectorSource = routeLayerRef.current.getSource();
+                                    if (vectorSource) {
+                                        const extent = vectorSource.getExtent();
+                                        const isMobile = window.innerWidth < 768;
+                                        const padding = isMobile ? [25, 30, 25, 25] : [30, 30, 30, 30];
+                                        map.getView().fit(extent, {
+                                            padding: padding,
+                                            duration: 500
+                                        });
+                                    }
+                                } else {
+                                    // Default center if no route
+                                    map.getView().animate({
+                                        center: fromLonLat([cityCoords.lon, cityCoords.lat]),
+                                        zoom: 11,
+                                        duration: 500
+                                    });
+                                }
+                            }}
                         >
                             <svg 
                                 width="18" 
                                 height="18" 
                                 viewBox="0 0 24 24" 
                                 fill="#777777" 
-                            xmlns="http://www.w3.org/2000/svg"
-                            style={{ transform: `rotate(${windDeg + 180 + (rotation * 180 / Math.PI)}deg)` }}
-                        >
-                            <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
-                        </svg>
-                        </div>
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ transform: `rotate(${windDeg + 180 + (rotation * 180 / Math.PI)}deg)` }}
+                            >
+                                <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
+                            </svg>
+                        </button>
                         {(windSpeed || windDirection) && (
                             <div className="flex flex-col items-center">
                                 {windSpeed && (
