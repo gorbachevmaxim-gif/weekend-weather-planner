@@ -96,7 +96,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           return (
             <div key={section.key}>
               <button
-                className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+                className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
                   isOpen
                     ? "text-[#333333] md:hover:text-[#777777]"
                     : openSection === null
@@ -125,7 +125,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         })}
         <div>
           <button
-            className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+            className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
               openSection === "cities"
                 ? "text-[#333333] md:hover:text-[#777777]"
                 : openSection === null
@@ -155,7 +155,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             href="https://www.komoot.com/collection/2674102/-lechappe-belle?ref=collection"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
               openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#333333]'
             } hover:text-[#777777]`}            
           >
@@ -167,7 +167,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0&source=copy_link"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
               openSection !== null && openSection !== "manifesto" ? 'text-[#B2B2B2]' : 'text-[#333333]'
             } hover:text-[#777777]`}            
           >
@@ -176,7 +176,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         </div>
         <div>
           <button
-            className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+            className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
               openSection === "manifesto"
                 ? "text-[#333333] md:hover:text-[#777777]"
                 : openSection === null

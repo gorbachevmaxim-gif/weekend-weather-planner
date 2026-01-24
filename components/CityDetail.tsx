@@ -250,9 +250,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const renderWeatherValue = (value: string, unit: string) => (
-        <p className="text-base font-unbounded font-bold text-black">
+        <p className="text-base font-unbounded font-medium text-black">
             {value.replace("-", "–")}
-            <span className="text-base font-unbounded font-bold" style={{ color: "#1E1E1E" }}>{unit.replace("-", "–")}</span>
+            <span className="text-base font-unbounded font-medium" style={{ color: "#1E1E1E" }}>{unit.replace("-", "–")}</span>
         </p>
     );
 
@@ -260,9 +260,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         <div className="flex flex-col flex-1">
             <p className="text-xs text-neutral-400">{title}</p>
             {title === "ОСАДКИ" ? (
-                <p className="text-base font-unbounded font-bold text-black">
+                <p className="text-base font-unbounded font-medium text-black">
                     {value}
-                    <span className="text-base font-unbounded font-bold" style={{ color: "#1E1E1E" }}>{unit}</span>
+                    <span className="text-base font-unbounded font-medium" style={{ color: "#1E1E1E" }}>{unit}</span>
                 </p>
             ) : (
                 renderWeatherValue(value, unit)
@@ -393,7 +393,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 )}
                 {activeStats && (
                 <div className="p-4 mt-0 border-t border-[#D9D9D9]">
-                    <h2 className="font-unbounded font-bold text-base">
+                    <h2 className="font-unbounded font-medium text-base">
                         Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
                     </h2>
                     <p className="text-[15px] text-[#666666]">{routeStartCity}—{routeEndCity}</p>
@@ -431,7 +431,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </div>
                         <div className="flex flex-col">
                             <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                            <p className="text-base font-unbounded font-bold text-[#1E1E1E]">
+                            <p className="text-base font-unbounded font-medium text-[#1E1E1E]">
                                 {calculateDuration(currentRouteData.distanceKm, speed)}
                             </p>
                         </div>
@@ -472,7 +472,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeStartCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={`flex items-center md:items-start text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -484,7 +484,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeEndCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={`flex items-center md:items-start text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -497,7 +497,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`self-start flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                        className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                     >
                         <div className="flex flex-col">
                             <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
@@ -506,7 +506,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </a>
                     <div className="flex flex-col">
                         <button
-                            className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} ${openSection === "одежда" ? "md:hover:text-[#777777]" : "hover:text-[#777777]"}`}
+                            className={`text-xl font-unbounded font-medium text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} ${openSection === "одежда" ? "md:hover:text-[#777777]" : "hover:text-[#777777]"}`}
                             onClick={() => toggleSection("одежда")}
                         >
                             <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
