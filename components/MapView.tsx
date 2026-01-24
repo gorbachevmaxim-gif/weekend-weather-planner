@@ -194,9 +194,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 </div>
             )}
             {windDeg !== undefined && (
-                <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                <div className="absolute top-1/2 right-4 z-10 flex flex-col items-center gap-1 -translate-y-1/2 translate-x-1 mt-1">
                     <div 
-                        className="w-6 h-6 rounded-full bg-[#E1E1E2]/80 flex items-center justify-center"
+                        className="w-6 h-6 rounded-full bg-white/70 flex items-center justify-center"
                         title={`Ветер ${windDeg}°`}
                     >
                         <svg 
@@ -211,14 +211,14 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         </svg>
                     </div>
                     {(windSpeed || windDirection) && (
-                        <div className="flex flex-col items-start">
+                        <div className="flex flex-col items-center">
                              {windSpeed && (
-                                <span className="text-xs text-[#777777] font-sans leading-none mb-0.5">
+                                <span className="text-xs text-[#444444] font-sans leading-none mb-0.5">
                                     {getAverageWindSpeed(windSpeed)}
                                 </span>
                              )}
                              {windDirection && (
-                                <span className="text-[10px] text-[#777777] uppercase font-sans leading-none">
+                                <span className="text-[10px] text-[#444444] uppercase font-sans leading-none">
                                     {windDirection}
                                 </span>
                              )}
