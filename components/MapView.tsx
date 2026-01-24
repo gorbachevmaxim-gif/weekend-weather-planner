@@ -16,7 +16,7 @@ import Feature from "ol/Feature";
 import LineString from "ol/geom/LineString";
 import { Style, Stroke } from "ol/style";
 import Overlay from "ol/Overlay";
-import { defaults as defaultInteractions } from 'ol/interaction';
+import { defaults as defaultInteractions, DragPan } from 'ol/interaction';
 
 interface MarkerData {
     coords: [number, number]; // [lat, lon]
@@ -77,7 +77,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         // For mobile, enable dragPan only with two fingers
         if (isMobile) {
-            const dragPan = map.getInteractions().getArray().find(i => i instanceof (window as any).ol?.interaction.DragPan);
+            const dragPan = map.getInteractions().getArray().find(i => i instanceof DragPan);
             if (dragPan) {
                 (dragPan as any).setCondition((event: any) => {
                     return event.originalEvent.touches?.length === 2;
