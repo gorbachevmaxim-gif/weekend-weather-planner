@@ -58,8 +58,14 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         mapInstanceRef.current = map;
 
-        // Add controls if needed, but UI seems minimal
-        // map.on('click', (e) => console.log(e));
+        // Disable interactions to prevent map capture during page scroll
+        try {
+            // map.disable('scrollZoom'); // Optional: usually good to keep scrollZoom off or on ctrl
+            map.disable('drag');
+            // map.disable('zoomControl');
+        } catch (e) {
+            console.error("Error disabling map interactions", e);
+        }
 
         return () => {
             if (mapInstanceRef.current) {
