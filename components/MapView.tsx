@@ -225,14 +225,14 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 </div>
             )}
             {windDeg !== undefined && (
-                <div className="absolute top-1/2 right-4 z-10 flex flex-col items-center gap-1 -translate-y-1/2 translate-x-1 mt-1">
+                <div className="absolute top-1/2 right-4 z-10 flex flex-col items-center gap-1 -translate-y-1/2 translate-x-0 mt-1">
                     <div 
-                        className="w-6 h-6 rounded-full bg-white/70 flex items-center justify-center"
+                        className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center"
                         title={`Ветер ${windDeg}°`}
                     >
                         <svg 
-                            width="14" 
-                            height="14" 
+                            width="16" 
+                            height="16" 
                             viewBox="0 0 24 24" 
                             fill="#777777" 
                             xmlns="http://www.w3.org/2000/svg"
@@ -244,12 +244,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     {(windSpeed || windDirection) && (
                         <div className="flex flex-col items-center">
                              {windSpeed && (
-                                <span className="text-xs text-[#444444] font-sans leading-none mb-0.5">
+                                <span className="text-[13px] text-[#444444] font-sans leading-none mb-0.5">
                                     {getAverageWindSpeed(windSpeed)}
                                 </span>
                              )}
                              {windDirection && (
-                                <span className="text-[10px] text-[#444444] uppercase font-sans leading-none">
+                                <span className="text-[11px] text-[#444444] uppercase font-sans leading-none">
                                     {windDirection}
                                 </span>
                              )}
