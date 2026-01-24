@@ -48,9 +48,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         // We'll allow none for a static map feel, or minimal if needed.
         // Previous code had: disable 'drag', kept others default (though 2GIS defaults might differ).
         // Let's disable dragPan and mouseWheelZoom to be safe/similar.
+        const isMobile = window.innerWidth < 768;
         const interactions = defaultInteractions({
-            dragPan: true,
-            mouseWheelZoom: true,
+            dragPan: !isMobile,
+            mouseWheelZoom: !isMobile,
             doubleClickZoom: true,
             shiftDragZoom: true,
             pinchRotate: true,
@@ -287,22 +288,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     </div>
                 )}
 
-                {/* Compass Control */}
-                <div className="flex items-center justify-center w-8 h-8">
-                    <button
-                        className="w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-all duration-200"
-                        style={{ transform: `rotate(${rotation}rad)` }}
-                        onClick={() => {
-                            const view = mapInstanceRef.current?.getView();
-                            if (view) {
-                                view.animate({ rotation: 0, duration: 350 });
-                            }
-                        }}
-                        title="Сбросить ориентацию карты"
-                    >
-                        <ArrowUp width={24} height={24} className="text-red-500" />
-                    </button>
-                </div>
             </div>
         </div>
     );
