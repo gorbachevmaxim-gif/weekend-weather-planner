@@ -499,7 +499,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         rel="noopener noreferrer"
                         className={`self-start flex items-center text-xl font-unbounded font-bold text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
                     >
-                        <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
+                        <div className="flex flex-col">
+                            <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
+                            <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
+                        </div>
                     </a>
                     <div className="flex flex-col">
                         <button
