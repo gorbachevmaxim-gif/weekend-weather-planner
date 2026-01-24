@@ -224,81 +224,85 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     </div>
                 </div>
             )}
-            {windDeg !== undefined && (
-                <div className="absolute top-1/2 right-4 z-10 flex flex-col items-center gap-1 -translate-y-1/2 translate-x-0 mt-1">
-                    <div 
-                        className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center"
-                        title={`Ветер ${windDeg}°`}
+
+            <div className="absolute right-4 top-4 bottom-4 z-20 flex flex-col items-center justify-between py-2">
+                {/* Zoom Controls */}
+                <div className="flex flex-col gap-2">
+                    <button
+                        className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                        onClick={() => {
+                            const view = mapInstanceRef.current?.getView();
+                            if (view) {
+                                view.animate({ zoom: (view.getZoom() || 0) + 1, duration: 250 });
+                            }
+                        }}
                     >
-                        <svg 
-                            width="16" 
-                            height="16" 
-                            viewBox="0 0 24 24" 
-                            fill="#777777" 
-                            xmlns="http://www.w3.org/2000/svg"
-                            style={{ transform: `rotate(${windDeg + 180}deg)` }}
-                        >
-                            <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
-                        </svg>
-                    </div>
-                    {(windSpeed || windDirection) && (
-                        <div className="flex flex-col items-center">
-                             {windSpeed && (
-                                <span className="text-[13px] text-[#444444] font-sans leading-none mb-0.5">
-                                    {getAverageWindSpeed(windSpeed)}
-                                </span>
-                             )}
-                             {windDirection && (
-                                <span className="text-[11px] text-[#444444] uppercase font-sans leading-none">
-                                    {windDirection}
-                                </span>
-                             )}
-                        </div>
-                    )}
+                        <PlusIcon width={20} height={20} />
+                    </button>
+                    <button
+                        className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                        onClick={() => {
+                            const view = mapInstanceRef.current?.getView();
+                            if (view) {
+                                view.animate({ zoom: (view.getZoom() || 0) - 1, duration: 250 });
+                            }
+                        }}
+                    >
+                        <MinusIcon width={20} height={20} />
+                    </button>
                 </div>
-            )}
 
-            {/* Zoom Controls */}
-            <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                <button
-                    className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
-                    onClick={() => {
-                        const view = mapInstanceRef.current?.getView();
-                        if (view) {
-                            view.animate({ zoom: (view.getZoom() || 0) + 1, duration: 250 });
-                        }
-                    }}
-                >
-                    <PlusIcon width={20} height={20} />
-                </button>
-                <button
-                    className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
-                    onClick={() => {
-                        const view = mapInstanceRef.current?.getView();
-                        if (view) {
-                            view.animate({ zoom: (view.getZoom() || 0) - 1, duration: 250 });
-                        }
-                    }}
-                >
-                    <MinusIcon width={20} height={20} />
-                </button>
-            </div>
+                {/* Wind Control */}
+                {windDeg !== undefined && (
+                    <div className="flex flex-col items-center gap-1">
+                        <div 
+                            className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center"
+                            title={`Ветер ${windDeg}°`}
+                        >
+                            <svg 
+                                width="18" 
+                                height="18" 
+                                viewBox="0 0 24 24" 
+                                fill="#777777" 
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ transform: `rotate(${windDeg + 180}deg)` }}
+                            >
+                                <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
+                            </svg>
+                        </div>
+                        {(windSpeed || windDirection) && (
+                            <div className="flex flex-col items-center">
+                                {windSpeed && (
+                                    <span className="text-[13px] text-[#444444] font-sans leading-none mb-0.5">
+                                        {getAverageWindSpeed(windSpeed)}
+                                    </span>
+                                )}
+                                {windDirection && (
+                                    <span className="text-[11px] text-[#444444] uppercase font-sans leading-none">
+                                        {windDirection}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
-            {/* Compass Control */}
-            <div className="absolute bottom-4 right-4 z-20">
-                <button
-                    className="w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-all duration-200"
-                    style={{ transform: `rotate(${rotation}rad)` }}
-                    onClick={() => {
-                        const view = mapInstanceRef.current?.getView();
-                        if (view) {
-                            view.animate({ rotation: 0, duration: 350 });
-                        }
-                    }}
-                    title="Сбросить ориентацию карты"
-                >
-                    <ArrowUp width={24} height={24} className="text-red-500" />
-                </button>
+                {/* Compass Control */}
+                <div className="flex items-center justify-center w-8 h-8">
+                    <button
+                        className="w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-all duration-200"
+                        style={{ transform: `rotate(${rotation}rad)` }}
+                        onClick={() => {
+                            const view = mapInstanceRef.current?.getView();
+                            if (view) {
+                                view.animate({ rotation: 0, duration: 350 });
+                            }
+                        }}
+                        title="Сбросить ориентацию карты"
+                    >
+                        <ArrowUp width={24} height={24} className="text-red-500" />
+                    </button>
+                </div>
             </div>
         </div>
     );
