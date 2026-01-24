@@ -126,52 +126,6 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         <div>
           <button
             className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
-              openSection === "sunny"
-                ? "text-[#333333] md:hover:text-[#777777]"
-                : openSection === null
-                ? "text-[#333333] hover:text-[#777777]"
-                : "text-[#B2B2B2] hover:text-[#777777]"
-            }`}
-            onClick={() => toggleSection("sunny")}
-          >
-            <span className="flex items-center">Солнечные<ArrowDown isOpen={openSection === "sunny"} width="20" height="20" style={{ top: "-7px" }} /></span>
-          </button>
-          {openSection === "sunny" && (
-            <div className="mt-0 space-y-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-0 pl-4">
-                  <span className="font-normal text-[13px] bg-[#333333] text-[#F3F3F3] rounded-full px-4 py-2">СБ</span>
-                  {sunnyCities.saturday.map((city: CityAnalysisResult) => (
-                    <button
-                      key={city.cityName}
-                      className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                      onClick={() => handleCityClick(city.cityName, "saturday")}
-                    >
-                      {city.cityName}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-0 pl-4">
-                  <span className="font-normal text-[13px] bg-[#333333] text-[#F3F3F3] rounded-full px-4 py-2">ВС</span>
-                  {sunnyCities.sunday.map((city: CityAnalysisResult) => (
-                    <button
-                      key={city.cityName}
-                      className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                      onClick={() => handleCityClick(city.cityName, "sunday")}
-                    >
-                      {city.cityName}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        <div>
-          <button
-            className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
               openSection === "cities"
                 ? "text-[#333333] md:hover:text-[#777777]"
                 : openSection === null
@@ -214,11 +168,58 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             target="_blank"
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
-              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#333333]'
+              openSection !== null && openSection !== "manifesto" ? 'text-[#B2B2B2]' : 'text-[#333333]'
             } hover:text-[#777777]`}            
           >
             <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
           </a>
+        </div>
+        <div>
+          <button
+            className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
+              openSection === "manifesto"
+                ? "text-[#333333] md:hover:text-[#777777]"
+                : openSection === null
+                ? "text-[#333333] hover:text-[#777777]"
+                : "text-[#B2B2B2] hover:text-[#777777]"
+            }`}
+            onClick={() => toggleSection("manifesto")}
+          >
+            <span className="flex items-center">Манифест<ArrowDown isOpen={openSection === "manifesto"} width="20" height="20" style={{ top: "-7px" }} /></span>
+          </button>
+          {openSection === "manifesto" && (
+            <div className="mt-4 px-4 text-sm leading-relaxed text-[#333333]">
+              <div className="mb-6">
+                <p>Многие спрашивают, как можно присоединиться к Гастродинамике? Здесь мы описали что нужно делать, чтобы быть внутри нашего комьюнити.</p>
+              </div>
+              <div className="flex flex-col gap-y-4">
+                <p>
+                  <span className="font-bold">1.</span> Быть вовлеченным в нашу общую жизнь, помогать с организацией туров, не стесняться, проявлять инициативу. У каждого из нас есть свои сильные стороны, профессиональные навыки, связи в обществе и многое другое, что можно отдать ребятам в комьюнити. Подумайте что можете сделать именно вы.
+                </p>
+                <p>
+                  <span className="font-bold">2.</span> Быть сильным во время заездов, не жаловаться, рассчитывать свои силы и поддерживать друг друга.
+                </p>
+                <p>
+                  <span className="font-bold">3.</span> Можно ли быть слабым для больших райдов, но быть в сообществе? Конечно, да! Главное, быть воспитанным, отдавать в комьюнити больше, чем забирать, регулярно тренироваться, если необходимо, прогрессировать и присоединяться к заездам по готовности.
+                </p>
+                <p>
+                  <span className="font-bold">4.</span> Проявлять интерес к еде и к людям, кто её создает. Вы можете не знать чем отличается итальянский трюфель от французского, или же фамилии всех шефов сибирских ресторанов, но нам хочется, чтобы каждый развивал свои вкусы и помогал бы находить новые направления для туров через интересную локальную гастрономию.
+                </p>
+                <p>
+                  <span className="font-bold">5.</span> Следить за питанием, общим состоянием здоровья, не забывать о витаминах. Мы искренне проповедуем максимальную эффективность как во время туров, так и за их пределами, поэтому хотим, чтобы каждый внутри комьюнити ответственно подходил к тому, что он ест, какой образ жизни ведет, как восстанавливается после физических нагрузок.
+                </p>
+                <p>
+                  <span className="font-bold">6.</span> Заботиться о своем велосипеде, делать регулярное обслуживание, располагать расходниками к нему и важными запчастями (особенно в турах, вдалеке от дома). Ни для кого из нас не в кайф вместо классного заезда в хорошей компании, ждать кого-либо на обочине по причине безответственного подхода к своей технике. Проявляйте такую же заботу к велосипеду, как и к самому себе.
+                </p>
+                <p>
+                  <span className="font-bold">7.</span> Управлять ожиданиями в комьюнити, чтобы ни у кого не было недопониманий. Сразу спрашивать, если что-то непонятно, и не молчать, когда видите, что чего-то не хватает. Делать шаг вперед, если есть идея с чем можете всем помочь, но не знаете с чего начать. Говорить заранее, если с чем-то не согласны, а критикуя что-то — всегда предлагать свой вариант. И главное, беря ответственность за что-либо — быть прозрачным, доводить дело до конца или вовремя делегировать на другого участника.
+                </p>
+                <p>
+                  <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
