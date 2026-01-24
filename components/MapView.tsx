@@ -50,7 +50,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         // Let's disable dragPan and mouseWheelZoom to be safe/similar.
         const isMobile = window.innerWidth < 768;
         const interactions = defaultInteractions({
-            dragPan: !isMobile, // Will be handled by dragPan interaction below if mobile
+            dragPan: true,
             mouseWheelZoom: !isMobile,
             doubleClickZoom: true,
             shiftDragZoom: true,
