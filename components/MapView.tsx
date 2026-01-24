@@ -121,11 +121,14 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             // 2GIS fitBounds: southWest, northEast
             // SW: [minLon, minLat], NE: [maxLon, maxLat]
+            const isMobile = window.innerWidth < 768;
+            const padding = isMobile ? 25 : 30;
+
             map.fitBounds({
                 southWest: [minLon, minLat],
                 northEast: [maxLon, maxLat]
             }, {
-                padding: { top: 60, bottom: 60, left: 60, right: 60 },
+                padding: { top: padding, bottom: padding, left: padding, right: padding },
                 animate: false 
             });
         }
