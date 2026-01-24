@@ -1,6 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
+import PlusIcon from "./icons/PlusIcon";
+import MinusIcon from "./icons/MinusIcon";
+import ArrowUp from "./icons/ArrowUp";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
+import "ol/ol.css";
+import Map from "ol/Map";
+import View from "ol/View";
+import TileLayer from "ol/layer/Tile";
+import OSM from "ol/source/OSM";
+import { fromLonLat } from "ol/proj";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import Feature from "ol/Feature";
+import LineString from "ol/geom/LineString";
+import { Style, Stroke } from "ol/style";
+import Overlay from "ol/Overlay";
+import { defaults as defaultInteractions } from 'ol/interaction';
 
 interface MarkerData {
     coords: [number, number]; // [lat, lon]
@@ -17,165 +33,171 @@ interface MapViewProps {
     windDirection?: string;
 }
 
-const API_KEY = "6591128b-36b9-4693-bf58-b3617cb6f043";
-
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection }) => {
+    const [rotation, setRotation] = useState(0);
     const mapContainerRef = useRef<HTMLDivElement>(null);
-    const mapInstanceRef = useRef<any>(null);
-    const polylineRef = useRef<any>(null);
-    const markersRef = useRef<any[]>([]);
-    const [isMapReady, setIsMapReady] = useState(false);
-
-    // Load 2GIS Script
-    useEffect(() => {
-        if (window.mapgl) {
-            setIsMapReady(true);
-            return;
-        }
-
-        const script = document.createElement("script");
-        script.src = "https://mapgl.2gis.com/api/js/v1";
-        script.async = true;
-        script.onload = () => setIsMapReady(true);
-        document.body.appendChild(script);
-
-        return () => {
-            // Cleanup script if needed? Usually keeps it.
-        };
-    }, []);
+    const mapInstanceRef = useRef<Map | null>(null);
+    const routeLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
+    const overlaysRef = useRef<Overlay[]>([]);
 
     // Initialize Map
     useEffect(() => {
-        if (!isMapReady || !mapContainerRef.current || mapInstanceRef.current) return;
+        if (!mapContainerRef.current) return;
 
-        const map = new window.mapgl.Map(mapContainerRef.current, {
-            center: [cityCoords.lon, cityCoords.lat],
-            zoom: 11,
-            key: API_KEY,
-            lang: "ru",
-            style: "c080bb6a-8134-4993-93a1-5b4d8c36a59b" // Standard style, or omit for default
+        // Disable interactions to match previous behavior (map.disable('drag'))
+        // We'll allow none for a static map feel, or minimal if needed.
+        // Previous code had: disable 'drag', kept others default (though 2GIS defaults might differ).
+        // Let's disable dragPan and mouseWheelZoom to be safe/similar.
+        const interactions = defaultInteractions({
+            dragPan: true,
+            mouseWheelZoom: true,
+            doubleClickZoom: true,
+            shiftDragZoom: true,
+            pinchRotate: true,
+            pinchZoom: true,
+            altShiftDragRotate: true,
+            keyboard: false
+        });
+
+        const map = new Map({
+            target: mapContainerRef.current,
+            layers: [
+                new TileLayer({
+                    source: new OSM(),
+                }),
+            ],
+            view: new View({
+                center: fromLonLat([cityCoords.lon, cityCoords.lat]),
+                zoom: 11,
+            }),
+            controls: [], // No default controls
+            interactions: interactions,
+        });
+
+        map.getView().on('change:rotation', () => {
+            setRotation(map.getView().getRotation());
         });
 
         mapInstanceRef.current = map;
 
-        // Disable interactions to prevent map capture during page scroll
-        try {
-            // map.disable('scrollZoom'); // Optional: usually good to keep scrollZoom off or on ctrl
-            map.disable('drag');
-            // map.disable('zoomControl');
-        } catch (e) {
-            console.error("Error disabling map interactions", e);
-        }
-
         return () => {
-            if (mapInstanceRef.current) {
-                mapInstanceRef.current.destroy();
-                mapInstanceRef.current = null;
-            }
+            map.setTarget(undefined);
         };
-    }, [isMapReady]); // Init only once when ready
+    }, []); // Run once
 
-    // Update Center/Zoom if no route
+    // Update View (Center/Zoom) when no route
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map || currentRouteData) return;
 
         if (routeStatus !== "Поиск...") {
-             map.setCenter([cityCoords.lon, cityCoords.lat], { animate: true });
-             map.setZoom(11, { animate: true });
+            map.getView().animate({
+                center: fromLonLat([cityCoords.lon, cityCoords.lat]),
+                zoom: 11,
+                duration: 500
+            });
         }
-    }, [cityCoords, routeStatus, currentRouteData, isMapReady]);
+    }, [cityCoords, routeStatus, currentRouteData]);
 
     // Handle Route (Polyline)
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
 
-        // Remove existing polyline
-        if (polylineRef.current) {
-            polylineRef.current.destroy();
-            polylineRef.current = null;
+        // Clear previous route layer
+        if (routeLayerRef.current) {
+            map.removeLayer(routeLayerRef.current);
+            routeLayerRef.current = null;
         }
 
         if (currentRouteData?.points?.length) {
-            // 2GIS uses [lon, lat]
-            const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
+            // points are [lat, lon]
+            const coordinates = currentRouteData.points.map(([lat, lon]) => fromLonLat([lon, lat]));
 
-            polylineRef.current = new window.mapgl.Polyline(map, {
-                coordinates: coordinates,
-                width: 3,
-                color: '#444444', // Dark grey
+            const routeFeature = new Feature({
+                geometry: new LineString(coordinates),
             });
+
+            const routeStyle = new Style({
+                stroke: new Stroke({
+                    color: '#444444',
+                    width: 3,
+                }),
+            });
+            routeFeature.setStyle(routeStyle);
+
+            const vectorSource = new VectorSource({
+                features: [routeFeature],
+            });
+
+            const vectorLayer = new VectorLayer({
+                source: vectorSource,
+            });
+
+            map.addLayer(vectorLayer);
+            routeLayerRef.current = vectorLayer;
 
             // Fit bounds
-            // Calculate bounds
-            let minLon = coordinates[0][0], maxLon = coordinates[0][0];
-            let minLat = coordinates[0][1], maxLat = coordinates[0][1];
-
-            coordinates.forEach(coord => {
-                if (coord[0] < minLon) minLon = coord[0];
-                if (coord[0] > maxLon) maxLon = coord[0];
-                if (coord[1] < minLat) minLat = coord[1];
-                if (coord[1] > maxLat) maxLat = coord[1];
-            });
-
-            // 2GIS fitBounds: southWest, northEast
-            // SW: [minLon, minLat], NE: [maxLon, maxLat]
+            const extent = vectorSource.getExtent();
             const isMobile = window.innerWidth < 768;
             const padding = isMobile ? 25 : 30;
 
-            map.fitBounds({
-                southWest: [minLon, minLat],
-                northEast: [maxLon, maxLat]
-            }, {
-                padding: { top: padding, bottom: padding, left: padding, right: padding },
-                animate: false 
+            map.getView().fit(extent, {
+                padding: [padding, padding, padding, padding],
+                duration: 500 // animate
             });
         }
-    }, [currentRouteData, isMapReady]);
+    }, [currentRouteData]);
 
-    // Handle Markers
+    // Handle Markers (using Overlays for HTML content)
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
 
-        // Clear existing markers
-        markersRef.current.forEach(m => m.destroy());
-        markersRef.current = [];
+        // Clear existing overlays
+        overlaysRef.current.forEach(overlay => map.removeOverlay(overlay));
+        overlaysRef.current = [];
+
+        // Helper to create overlay
+        const createOverlay = (coords: [number, number], element: HTMLElement, positioning: 'center-center' | 'bottom-center' = 'center-center') => {
+            const overlay = new Overlay({
+                element: element,
+                position: fromLonLat(coords), // [lon, lat]
+                positioning: positioning,
+                stopEvent: false,
+            });
+            map.addOverlay(overlay);
+            overlaysRef.current.push(overlay);
+        };
 
         // Route Start (A)
         if (currentRouteData?.points?.[0]) {
             const [lat, lon] = currentRouteData.points[0];
-            const marker = new window.mapgl.HtmlMarker(map, {
-                coordinates: [lon, lat],
-                html: `<div style="display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">A</div>`,
-                anchor: [0.5, 0.5] // Center
-            });
-            markersRef.current.push(marker);
+            const el = document.createElement('div');
+            el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);";
+            el.innerText = 'A';
+            createOverlay([lon, lat], el);
         }
 
         // Route End (B)
         if (currentRouteData?.points?.length) {
             const [lat, lon] = currentRouteData.points[currentRouteData.points.length - 1];
-            const marker = new window.mapgl.HtmlMarker(map, {
-                coordinates: [lon, lat],
-                html: `<div style="display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">B</div>`,
-                anchor: [0.5, 0.5] // Center
-            });
-            markersRef.current.push(marker);
+            const el = document.createElement('div');
+            el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);";
+            el.innerText = 'B';
+            createOverlay([lon, lat], el);
         }
 
         // Custom Markers
         markers?.forEach(m => {
-            const marker = new window.mapgl.HtmlMarker(map, {
-                coordinates: [m.coords[1], m.coords[0]],
-                html: `<div style="background-color: white; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); white-space: nowrap; font-size: 11px; font-weight: bold; color: black; font-family: sans-serif; margin-bottom: 4px;">${m.label}</div>`,
-                anchor: [0.5, 1] // Bottom
-            });
-            markersRef.current.push(marker);
+            const el = document.createElement('div');
+            el.style.cssText = "background-color: white; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); white-space: nowrap; font-size: 11px; font-weight: bold; color: black; font-family: sans-serif; margin-bottom: 4px;";
+            el.innerText = m.label;
+            // m.coords is [lat, lon], so reverse for fromLonLat
+            createOverlay([m.coords[1], m.coords[0]], el, 'bottom-center');
         });
 
-    }, [currentRouteData, markers, isMapReady]);
+    }, [currentRouteData, markers]);
 
     const getAverageWindSpeed = (range?: string) => {
         if (!range) return "";
@@ -235,12 +257,55 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     )}
                 </div>
             )}
+
+            {/* Zoom Controls */}
+            <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                <button
+                    className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                    onClick={() => {
+                        const view = mapInstanceRef.current?.getView();
+                        if (view) {
+                            view.animate({ zoom: (view.getZoom() || 0) + 1, duration: 250 });
+                        }
+                    }}
+                >
+                    <PlusIcon width={20} height={20} />
+                </button>
+                <button
+                    className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                    onClick={() => {
+                        const view = mapInstanceRef.current?.getView();
+                        if (view) {
+                            view.animate({ zoom: (view.getZoom() || 0) - 1, duration: 250 });
+                        }
+                    }}
+                >
+                    <MinusIcon width={20} height={20} />
+                </button>
+            </div>
+
+            {/* Compass Control */}
+            <div className="absolute bottom-4 right-4 z-20">
+                <button
+                    className="w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-all duration-200"
+                    style={{ transform: `rotate(${rotation}rad)` }}
+                    onClick={() => {
+                        const view = mapInstanceRef.current?.getView();
+                        if (view) {
+                            view.animate({ rotation: 0, duration: 350 });
+                        }
+                    }}
+                    title="Сбросить ориентацию карты"
+                >
+                    <ArrowUp width={24} height={24} className="text-red-500" />
+                </button>
+            </div>
         </div>
     );
 };
 
 declare global {
-    interface Window {
-        mapgl: any;
-    }
+    // interface Window {
+    //     mapgl: any;
+    // }
 }
