@@ -77,11 +77,22 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         // For mobile, enable dragPan only with two fingers
         if (isMobile) {
-            const dragPan = map.getInteractions().getArray().find(i => i instanceof DragPan);
-            if (dragPan) {
+            const dragPan = map.getInteractions().getArray().find(i => i instanceof DragPan) as DragPan;
+            if (dragPan && typeof (dragPan as any).setCondition === 'function') {
                 (dragPan as any).setCondition((event: any) => {
-                    return event.originalEvent.touches?.length === 2;
+                    return event.originalEvent?.touches?.length === 2 || 
+                           (event.originalEvent?.originalEvent?.touches?.length === 2);
                 });
+            } else if (dragPan) {
+                // Fallback for some versions of OpenLayers
+                map.removeInteraction(dragPan);
+                const newDragPan = new DragPan({
+                    condition: (event: any) => {
+                        return event.originalEvent?.touches?.length === 2 || 
+                               (event.originalEvent?.originalEvent?.touches?.length === 2);
+                    }
+                });
+                map.addInteraction(newDragPan);
             }
         }
 
