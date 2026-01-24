@@ -199,14 +199,59 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         const blob = new Blob([selectedRoute.gpxString], { type: "application/gpx+xml" });
         const file = new File([blob], filename, { type: "application/gpx+xml" });
 
-        if (navigator.share && navigator.canShare({ files: [file] })) {
+        const dateStr = activeStats.dateObj.toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "long" });
+        const routeStr = `${routeStartCity} — ${routeEndCity}`;
+        const distanceStr = `Дистанция: ${currentRouteData?.distanceKm.toFixed(0)} км`;
+        const elevationStr = `Набор: ${currentRouteData ? Math.round(currentRouteData.elevationM) : 0} м`;
+        
+        let stationsStr = "";
+        if (routeStartCity !== "Москва") {
+            const link = generateTransportLink("Москва", routeStartCity, activeStats.dateObj);
+            stationsStr += `Туда: ${startMoscowStation} — ${startStation}\n${link}\n\n`;
+        }
+        if (routeEndCity !== "Москва") {
+            const link = generateTransportLink(routeEndCity, "Москва", activeStats.dateObj);
+            stationsStr += `Обратно: ${endStation} — ${endMoscowStation}\n${link}\n\n`;
+        }
+
+        const clothingStr = activeStats.clothingHints && activeStats.clothingHints.length > 0
+            ? `Что надеть: ${activeStats.clothingHints.join(", ")}`
+            : "Что надеть: без осадков и теплее +5º";
+
+        const shareText = `${dateStr}\n${routeStr}\n\n${distanceStr}\n${elevationStr}\n\n${stationsStr}${clothingStr}`;
+
+        if (navigator.share) {
             try {
-                await navigator.share({
-                    files: [file]
-                });
-            }
-            catch (error) {
+                // Try sharing both file and text first
+                const shareData: ShareData = {
+                    files: [file],
+                    title: filename,
+                    text: shareText
+                };
+
+                if (navigator.canShare && navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
+                } else {
+                    // If combined share is not supported, try sharing them sequentially
+                    // or just the file as a fallback
+                    await navigator.share({
+                        files: [file],
+                        title: filename
+                    });
+                    // Note: sequential sharing might not work as expected on all platforms
+                    // but it's often better than nothing. However, most browsers only allow one share call per user gesture.
+                }
+            } catch (error) {
                 console.error("Error sharing", error);
+                // Last resort fallback - share only text if file share failed
+                try {
+                    await navigator.share({
+                        title: filename,
+                        text: shareText
+                    });
+                } catch (textError) {
+                    console.error("Error sharing text fallback", textError);
+                }
             }
         }
     };
