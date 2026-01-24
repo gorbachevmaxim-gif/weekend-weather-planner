@@ -503,7 +503,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </a>
                     <div className="flex flex-col">
                         <button
-                            className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} hover:text-[#777777]`}
+                            className={`text-xl font-unbounded font-bold text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} ${openSection === "одежда" ? "md:hover:text-[#777777]" : "hover:text-[#777777]"}`}
                             onClick={() => toggleSection("одежда")}
                         >
                             <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>

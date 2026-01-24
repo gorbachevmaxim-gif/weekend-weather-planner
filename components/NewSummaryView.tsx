@@ -98,7 +98,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
               <button
                 className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
                   isOpen
-                    ? "text-[#333333] hover:text-[#777777]"
+                    ? "text-[#333333] md:hover:text-[#777777]"
                     : openSection === null
                     ? "text-[#333333] hover:text-[#777777]"
                     : "text-[#B2B2B2] hover:text-[#777777]"
@@ -127,7 +127,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           <button
             className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
               openSection === "sunny"
-                ? "text-[#333333] hover:text-[#777777]"
+                ? "text-[#333333] md:hover:text-[#777777]"
                 : openSection === null
                 ? "text-[#333333] hover:text-[#777777]"
                 : "text-[#B2B2B2] hover:text-[#777777]"
@@ -173,7 +173,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           <button
             className={`w-full text-[26px] font-unbounded font-semibold text-left px-4 py-px ${
               openSection === "cities"
-                ? "text-[#333333] hover:text-[#777777]"
+                ? "text-[#333333] md:hover:text-[#777777]"
                 : openSection === null
                 ? "text-[#333333] hover:text-[#777777]"
                 : "text-[#B2B2B2] hover:text-[#777777]"
