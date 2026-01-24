@@ -1,9 +1,6 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import Map, { Source, Layer, NavigationControl, MapRef, Marker } from "react-map-gl/mapbox";
-import mapboxgl from "mapbox-gl";
+import React, { useEffect, useRef, useState } from "react";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
-import "mapbox-gl/dist/mapbox-gl.css";
 
 interface MarkerData {
     coords: [number, number]; // [lat, lon]
@@ -20,54 +17,156 @@ interface MapViewProps {
     windDirection?: string;
 }
 
-const MAPBOX_TOKEN = "pk.eyJ1IjoiZ29yYmllIiwiYSI6ImNtazhtcGtjbDFnb3QzZ3Exbm4ybjNmMXMifQ._zGWX07nBhvxyJmke98snA";
+const API_KEY = "6591128b-36b9-4693-bf58-b3617cb6f043";
 
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection }) => {
-    const mapRef = useRef<MapRef>(null);
+    const mapContainerRef = useRef<HTMLDivElement>(null);
+    const mapInstanceRef = useRef<any>(null);
+    const polylineRef = useRef<any>(null);
+    const markersRef = useRef<any[]>([]);
+    const [isMapReady, setIsMapReady] = useState(false);
 
-    const geoJsonData = useMemo(() => {
-        if (!currentRouteData?.points?.length) return null;
-        
-        // Convert [lat, lon] to [lon, lat] for GeoJSON
-        const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
-
-        return {
-            type: "Feature",
-            geometry: {
-                type: "LineString",
-                coordinates: coordinates
-            },
-            properties: {}
-        } as GeoJSON.Feature<GeoJSON.LineString>;
-    }, [currentRouteData]);
-
+    // Load 2GIS Script
     useEffect(() => {
-        if (!mapRef.current) return;
+        if (window.mapgl) {
+            setIsMapReady(true);
+            return;
+        }
 
-        if (geoJsonData) {
-            const bounds = new mapboxgl.LngLatBounds();
-            geoJsonData.geometry.coordinates.forEach((coord) => {
-                bounds.extend(coord as [number, number]);
+        const script = document.createElement("script");
+        script.src = "https://mapgl.2gis.com/api/js/v1";
+        script.async = true;
+        script.onload = () => setIsMapReady(true);
+        document.body.appendChild(script);
+
+        return () => {
+            // Cleanup script if needed? Usually keeps it.
+        };
+    }, []);
+
+    // Initialize Map
+    useEffect(() => {
+        if (!isMapReady || !mapContainerRef.current || mapInstanceRef.current) return;
+
+        const map = new window.mapgl.Map(mapContainerRef.current, {
+            center: [cityCoords.lon, cityCoords.lat],
+            zoom: 11,
+            key: API_KEY,
+            lang: "ru",
+            style: "c080bb6a-8134-4993-93a1-5b4d8c36a59b" // Standard style, or omit for default
+        });
+
+        mapInstanceRef.current = map;
+
+        // Add controls if needed, but UI seems minimal
+        // map.on('click', (e) => console.log(e));
+
+        return () => {
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.destroy();
+                mapInstanceRef.current = null;
+            }
+        };
+    }, [isMapReady]); // Init only once when ready
+
+    // Update Center/Zoom if no route
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (!map || currentRouteData) return;
+
+        if (routeStatus !== "Поиск...") {
+             map.setCenter([cityCoords.lon, cityCoords.lat], { animate: true });
+             map.setZoom(11, { animate: true });
+        }
+    }, [cityCoords, routeStatus, currentRouteData, isMapReady]);
+
+    // Handle Route (Polyline)
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (!map) return;
+
+        // Remove existing polyline
+        if (polylineRef.current) {
+            polylineRef.current.destroy();
+            polylineRef.current = null;
+        }
+
+        if (currentRouteData?.points?.length) {
+            // 2GIS uses [lon, lat]
+            const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
+
+            polylineRef.current = new window.mapgl.Polyline(map, {
+                coordinates: coordinates,
+                width: 3,
+                color: '#444444', // Dark grey
             });
 
-            // Delay slightly to ensure map is ready
-            setTimeout(() => {
-                 if (mapRef.current) {
-                    mapRef.current.fitBounds(bounds, {
-                        padding: 60,
-                        maxZoom: 13,
-                        animate: false
-                    });
-                 }
-            }, 100);
-        } else if (routeStatus !== "Поиск...") {
-             mapRef.current.flyTo({
-                center: [cityCoords.lon, cityCoords.lat],
-                zoom: 11,
-                animate: true
+            // Fit bounds
+            // Calculate bounds
+            let minLon = coordinates[0][0], maxLon = coordinates[0][0];
+            let minLat = coordinates[0][1], maxLat = coordinates[0][1];
+
+            coordinates.forEach(coord => {
+                if (coord[0] < minLon) minLon = coord[0];
+                if (coord[0] > maxLon) maxLon = coord[0];
+                if (coord[1] < minLat) minLat = coord[1];
+                if (coord[1] > maxLat) maxLat = coord[1];
+            });
+
+            // 2GIS fitBounds: southWest, northEast
+            // SW: [minLon, minLat], NE: [maxLon, maxLat]
+            map.fitBounds({
+                southWest: [minLon, minLat],
+                northEast: [maxLon, maxLat]
+            }, {
+                padding: { top: 60, bottom: 60, left: 60, right: 60 },
+                animate: false 
             });
         }
-    }, [geoJsonData, routeStatus, cityCoords.lon, cityCoords.lat]);
+    }, [currentRouteData, isMapReady]);
+
+    // Handle Markers
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (!map) return;
+
+        // Clear existing markers
+        markersRef.current.forEach(m => m.destroy());
+        markersRef.current = [];
+
+        // Route Start (A)
+        if (currentRouteData?.points?.[0]) {
+            const [lat, lon] = currentRouteData.points[0];
+            const marker = new window.mapgl.HtmlMarker(map, {
+                coordinates: [lon, lat],
+                html: `<div style="display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">A</div>`,
+                anchor: [0.5, 0.5] // Center
+            });
+            markersRef.current.push(marker);
+        }
+
+        // Route End (B)
+        if (currentRouteData?.points?.length) {
+            const [lat, lon] = currentRouteData.points[currentRouteData.points.length - 1];
+            const marker = new window.mapgl.HtmlMarker(map, {
+                coordinates: [lon, lat],
+                html: `<div style="display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">B</div>`,
+                anchor: [0.5, 0.5] // Center
+            });
+            markersRef.current.push(marker);
+        }
+
+        // Custom Markers
+        markers?.forEach(m => {
+            const marker = new window.mapgl.HtmlMarker(map, {
+                coordinates: [m.coords[1], m.coords[0]],
+                html: `<div style="background-color: white; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); white-space: nowrap; font-size: 11px; font-weight: bold; color: black; font-family: sans-serif; margin-bottom: 4px;">${m.label}</div>`,
+                anchor: [0.5, 1] // Bottom
+            });
+            markersRef.current.push(marker);
+        });
+
+    }, [currentRouteData, markers, isMapReady]);
 
     const getAverageWindSpeed = (range?: string) => {
         if (!range) return "";
@@ -83,84 +182,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     return (
         <div className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
-             <Map
-                ref={mapRef}
-                initialViewState={{
-                    longitude: cityCoords.lon,
-                    latitude: cityCoords.lat,
-                    zoom: 11
-                }}
-                style={{ width: "100%", height: "100%" }}
-                mapStyle="mapbox://styles/mapbox/light-v11"
-                mapboxAccessToken={MAPBOX_TOKEN}
-                scrollZoom={false}
-                attributionControl={false}
-                cooperativeGestures={true}
-            >
-                <NavigationControl position="top-left" showCompass={false} />
-                
-                {geoJsonData && (
-                    <Source id="route-source" type="geojson" data={geoJsonData}>
-                        <Layer
-                            id="route-layer"
-                            type="line"
-                            paint={{
-                                "line-color": "#444444",
-                                "line-width": 3,
-                                "line-opacity": 1
-                            }}
-                        />
-                    </Source>
-                )}
-
-                {currentRouteData?.points?.[0] && (
-                    <Marker
-                        longitude={currentRouteData.points[0][1]}
-                        latitude={currentRouteData.points[0][0]}
-                        anchor="center"
-                    >
-                        <div className="flex items-center justify-center w-5 h-5 bg-[#444444] rounded-full text-white text-[10px] font-bold shadow-md">
-                            A
-                        </div>
-                    </Marker>
-                )}
-
-                {currentRouteData?.points?.[currentRouteData.points.length - 1] && (
-                    <Marker
-                        longitude={currentRouteData.points[currentRouteData.points.length - 1][1]}
-                        latitude={currentRouteData.points[currentRouteData.points.length - 1][0]}
-                        anchor="center"
-                    >
-                        <div className="flex items-center justify-center w-5 h-5 bg-[#444444] rounded-full text-white text-[10px] font-bold shadow-md">
-                            B
-                        </div>
-                    </Marker>
-                )}
-
-                {markers?.map((marker, index) => (
-                    <Marker
-                        key={index}
-                        longitude={marker.coords[1]}
-                        latitude={marker.coords[0]}
-                        anchor="bottom"
-                    >
-                        <div style={{
-                            backgroundColor: "white",
-                            padding: "2px 6px",
-                            borderRadius: "4px",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                            whiteSpace: "nowrap",
-                            fontSize: "11px",
-                            fontWeight: "bold",
-                            color: "black",
-                            fontFamily: "sans-serif",
-                            marginBottom: "4px"
-                        }}>
-                            {marker.label}
-                        </div>
-                    </Marker>
-                ))}
-            </Map>
+            <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: "grayscale(100%)" }} />
+            
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
                     <div className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm">
@@ -206,3 +229,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         </div>
     );
 };
+
+declare global {
+    interface Window {
+        mapgl: any;
+    }
+}
