@@ -50,7 +50,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         // Let's disable dragPan and mouseWheelZoom to be safe/similar.
         const isMobile = window.innerWidth < 768;
         const interactions = defaultInteractions({
-            dragPan: !isMobile,
+            dragPan: !isMobile, // Will be handled by dragPan interaction below if mobile
             mouseWheelZoom: !isMobile,
             doubleClickZoom: true,
             shiftDragZoom: true,
@@ -74,6 +74,16 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             controls: [], // No default controls
             interactions: interactions,
         });
+
+        // For mobile, enable dragPan only with two fingers
+        if (isMobile) {
+            const dragPan = map.getInteractions().getArray().find(i => i instanceof (window as any).ol?.interaction.DragPan);
+            if (dragPan) {
+                (dragPan as any).setCondition((event: any) => {
+                    return event.originalEvent.touches?.length === 2;
+                });
+            }
+        }
 
         map.getView().on('change:rotation', () => {
             setRotation(map.getView().getRotation());
@@ -141,10 +151,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             // Fit bounds
             const extent = vectorSource.getExtent();
             const isMobile = window.innerWidth < 768;
-            const padding = isMobile ? 25 : 30;
+            const padding = isMobile ? [25, 30, 25, 25] : [30, 30, 30, 30];
 
             map.getView().fit(extent, {
-                padding: [padding, padding, padding, padding],
+                padding: padding,
                 duration: 500 // animate
             });
         }
