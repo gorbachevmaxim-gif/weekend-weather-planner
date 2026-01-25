@@ -289,7 +289,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {isFullscreen && (
                 <button
-                    className="absolute right-4 top-4 z-30 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                    className={`absolute right-4 top-4 z-30 w-10 h-10 backdrop-blur rounded-full shadow-md flex items-center justify-center transition-colors ${
+                        isDark 
+                        ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                        : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                    }`}
                     onClick={() => document.exitFullscreen()}
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -302,7 +306,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {/* Zoom Controls */}
                 <div className="flex flex-col gap-2">
                     <button
-                        className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                            isDark 
+                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                            : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                        }`}
                         onClick={() => {
                             const map = mapInstanceRef.current;
                             if (map) {
@@ -313,7 +321,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         <PlusIcon width={20} height={20} />
                     </button>
                     <button
-                        className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                            isDark 
+                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                            : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                        }`}
                         onClick={() => {
                             const map = mapInstanceRef.current;
                             if (map) {
@@ -324,7 +336,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         <MinusIcon width={20} height={20} />
                     </button>
                     <button
-                        className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                            isDark 
+                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                            : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                        }`}
                         onClick={() => {
                             if (!document.fullscreenElement) {
                                 wrapperRef.current?.requestFullscreen().catch(err => {
@@ -345,7 +361,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {windDeg !== undefined && (
                     <div className="flex flex-col items-center gap-1">
                         <button 
-                            className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center shadow-md active:bg-white transition-colors"
+                            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-colors ${
+                                isDark 
+                                ? "bg-[#333333]/70 active:bg-[#444444]" 
+                                : "bg-white/70 active:bg-white"
+                            }`}
                             title="Центрировать маршрут"
                             onClick={() => {
                                 const map = mapInstanceRef.current;
@@ -377,7 +397,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 width="18" 
                                 height="18" 
                                 viewBox="0 0 24 24" 
-                                fill="#777777" 
+                                fill={isDark ? "#FFFFFF" : "#777777"} 
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{ transform: `rotate(${windDeg + 180 + rotation}deg)` }}
                             >
@@ -387,12 +407,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         {(windSpeed || windDirection) && (
                             <div className="flex flex-col items-center">
                                 {windSpeed && (
-                                    <span className="text-[13px] text-[#444444] font-sans leading-none mb-0.5">
+                                    <span className={`text-[13px] font-sans leading-none mb-0.5 ${isDark ? "text-[#EEEEEE]" : "text-[#444444]"}`}>
                                         {getAverageWindSpeed(windSpeed)}
                                     </span>
                                 )}
                                 {windDirection && (
-                                    <span className="text-[11px] text-[#444444] uppercase font-sans leading-none">
+                                    <span className={`text-[11px] uppercase font-sans leading-none ${isDark ? "text-[#EEEEEE]" : "text-[#444444]"}`}>
                                         {windDirection}
                                     </span>
                                 )}

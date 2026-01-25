@@ -412,7 +412,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
                 )}
                 {currentRouteData && (
-                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b ${isDark ? "border-[#333333]" : "border-neutral-200"}`}>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4">
                         <div className="flex flex-col">
                             <p className="text-xs text-neutral-400">ДИСТАНЦИЯ</p>
                             {renderWeatherValue(currentRouteData.distanceKm.toFixed(0), " км")}
@@ -427,13 +427,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 <div className="flex items-center gap-1.5">
                                     <button 
                                         onClick={() => setSpeed(s => Math.max(23, s - 1))} 
-                                        className="text-neutral-400 hover:text-black hover:bg-gray-200 rounded transition-colors"
+                                        className={`text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
                                     >
                                         <MinusIcon width="12" height="12" />
                                     </button>
                                     <button 
                                         onClick={() => setSpeed(s => Math.min(38, s + 1))} 
-                                        className="text-neutral-400 hover:text-black hover:bg-gray-200 rounded transition-colors"
+                                        className={`text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
                                     >
                                         <PlusIcon width="12" height="12" />
                                     </button>
