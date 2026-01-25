@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
@@ -51,6 +51,32 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         setOpenSection(openSection === section ? null : section);
     };
 
+    const allAvailableDays = useMemo(() => {
+        const days = [];
+        const w1Sat = data.weekend1.saturday;
+        const w1Sun = data.weekend1.sunday;
+        const w2Sat = data.weekend2.saturday;
+        const w2Sun = data.weekend2.sunday;
+
+        if (w1Sat && w1Sat.isRideable && w1Sat.hasRoute) 
+            days.push({ id: "saturday", weekend: "w1", date: w1Sat.dateObj, label: w1Sat.dayName });
+        if (w1Sun && w1Sun.isRideable && w1Sun.hasRoute) 
+            days.push({ id: "sunday", weekend: "w1", date: w1Sun.dateObj, label: w1Sun.dayName });
+        if (w2Sat && w2Sat.isRideable && w2Sat.hasRoute) 
+            days.push({ id: "saturday", weekend: "w2", date: w2Sat.dateObj, label: w2Sat.dayName });
+        if (w2Sun && w2Sun.isRideable && w2Sun.hasRoute) 
+            days.push({ id: "sunday", weekend: "w2", date: w2Sun.dateObj, label: w2Sun.dayName });
+        
+        if (data.extraDays) {
+            data.extraDays.forEach(day => {
+                if (day.isRideable && day.hasRoute) {
+                    days.push({ id: day.dateStr, date: day.dateObj, label: day.dayName });
+                }
+            });
+        }
+        return days.sort((a, b) => a.date.getTime() - b.date.getTime());
+    }, [data]);
+
     const activeWeekend = activeTab === "w1" ? data.weekend1 : data.weekend2;
 
     useEffect(() => {
@@ -65,14 +91,19 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     useEffect(() => {
         if (initialDay) {
             setRouteDay(initialDay);
+            // We need to ensure activeTab matches the initialDay's weekend
+            const foundDay = allAvailableDays.find(d => d.id === initialDay);
+            if (foundDay && foundDay.weekend) {
+                setActiveTab(foundDay.weekend as "w1" | "w2");
+            }
         }
-        else if (activeWeekend.saturday?.isDry) {
+        else if (activeWeekend.saturday?.isRideable && activeWeekend.saturday?.hasRoute) {
             setRouteDay("saturday");
         }
-        else if (activeWeekend.sunday?.isDry) {
+        else if (activeWeekend.sunday?.isRideable && activeWeekend.sunday?.hasRoute) {
             setRouteDay("sunday");
         }
-    }, [activeTab, activeWeekend, initialDay]);
+    }, [activeTab, activeWeekend, initialDay, allAvailableDays]);
 
     let activeStats = null;
     if (routeDay === "saturday") activeStats = activeWeekend.saturday;
@@ -291,84 +322,35 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     };
 
+
     return (
-        <div className="mx-auto text-black flex-grow flex flex-col" style={{ backgroundColor: "#F5F5F5" }}>
-            <div className="sticky top-0 bg-[#F5F5F5] z-10">
-                <div className="flex">
-                    <button
-                        className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w1" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
-                        onClick={() => setActiveTab("w1")}
-                    >
-                        Эти выходные
-                    </button>
-                    <button
-                        className={`flex-1 text-center py-2 text-lg font-sans font-semibold tracking-tighter ${activeTab === "w2" ? "text-black border-b-2 border-black" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
-                        onClick={() => setActiveTab("w2")}
-                    >
-                        Через неделю
-                    </button>
-                </div>
-                <div className="flex items-center px-4 mt-4 pb-4 border-b border-[#D9D9D9] overflow-x-auto whitespace-nowrap gap-0">
+        <div className="mx-auto text-black flex-grow flex flex-col w-full" style={{ backgroundColor: "#F5F5F5" }}>
+            <div className="sticky top-0 bg-[#F5F5F5] z-10 pt-4 pb-4 border-b border-[#D9D9D9]">
+                <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
                     <button
                         onClick={onClose}
                         className="p-2 rounded-full flex items-center justify-center bg-[#000DFF] hover:bg-[#000BD5] shrink-0"
-                        style={{ width: "54px", height: "38px" }}
+                        style={{ width: "40px", height: "40px" }}
                     >
                         <ArrowLeftDiagonal />
                     </button>
-                    {(() => {
-                        const daysList = [];
-                        if (activeWeekend.saturday) {
-                            daysList.push({ id: "saturday", label: "СБ", date: activeWeekend.saturday.dateObj });
-                        }
-                        if (activeWeekend.sunday) {
-                            daysList.push({ id: "sunday", label: "ВС", date: activeWeekend.sunday.dateObj });
-                        }
+                    {allAvailableDays.map((dayItem: any) => {
+                        const isSelected = (dayItem.weekend ? (activeTab === dayItem.weekend && routeDay === dayItem.id) : routeDay === dayItem.id);
+                        const dateFormatted = dayItem.date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }).replace('.', '');
                         
-                        const w1Sat = data.weekend1.saturday?.dateObj;
-                        const w2Sat = data.weekend2.saturday?.dateObj;
-                        
-                        if (data.extraDays) {
-                            if (w1Sat && w2Sat) {
-                                const cutoff = w1Sat.getTime() + (w2Sat.getTime() - w1Sat.getTime()) / 2;
-                                data.extraDays.forEach(day => {
-                                    const isW1 = day.dateObj.getTime() < cutoff;
-                                    const isTabW1 = activeTab === "w1";
-                                    if (isW1 === isTabW1) {
-                                        daysList.push({ 
-                                            id: day.dateStr, 
-                                            label: getShortDayName(day.dayName), 
-                                            date: day.dateObj 
-                                        });
-                                    }
-                                });
-                            } else {
-                                data.extraDays.forEach(day => {
-                                    daysList.push({ 
-                                        id: day.dateStr, 
-                                        label: getShortDayName(day.dayName), 
-                                        date: day.dateObj 
-                                    });
-                                });
-                            }
-                        }
-                        
-                        daysList.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-                        return daysList.map(dayItem => (
+                        return (
                             <button
-                                key={dayItem.id}
-                                className={`text-[13px] py-2 px-4 rounded-full shrink-0 ${routeDay === dayItem.id ? "text-white bg-[#333333]" : "text-black bg-[#DDDDDD] hover:bg-[#D5D5D5]"}`}
-                                style={{ width: dayItem.id === "saturday" || dayItem.id === "sunday" ? "54px" : "auto", minWidth: "54px", height: "38px" }}
-                                onClick={() => setRouteDay(dayItem.id)}
+                                key={`${dayItem.weekend || ''}-${dayItem.id}`}
+                                className={`text-[30px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
+                                onClick={() => {
+                                    if (dayItem.weekend) setActiveTab(dayItem.weekend as "w1" | "w2");
+                                    setRouteDay(dayItem.id);
+                                }}
                             >
-                                {dayItem.label}
+                                {dayItem.label} ({dateFormatted})
                             </button>
-                        ));
-                    })()}
-                    <div className="text-[13px] py-2 px-4 rounded-full text-black shrink-0" style={{ backgroundColor: "#FFFFFF" }}>
-                        {data.cityName}
-                    </div>
+                        );
+                    })}
                 </div>
             </div>
 
