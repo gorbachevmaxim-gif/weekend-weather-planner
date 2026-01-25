@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import PlusIcon from "./icons/PlusIcon";
 import MinusIcon from "./icons/MinusIcon";
+import CenterIcon from "./icons/CenterIcon";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
 import maplibregl from "maplibre-gl";
@@ -26,6 +27,7 @@ interface MapViewProps {
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
@@ -41,6 +43,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         document.addEventListener("fullscreenchange", handleFullscreenChange);
         return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
     }, [onFullscreenToggle]);
+
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     // Initialize Map
     useEffect(() => {
@@ -318,7 +329,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     className={`absolute right-4 top-4 z-30 w-10 h-10 backdrop-blur rounded-full shadow-md flex items-center justify-center transition-colors ${
                         isDark 
                         ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                        : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                        : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
                     }`}
                     onClick={() => document.exitFullscreen()}
                 >
@@ -335,7 +346,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
                             isDark 
                             ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                            : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
                         }`}
                         onClick={() => {
                             const map = mapInstanceRef.current;
@@ -350,7 +361,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
                             isDark 
                             ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                            : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
                         }`}
                         onClick={() => {
                             const map = mapInstanceRef.current;
@@ -365,10 +376,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
                             isDark 
                             ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-gray-700 hover:bg-white active:bg-gray-100"
+                            : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
                         }`}
                         onClick={() => {
-                            if (!document.fullscreenElement) {
+                            if (isMobile) {
+                                handleCenterMap();
+                            } else if (!document.fullscreenElement) {
                                 wrapperRef.current?.requestFullscreen().catch(err => {
                                     console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
                                 });
@@ -377,18 +390,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             }
                         }}
                     >
-                        {!isFullscreen ? (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                            </svg>
+                        {isMobile || isFullscreen ? (
+                            <CenterIcon width={20} height={20} />
                         ) : (
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
-                                <line x1="12" y1="2" x2="12" y2="5" strokeWidth="2" />
-                                <line x1="12" y1="19" x2="12" y2="22" strokeWidth="2" />
-                                <line x1="2" y1="12" x2="5" y2="12" strokeWidth="2" />
-                                <line x1="19" y1="12" x2="22" y2="12" strokeWidth="2" />
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
                             </svg>
                         )}
                     </button>
