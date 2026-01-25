@@ -103,9 +103,12 @@ function formatRainHours(hours: number[]): string | null {
 }
 
 export function getWeekendDates(): TargetDate[] {
+    const now = new Date();
     const today = new Date();
     today.setHours(12, 0, 0, 0);
-    const dayOfWeek = today.getDay(); // 0 is Sunday, 6 is Saturday
+
+    const dayOfWeek = now.getDay(); // 0 is Sunday, 6 is Saturday
+    const hour = now.getHours();
 
     let sat1: Date;
     let sat2: Date;
@@ -115,15 +118,13 @@ export function getWeekendDates(): TargetDate[] {
         // We set sat1 to yesterday (the Saturday that just passed).
         sat1 = new Date(today);
         sat1.setDate(today.getDate() - 1);
-
-        // "Next Weekend" (w2) should be next Sat/Sun (7 days from sat1).
         sat2 = new Date(sat1);
         sat2.setDate(sat1.getDate() + 7);
     } else {
-        const daysUntilSat = (6 - dayOfWeek + 7) % 7 || 7;
+        // For other days, find the upcoming Saturday.
+        const daysUntilSat = (6 - dayOfWeek + 7) % 7;
         sat1 = new Date(today);
-        sat1.setDate(today.getDate() + (dayOfWeek === 6 ? 0 : daysUntilSat));
-
+        sat1.setDate(today.getDate() + daysUntilSat);
         sat2 = new Date(sat1);
         sat2.setDate(sat1.getDate() + 7);
     }
@@ -131,12 +132,17 @@ export function getWeekendDates(): TargetDate[] {
     const sun1 = new Date(sat1); sun1.setDate(sat1.getDate() + 1);
     const sun2 = new Date(sat2); sun2.setDate(sat2.getDate() + 1);
 
-    const targets: TargetDate[] = [
-        { date: sat1, type: 'w1_sat' },
-        { date: sun1, type: 'w1_sun' },
-        { date: sat2, type: 'w2_sat' },
-        { date: sun2, type: 'w2_sun' }
-    ];
+    const targets: TargetDate[] = [];
+
+    const isSaturdayOver = dayOfWeek === 0 || (dayOfWeek === 6 && hour >= 19); // Saturday is over after 7 PM or if it's Sunday
+
+    if (!isSaturdayOver) {
+        targets.push({ date: sat1, type: 'w1_sat' });
+    }
+    
+    targets.push({ date: sun1, type: 'w1_sun' });
+    targets.push({ date: sat2, type: 'w2_sat' });
+    targets.push({ date: sun2, type: 'w2_sun' });
 
     const rangeEnd = new Date(today);
     rangeEnd.setDate(today.getDate() + 12);

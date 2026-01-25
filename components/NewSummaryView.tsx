@@ -110,7 +110,24 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         });
     });
 
-    list.sort((a, b) => a.date.getTime() - b.date.getTime());
+    const daySortOrder: { [key: string]: number } = {
+        "Пятница": 1,
+        "Суббота": 2,
+        "Воскресенье": 3,
+        "Понедельник": 4,
+    };
+
+    list.sort((a, b) => {
+        const aOrder = daySortOrder[a.label] || 5;
+        const bOrder = daySortOrder[b.label] || 5;
+
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+        }
+        
+        return a.date.getTime() - b.date.getTime();
+    });
+    
     return list.filter(s => s.w1Cities.length > 0 || s.w2Cities.length > 0);
   }, [data, sunnyCitiesW1, sunnyCitiesW2]);
 
