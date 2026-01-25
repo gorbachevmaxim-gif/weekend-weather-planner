@@ -23,8 +23,18 @@ interface MapViewProps {
 
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection }) => {
     const [rotation, setRotation] = useState(0);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    }, []);
 
     // Initialize Map
     useEffect(() => {
@@ -254,7 +264,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     };
 
     return (
-        <div className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
+        <div ref={wrapperRef} className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: "grayscale(100%)" }} />
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
@@ -265,6 +275,17 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         </p>
                     </div>
                 </div>
+            )}
+
+            {isFullscreen && (
+                <button
+                    className="absolute right-4 top-4 z-30 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                    onClick={() => document.exitFullscreen()}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                    </svg>
+                </button>
             )}
 
             <div className="absolute left-4 top-4 bottom-4 z-20 flex flex-col items-center justify-between py-2">
@@ -291,6 +312,22 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         }}
                     >
                         <MinusIcon width={20} height={20} />
+                    </button>
+                    <button
+                        className="w-8 h-8 bg-white/90 backdrop-blur rounded-md shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+                        onClick={() => {
+                            if (!document.fullscreenElement) {
+                                wrapperRef.current?.requestFullscreen().catch(err => {
+                                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                                });
+                            } else {
+                                document.exitFullscreen();
+                            }
+                        }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                        </svg>
                     </button>
                 </div>
 
