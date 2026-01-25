@@ -398,10 +398,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 )}
                 {activeStats && (
                 <div className="p-4 mt-0 border-t border-[#D9D9D9]">
-                    <h2 className="font-unbounded font-medium text-base">
-                        Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.getDate()} {getShortMonthName(activeStats.dateObj)}
-                    </h2>
-                    <p className="text-[15px] text-[#666666]">{routeStartCity}—{routeEndCity}</p>
+                    <p className="text-xs text-neutral-400">МАРШРУТ</p>
+                    <p className="text-base font-unbounded font-medium text-black">
+                        {routeStartCity}—{routeEndCity}
+                    </p>
                 </div>
                 )}
                 {currentRouteData && (
