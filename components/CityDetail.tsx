@@ -77,7 +77,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         return days.sort((a, b) => a.date.getTime() - b.date.getTime());
     }, [data]);
 
-    const activeWeekend = activeTab === "w1" ? data.weekend1 : data.weekend2;
+    const activeWeekend = useMemo(() => activeTab === "w1" ? data.weekend1 : data.weekend2, [activeTab, data]);
 
     useEffect(() => {
         if ("share" in navigator && "canShare" in navigator) {
@@ -92,9 +92,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         if (initialDay) {
             setRouteDay(initialDay);
             // We need to ensure activeTab matches the initialDay's weekend
-            const foundDay = allAvailableDays.find(d => d.id === initialDay);
+            // But we should prioritize the initialTab if we have multiple days with same id (like 'saturday')
+            const foundDay = allAvailableDays.find(d => d.id === initialDay && (!initialTab || d.weekend === initialTab));
             if (foundDay && foundDay.weekend) {
                 setActiveTab(foundDay.weekend as "w1" | "w2");
+            } else {
+                // Fallback to just initialTab if day not found with specific weekend
+                if (initialTab) setActiveTab(initialTab);
             }
         }
         else if (activeWeekend.saturday?.isRideable && activeWeekend.saturday?.hasRoute) {
@@ -105,12 +109,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     }, [activeTab, activeWeekend, initialDay, allAvailableDays]);
 
-    let activeStats = null;
-    if (routeDay === "saturday") activeStats = activeWeekend.saturday;
-    else if (routeDay === "sunday") activeStats = activeWeekend.sunday;
-    else {
-        activeStats = data.extraDays?.find(d => d.dateStr === routeDay) || null;
-    }
+    const activeStats = useMemo(() => {
+        if (routeDay === "saturday") return activeWeekend.saturday;
+        if (routeDay === "sunday") return activeWeekend.sunday;
+        return data.extraDays?.find(d => d.dateStr === routeDay) || null;
+    }, [routeDay, activeWeekend, data.extraDays]);
 
     // Fallback if activeStats is null (e.g. switched tab and routeDay was saturday but saturday is null?)
     // But routeDay is state.
@@ -340,10 +343,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         
                         return (
                             <button
-                                key={`${dayItem.weekend || ''}-${dayItem.id}`}
+                                key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
                                 className={`text-[30px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
                                 onClick={() => {
-                                    if (dayItem.weekend) setActiveTab(dayItem.weekend as "w1" | "w2");
+                                    if (dayItem.weekend) {
+                                        setActiveTab(dayItem.weekend as "w1" | "w2");
+                                    }
                                     setRouteDay(dayItem.id);
                                 }}
                             >
