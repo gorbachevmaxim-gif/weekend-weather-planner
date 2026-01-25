@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
@@ -38,8 +38,8 @@ const getShortDayName = (fullName: string) => {
 };
 
 const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initialDay, onClose }) => {
+    const activeDayRef = useRef<HTMLButtonElement | null>(null);
     const [canShare, setCanShare] = useState(false);
-    const [activeTab, setActiveTab] = useState<"w1" | "w2">(initialTab);
     const [routeDay, setRouteDay] = useState<string | null>(null);
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
@@ -52,32 +52,24 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const allAvailableDays = useMemo(() => {
-        const days = [];
+        const days: any[] = [];
         const w1Sat = data.weekend1.saturday;
         const w1Sun = data.weekend1.sunday;
         const w2Sat = data.weekend2.saturday;
         const w2Sun = data.weekend2.sunday;
 
-        if (w1Sat && w1Sat.isRideable && w1Sat.hasRoute) 
-            days.push({ id: "saturday", weekend: "w1", date: w1Sat.dateObj, label: w1Sat.dayName });
-        if (w1Sun && w1Sun.isRideable && w1Sun.hasRoute) 
-            days.push({ id: "sunday", weekend: "w1", date: w1Sun.dateObj, label: w1Sun.dayName });
-        if (w2Sat && w2Sat.isRideable && w2Sat.hasRoute) 
-            days.push({ id: "saturday", weekend: "w2", date: w2Sat.dateObj, label: w2Sat.dayName });
-        if (w2Sun && w2Sun.isRideable && w2Sun.hasRoute) 
-            days.push({ id: "sunday", weekend: "w2", date: w2Sun.dateObj, label: w2Sun.dayName });
+        if (w1Sat) days.push({ id: "saturday", weekend: "w1", date: w1Sat.dateObj, label: w1Sat.dayName, stats: w1Sat });
+        if (w1Sun) days.push({ id: "sunday", weekend: "w1", date: w1Sun.dateObj, label: w1Sun.dayName, stats: w1Sun });
+        if (w2Sat) days.push({ id: "saturday", weekend: "w2", date: w2Sat.dateObj, label: w2Sat.dayName, stats: w2Sat });
+        if (w2Sun) days.push({ id: "sunday", weekend: "w2", date: w2Sun.dateObj, label: w2Sun.dayName, stats: w2Sun });
         
         if (data.extraDays) {
             data.extraDays.forEach(day => {
-                if (day.isRideable && day.hasRoute) {
-                    days.push({ id: day.dateStr, date: day.dateObj, label: day.dayName });
-                }
+                days.push({ id: day.dateStr, date: day.dateObj, label: day.dayName, stats: day });
             });
         }
         return days.sort((a, b) => a.date.getTime() - b.date.getTime());
     }, [data]);
-
-    const activeWeekend = useMemo(() => activeTab === "w1" ? data.weekend1 : data.weekend2, [activeTab, data]);
 
     useEffect(() => {
         if ("share" in navigator && "canShare" in navigator) {
@@ -90,30 +82,36 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     useEffect(() => {
         if (initialDay) {
-            setRouteDay(initialDay);
-            // We need to ensure activeTab matches the initialDay's weekend
-            // But we should prioritize the initialTab if we have multiple days with same id (like 'saturday')
-            const foundDay = allAvailableDays.find(d => d.id === initialDay && (!initialTab || d.weekend === initialTab));
-            if (foundDay && foundDay.weekend) {
-                setActiveTab(foundDay.weekend as "w1" | "w2");
+            // Find specific date string to be unambiguous
+            const initialDate = allAvailableDays.find(d => d.id === initialDay && (!initialTab || d.weekend === initialTab))?.date.getTime();
+            if (initialDate) {
+                setRouteDay(initialDate.toString());
             } else {
-                // Fallback to just initialTab if day not found with specific weekend
-                if (initialTab) setActiveTab(initialTab);
+                setRouteDay(initialDay);
+            }
+        } else {
+            const firstRideable = allAvailableDays.find(d => d.stats?.isRideable && d.stats?.hasRoute);
+            if (firstRideable) {
+                setRouteDay(firstRideable.date.getTime().toString());
+            } else if (allAvailableDays.length > 0) {
+                setRouteDay(allAvailableDays[0].date.getTime().toString());
             }
         }
-        else if (activeWeekend.saturday?.isRideable && activeWeekend.saturday?.hasRoute) {
-            setRouteDay("saturday");
-        }
-        else if (activeWeekend.sunday?.isRideable && activeWeekend.sunday?.hasRoute) {
-            setRouteDay("sunday");
-        }
-    }, [activeTab, activeWeekend, initialDay, allAvailableDays]);
+    }, [initialDay, initialTab, allAvailableDays]);
 
     const activeStats = useMemo(() => {
-        if (routeDay === "saturday") return activeWeekend.saturday;
-        if (routeDay === "sunday") return activeWeekend.sunday;
-        return data.extraDays?.find(d => d.dateStr === routeDay) || null;
-    }, [routeDay, activeWeekend, data.extraDays]);
+        return allAvailableDays.find(d => d.date.getTime().toString() === routeDay)?.stats || null;
+    }, [routeDay, allAvailableDays]);
+
+    useEffect(() => {
+        if (activeDayRef.current) {
+            activeDayRef.current.scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+                block: "nearest"
+            });
+        }
+    }, [routeDay]);
 
     // Fallback if activeStats is null (e.g. switched tab and routeDay was saturday but saturday is null?)
     // But routeDay is state.
@@ -163,7 +161,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     useEffect(() => {
         let isMounted = true;
-        if (!activeStats || !cityCoords) return;
+        if (!activeStats || !cityCoords) {
+            setFoundRoutes([]);
+            setRouteStatus("");
+            return;
+        }
         if (isFlightDestination) {
             setRouteStatus("Авианаправление");
             setFoundRoutes([]);
@@ -338,18 +340,16 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <ArrowLeftDiagonal />
                     </button>
                     {allAvailableDays.map((dayItem: any) => {
-                        const isSelected = (dayItem.weekend ? (activeTab === dayItem.weekend && routeDay === dayItem.id) : routeDay === dayItem.id);
+                        const isSelected = dayItem.date.getTime().toString() === routeDay;
                         const dateFormatted = dayItem.date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }).replace('.', '');
                         
                         return (
                             <button
                                 key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
+                                ref={isSelected ? activeDayRef : null}
                                 className={`text-[30px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
                                 onClick={() => {
-                                    if (dayItem.weekend) {
-                                        setActiveTab(dayItem.weekend as "w1" | "w2");
-                                    }
-                                    setRouteDay(dayItem.id);
+                                    setRouteDay(dayItem.date.getTime().toString());
                                 }}
                             >
                                 {dayItem.label} ({dateFormatted})
