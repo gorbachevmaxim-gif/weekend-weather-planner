@@ -348,15 +348,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     return (
         <div className="mx-auto text-black flex-grow flex flex-col w-full" style={{ backgroundColor: "#F5F5F5" }}>
-            <div className="sticky top-0 bg-[#F5F5F5] z-10 pt-4 pb-4 border-b border-[#D9D9D9]">
+            <div className="sticky top-0 bg-[#F5F5F5] z-10 pt-2 pb-2 border-b border-[#D9D9D9]">
                 <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
-                    <button
-                        onClick={onClose}
-                        className="p-2 rounded-full flex items-center justify-center bg-[#222222] hover:bg-[#333333] shrink-0"
-                        style={{ width: "54px", height: "38px" }}
-                    >
-                        <ArrowLeftDiagonal />
-                    </button>
                     {allAvailableDays.map((dayItem: any) => {
                         const isSelected = dayItem.date.getTime().toString() === routeDay;
                         const dateFormatted = `${dayItem.date.getDate()} ${getShortMonthName(dayItem.date)}`;
