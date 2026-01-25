@@ -72,8 +72,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         if (!map) return;
 
         const setupRoute = () => {
-            if (map.getSource('route')) {
+            if (map.getLayer('route')) {
                 map.removeLayer('route');
+            }
+            if (map.getSource('route')) {
                 map.removeSource('route');
             }
 
@@ -125,6 +127,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         } else {
             map.on('load', setupRoute);
         }
+
+        return () => {
+            map.off('load', setupRoute);
+        };
     }, [currentRouteData]);
 
     // Handle Markers
@@ -180,6 +186,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         }
 
         return () => {
+            map.off('load', setupMarkers);
             currentMarkers.forEach(m => m.remove());
         };
     }, [currentRouteData, markers]);
