@@ -104,13 +104,14 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
       <div 
         className={`fixed inset-0 bg-[#F5F5F5] z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${isManifestoVisible ? 'translate-y-0' : '-translate-y-full'}`}
       >
-        <div className="w-full md:max-w-[50%] mx-auto p-4 pt-[18px]">
-            <div className="flex justify-start items-start mb-8">
+        <div className="w-[90%] md:max-w-[50%] mx-auto px-4">
+            <div className="sticky top-0 bg-[#F5F5F5] pt-[18px] pb-8 z-10">
                 <button
                     onClick={() => setIsManifestoVisible(false)}
                     className="flex items-baseline text-[14px] font-inter text-black hover:text-[#777777] gap-0.5"
                 >
-                    <span className="underline decoration-1 underline-offset-4">Закрыть (esc)</span>
+                    <span className="underline decoration-1 underline-offset-4">Закрыть</span>
+                    <span className="hidden md:inline"> (esc)</span>
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
                 </button>
             </div>
