@@ -66,7 +66,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         }
     }, [cityCoords, routeStatus, currentRouteData]);
 
-    // Handle Route (Polyline)
+    // Handle Route (Polyline) and Endpoints (A/B)
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
@@ -77,6 +77,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 ? currentRouteData!.points.map(([lat, lon]) => [lon, lat]) 
                 : [];
 
+            // 1. Route Line
             const geoJson = {
                 type: 'Feature',
                 properties: {},
@@ -117,6 +118,70 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         });
                     }
                 }
+            }
+
+            // 2. Endpoints (A/B) using Layers
+            const endpointsFeatures: any[] = [];
+            if (hasData) {
+                 endpointsFeatures.push({
+                     type: 'Feature',
+                     properties: { label: 'A' },
+                     geometry: { type: 'Point', coordinates: [currentRouteData!.points[0][1], currentRouteData!.points[0][0]] }
+                 });
+                 endpointsFeatures.push({
+                     type: 'Feature',
+                     properties: { label: 'B' },
+                     geometry: { type: 'Point', coordinates: [currentRouteData!.points[currentRouteData!.points.length-1][1], currentRouteData!.points[currentRouteData!.points.length-1][0]] }
+                 });
+            }
+            const endpointsGeoJson = { type: 'FeatureCollection', features: endpointsFeatures };
+            
+            const endpointsSource = map.getSource('endpoints') as maplibregl.GeoJSONSource;
+            if (endpointsSource) {
+                endpointsSource.setData(endpointsGeoJson as any);
+            } else {
+                if (hasData) {
+                     map.addSource('endpoints', { type: 'geojson', data: endpointsGeoJson as any });
+                }
+            }
+
+            if (hasData) {
+                // Background Circle
+                if (!map.getLayer('endpoints-bg')) {
+                     if (map.getSource('endpoints')) {
+                        map.addLayer({
+                            id: 'endpoints-bg',
+                            type: 'circle',
+                            source: 'endpoints',
+                            paint: {
+                                'circle-radius': 10,
+                                'circle-color': '#444444',
+                                'circle-stroke-width': 1,
+                                'circle-stroke-color': '#ffffff'
+                            }
+                        });
+                     }
+                }
+                // Label
+                if (!map.getLayer('endpoints-label')) {
+                     if (map.getSource('endpoints')) {
+                        map.addLayer({
+                            id: 'endpoints-label',
+                            type: 'symbol',
+                            source: 'endpoints',
+                            layout: {
+                                'text-field': ['get', 'label'],
+                                'text-size': 10,
+                                'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular', 'Open Sans Regular'],
+                                'text-justify': 'center',
+                                'text-anchor': 'center'
+                            },
+                            paint: {
+                                'text-color': '#ffffff'
+                            }
+                        });
+                     }
+                }
 
                 // Fit bounds
                 const bounds = new maplibregl.LngLatBounds();
@@ -142,63 +207,19 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         };
     }, [currentRouteData]);
 
-    const markersRef = useRef<{ a?: maplibregl.Marker, b?: maplibregl.Marker, custom: maplibregl.Marker[] }>({ custom: [] });
+    const markersRef = useRef<{ custom: maplibregl.Marker[] }>({ custom: [] });
 
-    // Handle Markers
+    // Handle Custom Markers
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
 
-        const updateMarkers = () => {
-            const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
+        const updateCustomMarkers = () => {
+             // Custom Markers (Full rebuild)
+             markersRef.current.custom.forEach(m => m.remove());
+             markersRef.current.custom = [];
 
-            // Route Start (A)
-            if (hasData) {
-                const [lat, lon] = currentRouteData!.points[0];
-                if (markersRef.current.a) {
-                    markersRef.current.a.setLngLat([lon, lat]);
-                } else {
-                    const el = document.createElement('div');
-                    el.className = 'marker-a';
-                    el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);";
-                    el.innerText = 'A';
-                    markersRef.current.a = new maplibregl.Marker({ element: el })
-                        .setLngLat([lon, lat])
-                        .addTo(map);
-                }
-            } else {
-                if (markersRef.current.a) {
-                    markersRef.current.a.remove();
-                    markersRef.current.a = undefined;
-                }
-            }
-
-            // Route End (B)
-            if (hasData) {
-                const [lat, lon] = currentRouteData!.points[currentRouteData!.points.length - 1];
-                if (markersRef.current.b) {
-                    markersRef.current.b.setLngLat([lon, lat]);
-                } else {
-                    const el = document.createElement('div');
-                    el.className = 'marker-b';
-                    el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);";
-                    el.innerText = 'B';
-                    markersRef.current.b = new maplibregl.Marker({ element: el })
-                        .setLngLat([lon, lat])
-                        .addTo(map);
-                }
-            } else {
-                if (markersRef.current.b) {
-                    markersRef.current.b.remove();
-                    markersRef.current.b = undefined;
-                }
-            }
-
-            // Custom Markers (Full rebuild is okay as they don't change often)
-            markersRef.current.custom.forEach(m => m.remove());
-            markersRef.current.custom = [];
-
-            markers?.forEach(m => {
+             markers?.forEach(m => {
                 const el = document.createElement('div');
                 el.style.cssText = "background-color: white; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); white-space: nowrap; font-size: 11px; font-weight: bold; color: black; font-family: sans-serif; margin-bottom: 4px;";
                 el.innerText = m.label;
@@ -210,15 +231,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         };
 
         if (map.loaded()) {
-            updateMarkers();
+            updateCustomMarkers();
         } else {
-            map.on('load', updateMarkers);
+            map.on('load', updateCustomMarkers);
         }
 
         return () => {
-            map.off('load', updateMarkers);
+            map.off('load', updateCustomMarkers);
         };
-    }, [currentRouteData, markers]);
+    }, [markers]);
 
     const getAverageWindSpeed = (range?: string) => {
         if (!range) return "";
