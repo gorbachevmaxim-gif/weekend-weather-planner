@@ -4,10 +4,23 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-color: #F5F5F5;
+  --text-color: #0f172a; /* text-slate-900 */
+}
+
+.dark-theme {
+  --bg-color: #1E1E1E;
+  --text-color: #ffffff;
+}
+
 body {
   font-kerning: normal;
   font-feature-settings: "kern" 1;
   text-rendering: optimizeLegibility;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
 }
 
 .open-meteo-link-hover:hover {

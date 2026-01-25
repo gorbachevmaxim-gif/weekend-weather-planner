@@ -5,6 +5,8 @@ import ArrowDown from "./icons/ArrowDown";
 import ArrowUp from "./icons/ArrowUp";
 import RoutesIcon from "./icons/RoutesIcon";
 import GstrdnmcLogo from "./icons/GstrdnmcLogo";
+import LightThemeIcon from "./icons/LightThemeIcon";
+import DarkThemeIcon from "./icons/DarkThemeIcon";
 
 interface NewSummaryViewProps {
   data: CityAnalysisResult[];
@@ -15,6 +17,19 @@ interface NewSummaryViewProps {
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [isManifestoVisible, setIsManifestoVisible] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    return document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
+  });
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+    }
+  };
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -99,16 +114,18 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
     return list.filter(s => s.w1Cities.length > 0 || s.w2Cities.length > 0);
   }, [data, sunnyCitiesW1, sunnyCitiesW2]);
 
+  const isDark = theme === "dark";
+
   return (
     <div className="mt-[18px]">
       <div 
-        className={`fixed inset-0 bg-[#F5F5F5] z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${isManifestoVisible ? 'translate-y-0' : '-translate-y-full'}`}
+        className={`fixed inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${isManifestoVisible ? 'translate-y-0' : '-translate-y-full'} ${isDark ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}
       >
         <div className="w-[90%] md:max-w-[50%] mx-auto px-4">
-            <div className="sticky top-0 bg-[#F5F5F5] pt-[18px] pb-8 z-10">
+            <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-300 ${isDark ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
                 <button
                     onClick={() => setIsManifestoVisible(false)}
-                    className="flex items-baseline text-[14px] font-inter text-black hover:text-[#777777] gap-0.5"
+                    className={`flex items-baseline text-[14px] font-inter gap-0.5 ${isDark ? "text-white hover:text-[#777777]" : "text-black hover:text-[#777777]"}`}
                 >
                     <span className="underline decoration-1 underline-offset-4">Закрыть</span>
                     <span className="hidden md:inline"> (esc)</span>
@@ -116,7 +133,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 </button>
             </div>
             
-            <div className="mt-4 px-0 text-sm leading-relaxed text-[#333333] text-left">
+            <div className={`mt-4 px-0 text-sm leading-relaxed text-left ${isDark ? "text-white" : "text-[#333333]"}`}>
                 <div className="mb-6">
                 <p>
                     Многие спрашивают, как можно присоединиться к Гастродинамике? Здесь мы описали что нужно делать, чтобы быть внутри нашего комьюнити.
@@ -152,29 +169,42 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         </div>
       </div>
 
-      <div className="px-4 mb-8 flex justify-between items-start">
-        <button
-            onClick={() => setIsManifestoVisible(true)}
-            className="flex items-baseline text-[14px] font-inter text-black hover:text-[#777777] gap-0.5"
-        >
-            <span className="underline decoration-1 underline-offset-4">Манифест</span>
-            <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
-        </button>
-        <GstrdnmcLogo height="50" style={{ width: 'auto' }} />
+      <div className="px-4 mb-8 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+            <button
+                onClick={() => setIsManifestoVisible(true)}
+                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-white" : "text-black"}`}
+            >
+                <span className="underline decoration-1 underline-offset-4">Манифест</span>
+                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
+            </button>
+            <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
+                {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}
+            </button>
+        </div>
+        <GstrdnmcLogo height="50" style={{ width: 'auto' }} fill={isDark ? "#FFFFFF" : "#111111"} />
       </div>
       <div className="mt-0 space-y-1">
         {sections.map((section) => {
           const isOpen = openSection === section.key;
+          const isActive = isOpen;
+          const isInactive = openSection !== null && !isOpen;
+          
+          let textColorClass = "";
+          if (isDark) {
+            if (isActive) textColorClass = "text-white md:hover:text-[#777777]";
+            else if (isInactive) textColorClass = "text-[#383838] hover:text-[#777777]";
+            else textColorClass = "text-white hover:text-[#777777]";
+          } else {
+            if (isActive) textColorClass = "text-[#333333] md:hover:text-[#777777]";
+            else if (isInactive) textColorClass = "text-[#B2B2B2] hover:text-[#777777]";
+            else textColorClass = "text-[#333333] hover:text-[#777777]";
+          }
+
           return (
             <div key={section.key}>
               <button
-                className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
-                  isOpen
-                    ? "text-[#333333] md:hover:text-[#777777]"
-                    : openSection === null
-                    ? "text-[#333333] hover:text-[#777777]"
-                    : "text-[#B2B2B2] hover:text-[#777777]"
-                }`}
+                className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${textColorClass}`}
                 onClick={() => toggleSection(section.key)}
               >
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
@@ -187,7 +217,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                       {section.w1Cities.map((city: CityAnalysisResult) => (
                         <button
                           key={city.cityName}
-                          className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
+                          className={`text-black text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#777777] hover:bg-white" : "bg-white hover:bg-pill-hover"}`}
                           onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                         >
                           {city.cityName}
@@ -201,7 +231,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                       {section.w2Cities.map((city: CityAnalysisResult) => (
                         <button
                           key={city.cityName}
-                          className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
+                          className={`text-black text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#777777] hover:bg-white" : "bg-white hover:bg-pill-hover"}`}
                           onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                         >
                           {city.cityName}
@@ -217,11 +247,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         <div>
           <button
             className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
-              openSection === "cities"
-                ? "text-[#333333] md:hover:text-[#777777]"
-                : openSection === null
-                ? "text-[#333333] hover:text-[#777777]"
-                : "text-[#B2B2B2] hover:text-[#777777]"
+                isDark 
+                ? (openSection === "cities" ? "text-white md:hover:text-[#777777]" : (openSection === null ? "text-white hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
+                : (openSection === "cities" ? "text-[#333333] md:hover:text-[#777777]" : (openSection === null ? "text-[#333333] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
             }`}
             onClick={() => toggleSection("cities")}
           >
@@ -232,7 +260,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                   {allCities.map((city: string) => (
                 <button
                   key={city}
-                  className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
+                  className={`text-black text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#777777] hover:bg-white" : "bg-white hover:bg-pill-hover"}`}
                   onClick={() => onCityClick(city, "saturday")}
                 >
                   {city}
@@ -246,9 +274,11 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             href="https://www.komoot.com/collection/2674102/-lechappe-belle?ref=collection"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
-              openSection !== null ? 'text-[#B2B2B2] hover:text-[#777777]' : 'text-[#333333]'
-            } hover:text-[#777777]`}            
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
+              isDark
+              ? (openSection !== null ? 'text-[#383838]' : 'text-white')
+              : (openSection !== null ? 'text-[#B2B2B2]' : 'text-[#333333]')
+            }`}            
           >
             <span className="flex items-center">Маршруты<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
           </a>
@@ -258,9 +288,11 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0&source=copy_link"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
-              openSection !== null && openSection !== "manifesto" ? 'text-[#B2B2B2]' : 'text-[#333333]'
-            } hover:text-[#777777]`}            
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
+              isDark
+              ? (openSection !== null ? 'text-[#383838]' : 'text-white')
+              : (openSection !== null ? 'text-[#B2B2B2]' : 'text-[#333333]')
+            }`}            
           >
             <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
           </a>
