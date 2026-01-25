@@ -76,7 +76,17 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 days.push({ id: day.dateStr, date: day.dateObj, label: day.dayName, stats: day });
             });
         }
-        return days.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return days
+            .filter(d => {
+                const dayDate = new Date(d.date);
+                dayDate.setHours(0, 0, 0, 0);
+                return d.stats.isRideable && dayDate.getTime() >= today.getTime();
+            })
+            .sort((a, b) => a.date.getTime() - b.date.getTime());
     }, [data]);
 
     useEffect(() => {
@@ -94,8 +104,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             const initialDate = allAvailableDays.find(d => d.id === initialDay && (!initialTab || d.weekend === initialTab))?.date.getTime();
             if (initialDate) {
                 setRouteDay(initialDate.toString());
-            } else {
-                setRouteDay(initialDay);
+            } else if (allAvailableDays.length > 0) {
+                setRouteDay(allAvailableDays[0].date.getTime().toString());
             }
         } else {
             const firstRideable = allAvailableDays.find(d => d.stats?.isRideable && d.stats?.hasRoute);
