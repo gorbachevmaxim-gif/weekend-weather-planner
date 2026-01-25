@@ -332,8 +332,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full flex items-center justify-center bg-[#000DFF] hover:bg-[#000BD5] shrink-0"
-                        style={{ width: "40px", height: "40px" }}
+                        className="p-2 rounded-full flex items-center justify-center bg-[#222222] hover:bg-[#333333] shrink-0"
+                        style={{ width: "54px", height: "38px" }}
                     >
                         <ArrowLeftDiagonal />
                     </button>
