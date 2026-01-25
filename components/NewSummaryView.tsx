@@ -225,7 +225,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                       ))}
                     </div>
                   )}
-                  {section.w2Cities.length > 0 && (
+                  {section.w2Cities.length > 0 ? (
                     <div className="flex flex-wrap gap-0">
                       <div className="bg-[#333333] text-[#F3F3F3] text-[13px] tracking-tighter rounded-full px-4 py-2">Через неделю</div>
                       {section.w2Cities.map((city: CityAnalysisResult) => (
@@ -238,7 +238,12 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                         </button>
                       ))}
                     </div>
-                  )}
+                  ) : section.key === 'saturday' ? (
+                    <div className="flex flex-wrap gap-0">
+                      <div className="bg-[#333333] text-[#F3F3F3] text-[13px] tracking-tighter rounded-full px-4 py-2">Через неделю</div>
+                      <div className={`text-black text-[13px] tracking-tighter rounded-full px-4 py-2 ${isDark ? "bg-[#777777]" : "bg-white"}`}>Везде осадки</div>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
