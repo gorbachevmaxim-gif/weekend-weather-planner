@@ -37,6 +37,14 @@ const getShortDayName = (fullName: string) => {
     return map[fullName] || fullName.slice(0, 2).toUpperCase();
 };
 
+const getShortMonthName = (date: Date) => {
+    const months = [
+        "янв", "фев", "мар", "апр", "май", "июн",
+        "июл", "авг", "сен", "окт", "ноя", "дек"
+    ];
+    return months[date.getMonth()];
+};
+
 const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initialDay, onClose }) => {
     const activeDayRef = useRef<HTMLButtonElement | null>(null);
     const [canShare, setCanShare] = useState(false);
@@ -341,7 +349,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </button>
                     {allAvailableDays.map((dayItem: any) => {
                         const isSelected = dayItem.date.getTime().toString() === routeDay;
-                        const dateFormatted = dayItem.date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }).replace('.', '');
+                        const dateFormatted = `${dayItem.date.getDate()} ${getShortMonthName(dayItem.date)}`;
                         
                         return (
                             <button
@@ -381,7 +389,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 {activeStats && (
                 <div className="p-4 mt-0 border-t border-[#D9D9D9]">
                     <h2 className="font-unbounded font-medium text-base">
-                        Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
+                        Маршрут на {activeStats?.dateObj.toLocaleDateString("ru-RU", { weekday: "short" })}, {activeStats?.dateObj.getDate()} {getShortMonthName(activeStats.dateObj)}
                     </h2>
                     <p className="text-[15px] text-[#666666]">{routeStartCity}—{routeEndCity}</p>
                 </div>
