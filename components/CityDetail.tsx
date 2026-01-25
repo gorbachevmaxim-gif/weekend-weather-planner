@@ -54,6 +54,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
     const [openSection, setOpenSection] = useState<string | null>(null);
+    const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
 
     const toggleSection = (section: string) => {
@@ -131,9 +132,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             });
         }
     }, [routeDay]);
-
-    // Fallback if activeStats is null (e.g. switched tab and routeDay was saturday but saturday is null?)
-    // But routeDay is state.
     
     const cityCoords = CITIES[data.cityName];
     const currentRouteData = foundRoutes[selectedRouteIdx]?.routeData;
@@ -297,7 +295,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         const toName = encodeURIComponent(toConfig.displayName);
 
         const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear();
         const when = encodeURIComponent(`${day}.${month}.${year}`);
 
@@ -331,7 +329,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         ? `1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º`
         : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
 
-    // Prepare markers
     const markers: { coords: [number, number]; label: string }[] = [];
 
     const calculateDuration = (distKm: number, speedKmH: number) => {
@@ -450,17 +447,20 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 )}
 
-                <MapView 
-                    key={routeDay || "map"}
-                    cityCoords={cityCoords}
-                    currentRouteData={currentRouteData}
-                    routeStatus={routeStatus}
-                    markers={markers}
-                    windDeg={activeStats?.windDeg}
-                    windSpeed={activeStats?.windRange}
-                    windDirection={activeStats?.windDirection}
-                    isDark={isDark}
-                />
+                <div className={isMapFullscreen ? "fixed inset-0 z-50" : "relative"}>
+                    <MapView 
+                        key={routeDay || "map"}
+                        cityCoords={cityCoords}
+                        currentRouteData={currentRouteData}
+                        routeStatus={routeStatus}
+                        markers={markers}
+                        windDeg={activeStats?.windDeg}
+                        windSpeed={activeStats?.windRange}
+                        windDirection={activeStats?.windDirection}
+                        isDark={isDark}
+                        onFullscreenToggle={setIsMapFullscreen}
+                    />
+                </div>
 
                 <div className={`grid gap-4 px-4 pt-4 pb-2 ${canShare ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
                     <a

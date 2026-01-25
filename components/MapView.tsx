@@ -20,9 +20,10 @@ interface MapViewProps {
     windSpeed?: string;
     windDirection?: string;
     isDark?: boolean;
+    onFullscreenToggle?: (isFullscreen: boolean) => void;
 }
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -31,11 +32,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     useEffect(() => {
         const handleFullscreenChange = () => {
-            setIsFullscreen(!!document.fullscreenElement);
+            const isFs = !!document.fullscreenElement;
+            setIsFullscreen(isFs);
+            if (onFullscreenToggle) {
+                onFullscreenToggle(isFs);
+            }
         };
         document.addEventListener("fullscreenchange", handleFullscreenChange);
         return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    }, []);
+    }, [onFullscreenToggle]);
 
     // Initialize Map
     useEffect(() => {
@@ -127,11 +132,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 'line-cap': 'round'
                             },
                             paint: {
-                                'line-color': isDark ? '#CCCCCC' : '#444444', // Adjust route color for dark mode?
-                                // User didn't ask, but #444444 might be invisible on dark map?
-                                // Eclipse style is dark. #444444 is dark gray. Invisible.
-                                // I should probably make route lighter on dark map.
-                                // Let's use #CCCCCC or #EEEEEE.
+                                'line-color': isDark ? '#CCCCCC' : '#444444',
                                 'line-width': 3
                             }
                         });
@@ -174,7 +175,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             source: 'endpoints',
                             paint: {
                                 'circle-radius': 10,
-                                'circle-color': isDark ? '#CCCCCC' : '#444444', // Match route color
+                                'circle-color': isDark ? '#CCCCCC' : '#444444',
                                 'circle-stroke-width': 1,
                                 'circle-stroke-color': isDark ? '#333333' : '#ffffff'
                             }
@@ -196,7 +197,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 'text-anchor': 'center'
                             },
                             paint: {
-                                'text-color': isDark ? '#333333' : '#ffffff' // Contrast with circle
+                                'text-color': isDark ? '#333333' : '#ffffff'
                             }
                         });
                      }
@@ -224,7 +225,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         return () => {
             map.off('load', setupRoute);
         };
-    }, [currentRouteData, isDark]); // Add isDark dependency to update colors
+    }, [currentRouteData, isDark]);
 
     const markersRef = useRef<{ custom: maplibregl.Marker[] }>({ custom: [] });
 
@@ -275,7 +276,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     return (
         <div ref={wrapperRef} className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
-            {/* Remove grayscale for dark mode usually? Eclipse is already styled. */}
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
