@@ -72,42 +72,51 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         if (!map) return;
 
         const setupRoute = () => {
-            if (map.getLayer('route')) {
-                map.removeLayer('route');
+            const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
+            const coordinates = hasData 
+                ? currentRouteData!.points.map(([lat, lon]) => [lon, lat]) 
+                : [];
+
+            const geoJson = {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
+            };
+
+            const source = map.getSource('route') as maplibregl.GeoJSONSource;
+
+            if (source) {
+                source.setData(geoJson as any);
+            } else {
+                if (hasData) {
+                    map.addSource('route', {
+                        type: 'geojson',
+                        data: geoJson as any
+                    });
+                }
             }
-            if (map.getSource('route')) {
-                map.removeSource('route');
-            }
 
-            if (currentRouteData?.points?.length) {
-                // points are [lat, lon], maplibre needs [lon, lat]
-                const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
-
-                map.addSource('route', {
-                    type: 'geojson',
-                    data: {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: coordinates
-                        }
+            if (hasData) {
+                if (!map.getLayer('route')) {
+                    if (map.getSource('route')) {
+                        map.addLayer({
+                            id: 'route',
+                            type: 'line',
+                            source: 'route',
+                            layout: {
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            },
+                            paint: {
+                                'line-color': '#444444',
+                                'line-width': 3
+                            }
+                        });
                     }
-                });
-
-                map.addLayer({
-                    id: 'route',
-                    type: 'line',
-                    source: 'route',
-                    layout: {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    paint: {
-                        'line-color': '#444444',
-                        'line-width': 3
-                    }
-                });
+                }
 
                 // Fit bounds
                 const bounds = new maplibregl.LngLatBounds();
@@ -133,41 +142,62 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         };
     }, [currentRouteData]);
 
+    const markersRef = useRef<{ a?: maplibregl.Marker, b?: maplibregl.Marker, custom: maplibregl.Marker[] }>({ custom: [] });
+
     // Handle Markers
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
 
-        const currentMarkers: maplibregl.Marker[] = [];
+        const updateMarkers = () => {
+            const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
 
-        const setupMarkers = () => {
             // Route Start (A)
-            if (currentRouteData?.points?.[0]) {
-                const [lat, lon] = currentRouteData.points[0];
-                const el = document.createElement('div');
-                el.className = 'marker-a';
-                el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);";
-                el.innerText = 'A';
-                const m = new maplibregl.Marker({ element: el })
-                    .setLngLat([lon, lat])
-                    .addTo(map);
-                currentMarkers.push(m);
+            if (hasData) {
+                const [lat, lon] = currentRouteData!.points[0];
+                if (markersRef.current.a) {
+                    markersRef.current.a.setLngLat([lon, lat]);
+                } else {
+                    const el = document.createElement('div');
+                    el.className = 'marker-a';
+                    el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);";
+                    el.innerText = 'A';
+                    markersRef.current.a = new maplibregl.Marker({ element: el })
+                        .setLngLat([lon, lat])
+                        .addTo(map);
+                }
+            } else {
+                if (markersRef.current.a) {
+                    markersRef.current.a.remove();
+                    markersRef.current.a = undefined;
+                }
             }
 
             // Route End (B)
-            if (currentRouteData?.points?.length) {
-                const [lat, lon] = currentRouteData.points[currentRouteData.points.length - 1];
-                const el = document.createElement('div');
-                el.className = 'marker-b';
-                el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);";
-                el.innerText = 'B';
-                const m = new maplibregl.Marker({ element: el })
-                    .setLngLat([lon, lat])
-                    .addTo(map);
-                currentMarkers.push(m);
+            if (hasData) {
+                const [lat, lon] = currentRouteData!.points[currentRouteData!.points.length - 1];
+                if (markersRef.current.b) {
+                    markersRef.current.b.setLngLat([lon, lat]);
+                } else {
+                    const el = document.createElement('div');
+                    el.className = 'marker-b';
+                    el.style.cssText = "display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #444444; border-radius: 50%; color: white; font-size: 10px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);";
+                    el.innerText = 'B';
+                    markersRef.current.b = new maplibregl.Marker({ element: el })
+                        .setLngLat([lon, lat])
+                        .addTo(map);
+                }
+            } else {
+                if (markersRef.current.b) {
+                    markersRef.current.b.remove();
+                    markersRef.current.b = undefined;
+                }
             }
 
-            // Custom Markers
+            // Custom Markers (Full rebuild is okay as they don't change often)
+            markersRef.current.custom.forEach(m => m.remove());
+            markersRef.current.custom = [];
+
             markers?.forEach(m => {
                 const el = document.createElement('div');
                 el.style.cssText = "background-color: white; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); white-space: nowrap; font-size: 11px; font-weight: bold; color: black; font-family: sans-serif; margin-bottom: 4px;";
@@ -175,19 +205,18 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
                     .setLngLat([m.coords[1], m.coords[0]])
                     .addTo(map);
-                currentMarkers.push(marker);
+                markersRef.current.custom.push(marker);
             });
         };
 
         if (map.loaded()) {
-            setupMarkers();
+            updateMarkers();
         } else {
-            map.on('load', setupMarkers);
+            map.on('load', updateMarkers);
         }
 
         return () => {
-            map.off('load', setupMarkers);
-            currentMarkers.forEach(m => m.remove());
+            map.off('load', updateMarkers);
         };
     }, [currentRouteData, markers]);
 
