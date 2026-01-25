@@ -444,6 +444,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 )}
 
                 <MapView 
+                    key={routeDay || "map"}
                     cityCoords={cityCoords}
                     currentRouteData={currentRouteData}
                     routeStatus={routeStatus}
