@@ -273,6 +273,32 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         return `${range} км/ч`;
     };
 
+    const handleCenterMap = () => {
+        const map = mapInstanceRef.current;
+        if (!map) return;
+        
+        map.easeTo({ bearing: 0, duration: 350 });
+        
+        if (currentRouteData?.points?.length) {
+            const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
+            const bounds = new maplibregl.LngLatBounds();
+            coordinates.forEach(coord => bounds.extend(coord as [number, number]));
+            
+            const padding = 60;
+
+            map.fitBounds(bounds, {
+                padding: padding,
+                duration: 500
+            });
+        } else {
+            map.flyTo({
+                center: [cityCoords.lon, cityCoords.lat],
+                zoom: 11,
+                duration: 500
+            });
+        }
+    };
+
     return (
         <div ref={wrapperRef} className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
@@ -347,13 +373,24 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                     console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
                                 });
                             } else {
-                                document.exitFullscreen();
+                                handleCenterMap();
                             }
                         }}
                     >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                        </svg>
+                        {!isFullscreen ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                            </svg>
+                        ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+                                <line x1="12" y1="2" x2="12" y2="5" strokeWidth="2" />
+                                <line x1="12" y1="19" x2="12" y2="22" strokeWidth="2" />
+                                <line x1="2" y1="12" x2="5" y2="12" strokeWidth="2" />
+                                <line x1="19" y1="12" x2="22" y2="12" strokeWidth="2" />
+                            </svg>
+                        )}
                     </button>
                 </div>
 
@@ -367,31 +404,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 : "bg-white/70 active:bg-white"
                             }`}
                             title="Центрировать маршрут"
-                            onClick={() => {
-                                const map = mapInstanceRef.current;
-                                if (!map) return;
-                                
-                                map.easeTo({ bearing: 0, duration: 350 });
-                                
-                                if (currentRouteData?.points?.length) {
-                                    const coordinates = currentRouteData.points.map(([lat, lon]) => [lon, lat]);
-                                    const bounds = new maplibregl.LngLatBounds();
-                                    coordinates.forEach(coord => bounds.extend(coord as [number, number]));
-                                    
-                                    const padding = 60;
-
-                                    map.fitBounds(bounds, {
-                                        padding: padding,
-                                        duration: 500
-                                    });
-                                } else {
-                                    map.flyTo({
-                                        center: [cityCoords.lon, cityCoords.lat],
-                                        zoom: 11,
-                                        duration: 500
-                                    });
-                                }
-                            }}
+                            onClick={handleCenterMap}
                         >
                             <svg 
                                 width="18" 
