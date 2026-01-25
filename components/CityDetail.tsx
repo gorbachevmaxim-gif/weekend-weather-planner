@@ -46,6 +46,7 @@ const getShortMonthName = (date: Date) => {
 };
 
 const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initialDay, onClose }) => {
+    const isDark = document.documentElement.classList.contains('dark-theme');
     const activeDayRef = useRef<HTMLButtonElement | null>(null);
     const [canShare, setCanShare] = useState(false);
     const [routeDay, setRouteDay] = useState<string | null>(null);
@@ -304,9 +305,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const renderWeatherValue = (value: string, unit: string) => (
-        <p className="text-base font-unbounded font-medium text-black">
+        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
             {value.replace("-", "–")}
-            <span className="text-base font-unbounded font-medium" style={{ color: "#1E1E1E" }}>{unit.replace("-", "–")}</span>
+            <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#1E1E1E" }}>{unit.replace("-", "–")}</span>
         </p>
     );
 
@@ -314,9 +315,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         <div className="flex flex-col flex-1">
             <p className="text-xs text-neutral-400">{title}</p>
             {title === "ОСАДКИ" ? (
-                <p className="text-base font-unbounded font-medium text-black">
+                <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
                     {value}
-                    <span className="text-base font-unbounded font-medium" style={{ color: "#1E1E1E" }}>{unit}</span>
+                    <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#1E1E1E" }}>{unit}</span>
                 </p>
             ) : (
                 renderWeatherValue(value, unit)
@@ -347,8 +348,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
 
     return (
-        <div className="mx-auto text-black flex-grow flex flex-col w-full" style={{ backgroundColor: "#F5F5F5" }}>
-            <div className="sticky top-0 bg-[#F5F5F5] z-10 pt-2 pb-2 border-b border-[#D9D9D9]">
+        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-white" : "text-black"}`} style={{ backgroundColor: isDark ? "#1E1E1E" : "#F5F5F5" }}>
+            <div className={`sticky top-0 z-10 pt-2 pb-2 border-b ${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-[#F5F5F5] border-[#D9D9D9]"}`}>
                 <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
                     {allAvailableDays.map((dayItem: any) => {
                         const isSelected = dayItem.date.getTime().toString() === routeDay;
@@ -358,7 +359,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <button
                                 key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
                                 ref={isSelected ? activeDayRef : null}
-                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
+                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors ${
+                                    isSelected 
+                                        ? (isDark ? "text-[#EEEEEE]" : "text-[#111111]") 
+                                        : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")
+                                }`}
                                 onClick={() => {
                                     if (isSelected) {
                                         onClose();
@@ -399,15 +404,15 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 )}
                 {activeStats && (
-                <div className="p-4 mt-0 border-t border-[#D9D9D9]">
+                <div className={`p-4 mt-0 border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
                     <p className="text-xs text-neutral-400">МАРШРУТ</p>
-                    <p className="text-base font-unbounded font-medium text-black">
+                    <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
                         {routeStartCity}—{routeEndCity}
                     </p>
                 </div>
                 )}
                 {currentRouteData && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b border-neutral-200">
+                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4 border-b ${isDark ? "border-[#333333]" : "border-neutral-200"}`}>
                         <div className="flex flex-col">
                             <p className="text-xs text-neutral-400">ДИСТАНЦИЯ</p>
                             {renderWeatherValue(currentRouteData.distanceKm.toFixed(0), " км")}
@@ -438,7 +443,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </div>
                         <div className="flex flex-col">
                             <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                            <p className="text-base font-unbounded font-medium text-[#1E1E1E]">
+                            <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-[#1E1E1E]"}`}>
                                 {calculateDuration(currentRouteData.distanceKm, speed)}
                             </p>
                         </div>
@@ -454,13 +459,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     windDeg={activeStats?.windDeg}
                     windSpeed={activeStats?.windRange}
                     windDirection={activeStats?.windDirection}
+                    isDark={isDark}
                 />
 
                 <div className={`grid gap-4 px-4 pt-4 pb-2 ${canShare ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
-                        className="text-sm text-[#222222] hover:text-[#777777] flex items-baseline gap-0.5"
+                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Скачать</span>
                         <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
@@ -469,18 +475,18 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <a
                             href="#"
                             onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
-                            className="text-sm text-[#222222] hover:text-[#777777] flex items-baseline gap-0.5"
+                            className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
                         >
                             <span className="underline decoration-1 underline-offset-4">Переслать</span>
                             <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
                         </a>
                     )}
                 </div>
-                <div className={`mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 ${routeStartCity === "Москва" || routeEndCity === "Москва" ? "" : "md:grid-cols-2"} gap-4 border-t border-[#D9D9D9]`}>
+                <div className={`mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 ${routeStartCity === "Москва" || routeEndCity === "Москва" ? "" : "md:grid-cols-2"} gap-4 border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
                     {routeStartCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -492,7 +498,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     {routeEndCity !== "Москва" && (
                         <a
                             href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
                             target="_blank"
                         >
                             <div className="flex flex-col">
@@ -505,7 +511,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? 'text-[#B2B2B2]' : 'text-[#1E1E1E]'} hover:text-[#777777]`}
+                        className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
                     >
                         <div className="flex flex-col">
                             <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
@@ -514,7 +520,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </a>
                     <div className="flex flex-col">
                         <button
-                            className={`text-xl font-unbounded font-medium text-left py-px ${openSection === "одежда" || openSection === null ? "text-[#1E1E1E]" : "text-[#B2B2B2]"} ${openSection === "одежда" ? "md:hover:text-[#777777]" : "hover:text-[#777777]"}`}
+                            className={`text-xl font-unbounded font-medium text-left py-px ${
+                                openSection === "одежда" || openSection === null 
+                                    ? (isDark ? "text-[#EEEEEE]" : "text-[#1E1E1E]") 
+                                    : (isDark ? "text-[#777777]" : "text-[#B2B2B2]")
+                            } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
                             onClick={() => toggleSection("одежда")}
                         >
                             <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
@@ -528,14 +538,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     {activeStats.clothingHints.map((hint: string) => (
                                         <span
                                             key={hint}
-                                            className="bg-white text-black text-15 tracking-tighter rounded-full px-4 py-2"
+                                            className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
                                         >
                                             {hint}
                                         </span>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="mt-0 pl-0 text-[#222222] text-sm">
+                                <div className={`mt-0 pl-0 ${isDark ? "text-[#EEEEEE]" : "text-[#222222]"} text-sm`}>
                                     Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
                                 </div>
                             )}
@@ -543,7 +553,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 </div>
             </div>
-            <footer className="shrink-0 text-center text-xs text-neutral-400 p-4 border-t border-[#D9D9D9] bg-[#F5F5F5]">
+            <footer className={`shrink-0 text-center text-xs text-neutral-400 p-4 border-t ${isDark ? "border-[#333333] bg-[#1E1E1E]" : "border-[#D9D9D9] bg-[#F5F5F5]"}`}>
                 <a href="https://open-meteo.com/">
                     Weather data by Open-Meteo.com
                 </a>
