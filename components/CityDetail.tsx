@@ -553,11 +553,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 </div>
             </div>
-            <footer className={`shrink-0 text-center text-xs text-neutral-400 p-4 border-t ${isDark ? "border-[#333333] bg-[#1E1E1E]" : "border-[#D9D9D9] bg-[#F5F5F5]"}`}>
-                <a href="https://open-meteo.com/">
-                    Weather data by Open-Meteo.com
-                </a>
-            </footer>
         </div>
     );
 };

@@ -98,6 +98,12 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete }) => {
             </p>
         </div>
       </div>
+      
+      <div className="absolute bottom-6 text-center text-xs" style={{ color: '#777777' }}>
+          <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">
+              Weather data by Open-Meteo.com
+          </a>
+      </div>
     </div>
   );
 };
