@@ -42,7 +42,7 @@ const getShortMonthName = (date: Date) => {
         "янв", "фев", "мар", "апр", "май", "июн",
         "июл", "авг", "сен", "окт", "ноя", "дек"
     ];
-    return months[date.getMonth()];
+    return months[date.getMonth()].toUpperCase();
 };
 
 const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initialDay, onClose }) => {
@@ -370,7 +370,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     setRouteDay(dayItem.date.getTime().toString());
                                 }}
                             >
-                                {dayItem.label} ({dateFormatted})
+                                <span className="flex items-baseline gap-2">
+                                    <span>{dayItem.label}</span>
+                                    <span className="text-xs font-sans transform -translate-y-2">
+                                        {dateFormatted}
+                                    </span>
+                                </span>
                             </button>
                         );
                     })}
