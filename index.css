@@ -63,3 +63,16 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.maplibregl-ctrl-attrib {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.dark-theme .maplibregl-ctrl-attrib {
+  background-color: #444444 !important;
+}
+
+.dark-theme .maplibregl-ctrl-attrib a {
+  background-color: #444444 !important;
+  border-radius: 50%;
+}
