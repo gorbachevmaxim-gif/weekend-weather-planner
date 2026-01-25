@@ -339,68 +339,72 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 </button>
             )}
 
-            <div className="absolute left-4 top-4 bottom-4 z-20 flex flex-col items-center justify-between py-2">
-                {/* Zoom Controls */}
-                <div className="flex flex-col gap-2">
-                    <button
-                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
-                            isDark 
-                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
-                        }`}
-                        onClick={() => {
-                            const map = mapInstanceRef.current;
-                            if (map) {
-                                map.zoomIn();
-                            }
-                        }}
-                    >
-                        <PlusIcon width={20} height={20} />
-                    </button>
-                    <button
-                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
-                            isDark 
-                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
-                        }`}
-                        onClick={() => {
-                            const map = mapInstanceRef.current;
-                            if (map) {
-                                map.zoomOut();
-                            }
-                        }}
-                    >
-                        <MinusIcon width={20} height={20} />
-                    </button>
-                    <button
-                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
-                            isDark 
-                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
-                        }`}
-                        onClick={() => {
-                            if (isMobile) {
-                                handleCenterMap();
-                            } else if (!document.fullscreenElement) {
-                                wrapperRef.current?.requestFullscreen().catch(err => {
-                                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                                });
-                            } else {
-                                handleCenterMap();
-                            }
-                        }}
-                    >
-                        {isMobile || isFullscreen ? (
-                            <CenterIcon width={20} height={20} />
-                        ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                            </svg>
-                        )}
-                    </button>
-                </div>
+            {/* Top-left controls */}
+            <div className="absolute left-4 top-4 z-20 flex flex-col items-center gap-2">
+                {!isMobile && (
+                    <>
+                        <button
+                            className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                                isDark 
+                                ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                                : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                            }`}
+                            onClick={() => {
+                                const map = mapInstanceRef.current;
+                                if (map) {
+                                    map.zoomIn();
+                                }
+                            }}
+                        >
+                            <PlusIcon width={20} height={20} />
+                        </button>
+                        <button
+                            className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                                isDark 
+                                ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                                : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                            }`}
+                            onClick={() => {
+                                const map = mapInstanceRef.current;
+                                if (map) {
+                                    map.zoomOut();
+                                }
+                            }}
+                        >
+                            <MinusIcon width={20} height={20} />
+                        </button>
+                    </>
+                )}
+                <button
+                    className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                        isDark 
+                        ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                        : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                    }`}
+                    onClick={() => {
+                        if (isMobile) {
+                            handleCenterMap();
+                        } else if (!document.fullscreenElement) {
+                            wrapperRef.current?.requestFullscreen().catch(err => {
+                                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                            });
+                        } else {
+                            handleCenterMap();
+                        }
+                    }}
+                >
+                    {isMobile || isFullscreen ? (
+                        <CenterIcon width={20} height={20} />
+                    ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                        </svg>
+                    )}
+                </button>
+            </div>
 
-                {/* Wind Control */}
+            {/* Bottom-left controls */}
+            <div className="absolute left-4 bottom-4 z-20 flex flex-col items-center">
                 {windDeg !== undefined && (
                     <div className="flex flex-col items-center gap-1">
                         <button 
