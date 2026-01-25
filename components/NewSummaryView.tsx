@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { CityAnalysisResult } from "../types";
 import { useSummaryFiltering } from "../hooks/useSummaryFiltering";
 import ArrowDown from "./icons/ArrowDown";
+import ArrowUp from "./icons/ArrowUp";
 import RoutesIcon from "./icons/RoutesIcon";
+import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 
 interface NewSummaryViewProps {
   data: CityAnalysisResult[];
@@ -12,6 +14,21 @@ interface NewSummaryViewProps {
 
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [isManifestoVisible, setIsManifestoVisible] = useState(false);
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsManifestoVisible(false);
+      }
+    };
+    if (isManifestoVisible) {
+      window.addEventListener("keydown", handleEsc);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [isManifestoVisible]);
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
@@ -28,12 +45,12 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
     today.setHours(0, 0, 0, 0);
 
     const refCity1 = data.find(c => c.weekend1.saturday);
-    const sat1Date = refCity1?.weekend1.saturday?.dateObj;
-    const sun1Date = refCity1?.weekend1.sunday?.dateObj;
+    const sat1Date = refCity1?.weekend1.saturday?.dateObj || data.find(c => c.weekend1.saturday)?.weekend1.saturday?.dateObj;
+    const sun1Date = refCity1?.weekend1.sunday?.dateObj || data.find(c => c.weekend1.sunday)?.weekend1.sunday?.dateObj;
 
     const refCity2 = data.find(c => c.weekend2.saturday);
-    const sat2Date = refCity2?.weekend2.saturday?.dateObj;
-    const sun2Date = refCity2?.weekend2.sunday?.dateObj;
+    const sat2Date = refCity2?.weekend2.saturday?.dateObj || data.find(c => c.weekend2.saturday)?.weekend2.saturday?.dateObj;
+    const sun2Date = refCity2?.weekend2.sunday?.dateObj || data.find(c => c.weekend2.sunday)?.weekend2.sunday?.dateObj;
 
     // We only care about Saturdays and Sundays that are today or in the future
     // In this combined view, we group by "Saturday" and "Sunday"
@@ -83,7 +100,67 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
   }, [data, sunnyCitiesW1, sunnyCitiesW2]);
 
   return (
-    <div>
+    <div className="mt-[18px]">
+      <div 
+        className={`fixed inset-0 bg-[#F5F5F5] z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${isManifestoVisible ? 'translate-y-0' : '-translate-y-full'}`}
+      >
+        <div className="w-full md:max-w-[50%] mx-auto p-4 pt-[18px]">
+            <div className="flex justify-start items-start mb-8">
+                <button
+                    onClick={() => setIsManifestoVisible(false)}
+                    className="flex items-baseline text-[14px] font-inter text-black hover:text-[#777777] gap-0.5"
+                >
+                    <span className="underline decoration-1 underline-offset-4">Закрыть (esc)</span>
+                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                </button>
+            </div>
+            
+            <div className="mt-4 px-0 text-sm leading-relaxed text-[#333333] text-left">
+                <div className="mb-6">
+                <p>
+                    Многие спрашивают, как можно присоединиться к Гастродинамике? Здесь мы описали что нужно делать, чтобы быть внутри нашего комьюнити.
+                </p>
+                </div>
+                <div className="flex flex-col gap-y-4 pb-12">
+                <p>
+                    <span className="font-bold">1.</span> Быть вовлеченным в нашу общую жизнь, помогать с организацией туров, не стесняться, проявлять инициативу. У каждого из нас есть свои сильные стороны, профессиональные навыки, связи в обществе и многое другое, что можно отдать ребятам в комьюнити. Подумайте что можете сделать именно вы.
+                </p>
+                <p>
+                    <span className="font-bold">2.</span> Быть сильным во время заездов, не жаловаться, рассчитывать свои силы и поддерживать друг друга.
+                </p>
+                <p>
+                    <span className="font-bold">3.</span> Можно ли быть слабым для больших райдов, но быть в сообществе? Конечно, да! Главное, быть воспитанным, отдавать в комьюнити больше, чем забирать, регулярно тренироваться, если необходимо, прогрессировать и присоединяться к заездам по готовности.
+                </p>
+                <p>
+                    <span className="font-bold">4.</span> Проявлять интерес к еде и к людям, кто её создает. Вы можете не знать чем отличается итальянский трюфель от французского, или же фамилии всех шефов сибирских ресторанов, но нам хочется, чтобы каждый развивал свои вкусы и помогал бы находить новые направления для туров через интересную локальную гастрономию.
+                </p>
+                <p>
+                    <span className="font-bold">5.</span> Следить за питанием, общим состоянием здоровья, не забывать о витаминах. Мы искренне проповедуем максимальную эффективность как во время туров, так и за их пределами, поэтому хотим, чтобы каждый внутри комьюнити ответственно подходил к тому, что он ест, какой образ жизни ведет, как восстанавливается после физических нагрузок.
+                </p>
+                <p>
+                    <span className="font-bold">6.</span> Заботиться о своем велосипеде, делать регулярное обслуживание, располагать расходниками к нему и важными запчастями (особенно в турах, вдалеке от дома). Ни для кого из нас не в кайф вместо классного заезда в хорошей компании, ждать кого-либо на обочине по причине безответственного подхода к своей технике. Проявляйте такую же заботу к велосипеду, как и к самому себе.
+                </p>
+                <p>
+                    <span className="font-bold">7.</span> Управлять ожиданиями в комьюнити, чтобы ни у кого не было недопониманий. Сразу спрашивать, если что-то непонятно, и не молчать, когда видите, что чего-то не хватает. Делать шаг вперед, если есть идея с чем можете всем помочь, но не знаете с чего начать. Говорить заранее, если с чем-то не согласны, а критикуя что-то — всегда предлагать свой вариант. И главное, беря ответственность за что-либо — быть прозрачным, доводить дело до конца или вовремя делегировать на другого участника.
+                </p>
+                <p>
+                    <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
+                </p>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div className="px-4 mb-8 flex justify-between items-start">
+        <button
+            onClick={() => setIsManifestoVisible(true)}
+            className="flex items-baseline text-[14px] font-inter text-black hover:text-[#777777] gap-0.5"
+        >
+            <span className="underline decoration-1 underline-offset-4">Манифест</span>
+            <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
+        </button>
+        <GstrdnmcLogo height="50" style={{ width: 'auto' }} />
+      </div>
       <div className="mt-0 space-y-1">
         {sections.map((section) => {
           const isOpen = openSection === section.key;
@@ -186,53 +263,6 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           >
             <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
           </a>
-        </div>
-        <div>
-          <button
-            className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
-              openSection === "manifesto"
-                ? "text-[#333333] md:hover:text-[#777777]"
-                : openSection === null
-                ? "text-[#333333] hover:text-[#777777]"
-                : "text-[#B2B2B2] hover:text-[#777777]"
-            }`}
-            onClick={() => toggleSection("manifesto")}
-          >
-            <span className="flex items-center">Манифест<ArrowDown isOpen={openSection === "manifesto"} width="20" height="20" style={{ top: "-7px" }} /></span>
-          </button>
-          {openSection === "manifesto" && (
-            <div className="mt-4 px-4 text-sm leading-relaxed text-[#333333]">
-              <div className="mb-6">
-                <p>Многие спрашивают, как можно присоединиться к Гастродинамике? Здесь мы описали что нужно делать, чтобы быть внутри нашего комьюнити.</p>
-              </div>
-              <div className="flex flex-col gap-y-4">
-                <p>
-                  <span className="font-bold">1.</span> Быть вовлеченным в нашу общую жизнь, помогать с организацией туров, не стесняться, проявлять инициативу. У каждого из нас есть свои сильные стороны, профессиональные навыки, связи в обществе и многое другое, что можно отдать ребятам в комьюнити. Подумайте что можете сделать именно вы.
-                </p>
-                <p>
-                  <span className="font-bold">2.</span> Быть сильным во время заездов, не жаловаться, рассчитывать свои силы и поддерживать друг друга.
-                </p>
-                <p>
-                  <span className="font-bold">3.</span> Можно ли быть слабым для больших райдов, но быть в сообществе? Конечно, да! Главное, быть воспитанным, отдавать в комьюнити больше, чем забирать, регулярно тренироваться, если необходимо, прогрессировать и присоединяться к заездам по готовности.
-                </p>
-                <p>
-                  <span className="font-bold">4.</span> Проявлять интерес к еде и к людям, кто её создает. Вы можете не знать чем отличается итальянский трюфель от французского, или же фамилии всех шефов сибирских ресторанов, но нам хочется, чтобы каждый развивал свои вкусы и помогал бы находить новые направления для туров через интересную локальную гастрономию.
-                </p>
-                <p>
-                  <span className="font-bold">5.</span> Следить за питанием, общим состоянием здоровья, не забывать о витаминах. Мы искренне проповедуем максимальную эффективность как во время туров, так и за их пределами, поэтому хотим, чтобы каждый внутри комьюнити ответственно подходил к тому, что он ест, какой образ жизни ведет, как восстанавливается после физических нагрузок.
-                </p>
-                <p>
-                  <span className="font-bold">6.</span> Заботиться о своем велосипеде, делать регулярное обслуживание, располагать расходниками к нему и важными запчастями (особенно в турах, вдалеке от дома). Ни для кого из нас не в кайф вместо классного заезда в хорошей компании, ждать кого-либо на обочине по причине безответственного подхода к своей технике. Проявляйте такую же заботу к велосипеду, как и к самому себе.
-                </p>
-                <p>
-                  <span className="font-bold">7.</span> Управлять ожиданиями в комьюнити, чтобы ни у кого не было недопониманий. Сразу спрашивать, если что-то непонятно, и не молчать, когда видите, что чего-то не хватает. Делать шаг вперед, если есть идея с чем можете всем помочь, но не знаете с чего начать. Говорить заранее, если с чем-то не согласны, а критикуя что-то — всегда предлагать свой вариант. И главное, беря ответственность за что-либо — быть прозрачным, доводить дело до конца или вовремя делегировать на другого участника.
-                </p>
-                <p>
-                  <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
