@@ -365,7 +365,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <button
                                 key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
                                 ref={isSelected ? activeDayRef : null}
-                                className={`text-[30px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
+                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
                                 onClick={() => {
                                     if (isSelected) {
                                         onClose();
@@ -374,7 +374,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     }
                                 }}
                             >
-                                <span className="flex items-baseline gap-2">
+                                <span className="flex items-baseline gap-1">
                                     <span>{dayItem.label}</span>
                                     <span className="text-xs font-sans transform -translate-y-3">
                                         {dateFormatted}
