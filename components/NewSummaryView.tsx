@@ -11,93 +11,80 @@ interface NewSummaryViewProps {
 }
 
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
-  const [activeTab, setActiveTab] = useState<"w1" | "w2">("w1");
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
   };
 
-  const {
-    sunnyCities: sunnyCitiesW1,
-  } = useSummaryFiltering({ data, isSecondWeekend: false });
-
-  const {
-    sunnyCities: sunnyCitiesW2,
-  } = useSummaryFiltering({ data, isSecondWeekend: true });
-
-  const sunnyCities = activeTab === "w1" ? sunnyCitiesW1 : sunnyCitiesW2;
-  const handleCityClick = activeTab === "w1" ? onCityClick : onCityClickW2;
+  const { sunnyCities: sunnyCitiesW1 } = useSummaryFiltering({ data, isSecondWeekend: false });
+  const { sunnyCities: sunnyCitiesW2 } = useSummaryFiltering({ data, isSecondWeekend: true });
 
   const allCities = useMemo(() => data.map(city => city.cityName), [data]);
 
   const sections = useMemo(() => {
-    const activeWeekend = activeTab === "w1" ? "weekend1" : "weekend2";
-    const refCity = data.find(c => c[activeWeekend].saturday);
-    
     const list = [];
-    
-    const satDate = refCity?.[activeWeekend].saturday?.dateObj;
-    const sunDate = refCity?.[activeWeekend].sunday?.dateObj;
-    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (satDate && satDate >= today) {
-        list.push({
-            key: "saturday",
-            label: "Суббота",
-            cities: sunnyCities.saturday,
-            date: satDate, 
-            isStandard: true
-        });
-    }
+    const refCity1 = data.find(c => c.weekend1.saturday);
+    const sat1Date = refCity1?.weekend1.saturday?.dateObj;
+    const sun1Date = refCity1?.weekend1.sunday?.dateObj;
+
+    const refCity2 = data.find(c => c.weekend2.saturday);
+    const sat2Date = refCity2?.weekend2.saturday?.dateObj;
+    const sun2Date = refCity2?.weekend2.sunday?.dateObj;
+
+    // We only care about Saturdays and Sundays that are today or in the future
+    // In this combined view, we group by "Saturday" and "Sunday"
     
-    if (sunDate && sunDate >= today) {
+    list.push({
+        key: "saturday",
+        label: "Суббота",
+        date: sat1Date || sat2Date || new Date(0),
+        w1Cities: sunnyCitiesW1.saturday,
+        w2Cities: sunnyCitiesW2.saturday,
+        isStandard: true
+    });
+
+    list.push({
+        key: "sunday",
+        label: "Воскресенье",
+        date: sun1Date || sun2Date || new Date(86400000),
+        w1Cities: sunnyCitiesW1.sunday,
+        w2Cities: sunnyCitiesW2.sunday,
+        isStandard: true
+    });
+
+    // Holidays handling (keeping it simple for now, can be improved if needed)
+    const allHolidays = [...sunnyCitiesW1.holidays, ...sunnyCitiesW2.holidays];
+    const holidayMap = new Map<string, any>();
+    allHolidays.forEach(h => {
+        const dateStr = h.dateObj.toISOString().split('T')[0];
+        if (!holidayMap.has(dateStr)) {
+            holidayMap.set(dateStr, { ...h, dateStr });
+        }
+    });
+
+    Array.from(holidayMap.values()).forEach(h => {
         list.push({
-            key: "sunday",
-            label: "Воскресенье",
-            cities: sunnyCities.sunday,
-            date: sunDate, 
-            isStandard: true
-        });
-    }
-    
-    sunnyCities.holidays.forEach((h: any) => {
-        list.push({
-            key: `holiday_${h.dateObj.toISOString().split('T')[0]}`,
+            key: `holiday_${h.dateStr}`,
             label: h.dayName,
-            cities: h.cities,
             date: h.dateObj,
+            w1Cities: h.cities, // Adjust logic if holidays overlap W1/W2 differently
+            w2Cities: [],
             isStandard: false,
-            dateStr: h.dateObj.toISOString().split('T')[0]
+            dateStr: h.dateStr
         });
     });
-    
-    if (satDate && sunDate) {
-        list.sort((a, b) => a.date.getTime() - b.date.getTime());
-    }
-    
-    return list;
-  }, [data, activeTab, sunnyCities]);
+
+    list.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return list.filter(s => s.w1Cities.length > 0 || s.w2Cities.length > 0);
+  }, [data, sunnyCitiesW1, sunnyCitiesW2]);
 
   return (
     <div>
-      <div className="flex">
-        <button
-          className={`flex-1 text-center py-2 font-sans text-lg font-semibold tracking-tighter ${activeTab === "w1" ? "text-[#333333] border-b-2 border-[#333333]" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
-          onClick={() => setActiveTab("w1")}
-        >
-          Эти выходные
-        </button>
-        <button
-          className={`flex-1 text-center py-2 font-sans text-lg font-semibold tracking-tighter ${activeTab === "w2" ? "text-[#333333] border-b-2 border-[#333333]" : "text-[#B2B2B2] border-b-2 border-[#B2B2B2]"}`}
-          onClick={() => setActiveTab("w2")}
-        >
-          Через неделю
-        </button>
-      </div>
-      <div className="mt-6 space-y-1">
+      <div className="mt-0 space-y-1">
         {sections.map((section) => {
           const isOpen = openSection === section.key;
           return (
@@ -115,16 +102,35 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
               {isOpen && (
-                <div className="mt-0 flex flex-wrap gap-0 pl-4">
-                  {section.cities.map((city: CityAnalysisResult) => (
-                    <button
-                      key={city.cityName}
-                      className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                      onClick={() => handleCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
-                    >
-                      {city.cityName}
-                    </button>
-                  ))}
+                <div className="mt-0 px-4 space-y-0">
+                  {section.w1Cities.length > 0 && (
+                    <div className="flex flex-wrap gap-0">
+                      <div className="bg-[#333333] text-[#F3F3F3] text-[13px] tracking-tighter rounded-full px-4 py-2">Эти выходные</div>
+                      {section.w1Cities.map((city: CityAnalysisResult) => (
+                        <button
+                          key={city.cityName}
+                          className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
+                          onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
+                        >
+                          {city.cityName}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {section.w2Cities.length > 0 && (
+                    <div className="flex flex-wrap gap-0">
+                      <div className="bg-[#333333] text-[#F3F3F3] text-[13px] tracking-tighter rounded-full px-4 py-2">Через неделю</div>
+                      {section.w2Cities.map((city: CityAnalysisResult) => (
+                        <button
+                          key={city.cityName}
+                          className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
+                          onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
+                        >
+                          {city.cityName}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -145,11 +151,11 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           </button>
           {openSection === "cities" && (
             <div className="mt-0 flex flex-wrap gap-0 pl-4">
-              {allCities.map((city: string) => (
+                  {allCities.map((city: string) => (
                 <button
                   key={city}
                   className="bg-white text-black text-[13px] tracking-tighter rounded-full px-4 py-2 hover:bg-pill-hover"
-                  onClick={() => handleCityClick(city, "saturday")}
+                  onClick={() => onCityClick(city, "saturday")}
                 >
                   {city}
                 </button>
