@@ -367,12 +367,16 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 ref={isSelected ? activeDayRef : null}
                                 className={`text-[30px] font-unbounded font-medium shrink-0 transition-colors ${isSelected ? "text-[#111111]" : "text-[#B2B2B2] hover:text-[#777777]"}`}
                                 onClick={() => {
-                                    setRouteDay(dayItem.date.getTime().toString());
+                                    if (isSelected) {
+                                        onClose();
+                                    } else {
+                                        setRouteDay(dayItem.date.getTime().toString());
+                                    }
                                 }}
                             >
                                 <span className="flex items-baseline gap-2">
                                     <span>{dayItem.label}</span>
-                                    <span className="text-xs font-sans transform -translate-y-2">
+                                    <span className="text-xs font-sans transform -translate-y-3">
                                         {dateFormatted}
                                     </span>
                                 </span>
