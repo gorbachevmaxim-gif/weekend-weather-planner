@@ -278,7 +278,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}
             </button>
         </div>
-        <GstrdnmcLogo height="50" style={{ width: 'auto' }} fill={isDark ? "#FFFFFF" : "#111111"} />
+        
       </div>
       <div className="mt-0 space-y-1">
         {sections.map((section, index) => {
