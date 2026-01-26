@@ -488,7 +488,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 )}
 
-                <div className={isMapFullscreen ? "fixed inset-0 z-50" : "relative"}>
+                <div 
+                    className={isMapFullscreen ? "fixed inset-0 z-50" : "relative"}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                >
                     <MapView 
                         key={routeDay || "map"}
                         cityCoords={cityCoords}
