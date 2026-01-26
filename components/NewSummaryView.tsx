@@ -17,9 +17,14 @@ interface NewSummaryViewProps {
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     return document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
   });
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -276,7 +281,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         <GstrdnmcLogo height="50" style={{ width: 'auto' }} fill={isDark ? "#FFFFFF" : "#111111"} />
       </div>
       <div className="mt-0 space-y-1">
-        {sections.map((section) => {
+        {sections.map((section, index) => {
           const isOpen = openSection === section.key;
           const isActive = isOpen;
           const isInactive = openSection !== null && !isOpen;
@@ -293,7 +298,13 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           }
 
           return (
-            <div key={section.key}>
+            <div 
+                key={section.key}
+                className={`transition-all duration-700 ease-out transform ${
+                    isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+                }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+            >
               <button
                 className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${textColorClass}`}
                 onClick={() => toggleSection(section.key)}
@@ -340,7 +351,12 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             </div>
           );
         })}
-        <div>
+        <div 
+            className={`transition-all duration-700 ease-out transform ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            }`}
+            style={{ transitionDelay: `${sections.length * 100}ms` }}
+        >
           <button
             className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
                 isDark 
@@ -365,7 +381,12 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             </div>
           )}
         </div>
-        <div>
+        <div 
+            className={`transition-all duration-700 ease-out transform ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            }`}
+            style={{ transitionDelay: `${(sections.length + 1) * 100}ms` }}
+        >
           <a
             href="https://www.komoot.com/collection/2674102/-lechappe-belle?ref=collection"
             target="_blank"
@@ -379,7 +400,12 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Маршруты<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
           </a>
         </div>
-        <div>
+        <div 
+            className={`transition-all duration-700 ease-out transform ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            }`}
+            style={{ transitionDelay: `${(sections.length + 2) * 100}ms` }}
+        >
           <a
             href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0&source=copy_link"
             target="_blank"
