@@ -315,11 +315,11 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 <div className="mt-0 px-4 space-y-[8px]">
                   {section.w1Cities.length > 0 && (
                     <div className="flex flex-wrap gap-0">
-                      <div className={`${isDark ? "bg-[#999999] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Эти выходные</div>
+                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Эти выходные</div>
                       {section.w1Cities.map((city: CityAnalysisResult) => (
                         <button
                           key={city.cityName}
-                          className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#666666]" : "bg-white text-black hover:bg-pill-hover"}`}
+                          className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                           onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                         >
                           {city.cityName}
@@ -329,11 +329,11 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                   )}
                   {section.w2Cities.length > 0 ? (
                     <div className="flex flex-wrap gap-0">
-                      <div className={`${isDark ? "bg-[#999999] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
+                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
                       {section.w2Cities.map((city: CityAnalysisResult) => (
                         <button
                           key={city.cityName}
-                          className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#666666]" : "bg-white text-black hover:bg-pill-hover"}`}
+                          className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                           onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                         >
                           {city.cityName}
@@ -342,7 +342,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                     </div>
                   ) : section.key === 'saturday' ? (
                     <div className="flex flex-wrap gap-0">
-                      <div className={`${isDark ? "bg-[#999999] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
+                      <div className={`${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
                       <div className={`text-black text-[13px] tracking-tighter rounded-full px-4 py-2 ${isDark ? "bg-[#777777]" : "bg-white"}`}>Везде осадки</div>
                     </div>
                   ) : null}
@@ -372,7 +372,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                   {allCities.map((city: string) => (
                 <button
                   key={city}
-                  className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#666666]" : "bg-white text-black hover:bg-pill-hover"}`}
+                  className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#555555]" : "bg-white text-black hover:bg-pill-hover"}`}
                   onClick={() => onCityClick(city, "saturday")}
                 >
                   {city}
