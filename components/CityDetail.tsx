@@ -343,6 +343,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const touchStart = useRef<{ x: number, y: number } | null>(null);
 
     const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length !== 1) {
+            touchStart.current = null;
+            return;
+        }
         touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     };
 
