@@ -132,6 +132,17 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             });
         }
     }, [routeDay]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                if (document.fullscreenElement) return;
+                onClose();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [onClose]);
     
     const cityCoords = CITIES[data.cityName];
     const currentRouteData = foundRoutes[selectedRouteIdx]?.routeData;
