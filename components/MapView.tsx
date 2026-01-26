@@ -22,9 +22,12 @@ interface MapViewProps {
     windDirection?: string;
     isDark?: boolean;
     onFullscreenToggle?: (isFullscreen: boolean) => void;
+    routeCount?: number;
+    selectedRouteIdx?: number;
+    onRouteSelect?: (idx: number) => void;
 }
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
@@ -401,6 +404,26 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         </svg>
                     )}
                 </button>
+
+                {routeCount > 1 && onRouteSelect && (
+                    <>
+                        {Array.from({ length: routeCount }).map((_, idx) => (
+                            <button
+                                key={idx}
+                                className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors font-unbounded text-xs font-medium ${
+                                    selectedRouteIdx === idx
+                                        ? (isDark ? "bg-white text-[#1E1E1E]" : "bg-[#1E1E1E] text-white")
+                                        : (isDark 
+                                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                                            : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100")
+                                }`}
+                                onClick={() => onRouteSelect(idx)}
+                            >
+                                {idx + 1}
+                            </button>
+                        ))}
+                    </>
+                )}
             </div>
 
             {/* Bottom-left controls */}

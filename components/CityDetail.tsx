@@ -459,6 +459,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         windDirection={activeStats?.windDirection}
                         isDark={isDark}
                         onFullscreenToggle={setIsMapFullscreen}
+                        routeCount={foundRoutes.length}
+                        selectedRouteIdx={selectedRouteIdx}
+                        onRouteSelect={setSelectedRouteIdx}
                     />
                 </div>
 
