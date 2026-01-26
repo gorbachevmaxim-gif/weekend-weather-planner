@@ -30,8 +30,10 @@ interface MapViewProps {
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const windDragRef = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
     const isMountedRef = useRef(false);
@@ -288,7 +290,68 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         return `${range} км/ч`;
     };
 
+    const handleWindMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
+        if (!windDragRef.current) return;
+        
+        const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+        const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+
+        const deltaX = clientX - windDragRef.current.startX;
+        const deltaY = clientY - windDragRef.current.startY;
+
+        setWindPos({
+            x: windDragRef.current.startLeft + deltaX,
+            y: windDragRef.current.startTop + deltaY
+        });
+    }, []);
+
+    const handleWindMouseUp = useCallback(() => {
+        windDragRef.current = null;
+        document.removeEventListener('mousemove', handleWindMouseMove);
+        document.removeEventListener('mouseup', handleWindMouseUp);
+        document.removeEventListener('touchmove', handleWindMouseMove);
+        document.removeEventListener('touchend', handleWindMouseUp);
+    }, [handleWindMouseMove]);
+
+    const handleWindMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isFullscreen) return;
+
+        e.preventDefault();
+        const isTouch = 'touches' in e;
+        const clientX = isTouch ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
+        const clientY = isTouch ? (e as React.TouchEvent).touches[0].clientY : (e as React.MouseEvent).clientY;
+
+        const el = e.currentTarget as HTMLElement;
+        const wrapper = wrapperRef.current;
+        if (!wrapper) return;
+
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+
+        windDragRef.current = {
+            startX: clientX,
+            startY: clientY,
+            startLeft: elRect.left - wrapperRect.left,
+            startTop: elRect.top - wrapperRect.top
+        };
+
+        document.addEventListener('mousemove', handleWindMouseMove);
+        document.addEventListener('mouseup', handleWindMouseUp);
+        document.addEventListener('touchmove', handleWindMouseMove, { passive: false });
+        document.addEventListener('touchend', handleWindMouseUp);
+    };
+
+    useEffect(() => {
+        return () => {
+            document.removeEventListener('mousemove', handleWindMouseMove);
+            document.removeEventListener('mouseup', handleWindMouseUp);
+            document.removeEventListener('touchmove', handleWindMouseMove);
+            document.removeEventListener('touchend', handleWindMouseUp);
+        };
+    }, [handleWindMouseMove, handleWindMouseUp]);
+
     const handleCenterMap = useCallback(() => {
+        setWindPos(null);
         const map = mapInstanceRef.current;
         if (!map) return;
         
@@ -397,7 +460,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             </div>
 
             {/* Bottom-left controls */}
-            <div className="absolute left-4 bottom-4 z-20 flex flex-col items-center">
+            <div 
+                className={`absolute z-20 flex flex-col items-center ${windPos ? '' : 'left-4 bottom-4'} ${isFullscreen ? 'cursor-move' : ''}`}
+                style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
+                onMouseDown={handleWindMouseDown}
+                onTouchStart={handleWindMouseDown}
+            >
                 {windDeg !== undefined && (
                     <div className="flex flex-col items-center gap-1">
                         <div 
