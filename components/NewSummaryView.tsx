@@ -300,10 +300,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           return (
             <div 
                 key={section.key}
-                className={`transition-all duration-700 ease-out transform ${
+                className={`transition-all duration-500 ease-out transform ${
                     isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
                 }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                style={{ transitionDelay: `${index * 50}ms` }}
             >
               <button
                 className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${textColorClass}`}
@@ -352,10 +352,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           );
         })}
         <div 
-            className={`transition-all duration-700 ease-out transform ${
+            className={`transition-all duration-500 ease-out transform ${
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
             }`}
-            style={{ transitionDelay: `${sections.length * 100}ms` }}
+            style={{ transitionDelay: `${sections.length * 50}ms` }}
         >
           <button
             className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
@@ -382,10 +382,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           )}
         </div>
         <div 
-            className={`transition-all duration-700 ease-out transform ${
+            className={`transition-all duration-500 ease-out transform ${
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
             }`}
-            style={{ transitionDelay: `${(sections.length + 1) * 100}ms` }}
+            style={{ transitionDelay: `${(sections.length + 1) * 50}ms` }}
         >
           <a
             href="https://www.komoot.com/collection/2674102/-lechappe-belle?ref=collection"
@@ -401,10 +401,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           </a>
         </div>
         <div 
-            className={`transition-all duration-700 ease-out transform ${
+            className={`transition-all duration-500 ease-out transform ${
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
             }`}
-            style={{ transitionDelay: `${(sections.length + 2) * 100}ms` }}
+            style={{ transitionDelay: `${(sections.length + 2) * 50}ms` }}
         >
           <a
             href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0&source=copy_link"
