@@ -227,7 +227,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
               {isOpen && (
-                <div className="mt-0 px-4 space-y-0">
+                <div className="mt-0 px-4 space-y-[8px]">
                   {section.w1Cities.length > 0 && (
                     <div className="flex flex-wrap gap-0">
                       <div className="bg-[#333333] text-[#F3F3F3] text-[13px] tracking-tighter rounded-full px-4 py-2">Эти выходные</div>
