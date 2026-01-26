@@ -311,7 +311,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     };
 
     return (
-        <div ref={wrapperRef} className="relative w-full aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
+        <div ref={wrapperRef} className="relative w-full aspect-[3/4] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
@@ -329,7 +329,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     className={`absolute right-4 top-4 z-30 w-10 h-10 backdrop-blur rounded-full shadow-md flex items-center justify-center transition-colors ${
                         isDark 
                         ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                        : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                        : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
                     }`}
                     onClick={() => document.exitFullscreen()}
                 >
@@ -347,7 +347,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
                                 isDark 
                                 ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                                : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                                : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
                             }`}
                             onClick={() => {
                                 const map = mapInstanceRef.current;
@@ -362,7 +362,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
                                 isDark 
                                 ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                                : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                                : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
                             }`}
                             onClick={() => {
                                 const map = mapInstanceRef.current;
@@ -379,7 +379,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
                         isDark 
                         ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                        : "bg-white/90 text-[#333333] hover:bg-white active:bg-gray-100"
+                        : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
                     }`}
                     onClick={() => {
                         if (isMobile) {
@@ -420,7 +420,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 width="18" 
                                 height="18" 
                                 viewBox="0 0 24 24" 
-                                fill={isDark ? "#FFFFFF" : "#777777"} 
+                                fill={isDark ? "#FFFFFF" : "#1E1E1E"} 
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{ transform: `rotate(${windDeg + 180 + rotation}deg)` }}
                             >
