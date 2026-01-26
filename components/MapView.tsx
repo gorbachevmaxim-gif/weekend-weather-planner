@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import PlusIcon from "./icons/PlusIcon";
 import MinusIcon from "./icons/MinusIcon";
 import CenterIcon from "./icons/CenterIcon";
@@ -34,6 +34,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+    const isMountedRef = useRef(false);
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -287,7 +288,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         return `${range} км/ч`;
     };
 
-    const handleCenterMap = () => {
+    const handleCenterMap = useCallback(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
         
@@ -311,7 +312,22 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 duration: 500
             });
         }
-    };
+    }, [currentRouteData, cityCoords]);
+
+    useEffect(() => {
+        if (!isMountedRef.current) {
+            isMountedRef.current = true;
+            return;
+        }
+
+        const map = mapInstanceRef.current;
+        if (map) {
+            setTimeout(() => {
+                map.resize();
+                handleCenterMap();
+            }, 200);
+        }
+    }, [isFullscreen, handleCenterMap]);
 
     return (
         <div ref={wrapperRef} className="relative w-full aspect-[3/4] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
@@ -327,56 +343,26 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 </div>
             )}
 
-            {isFullscreen && (
-                <button
-                    className={`absolute right-4 top-4 z-30 w-10 h-10 backdrop-blur rounded-full shadow-md flex items-center justify-center transition-colors ${
-                        isDark 
-                        ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                        : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
-                    }`}
-                    onClick={() => document.exitFullscreen()}
-                >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-                    </svg>
-                </button>
-            )}
 
             {/* Top-left controls */}
             <div className="absolute left-4 top-4 z-20 flex flex-col items-center gap-2">
-                {!isMobile && (
-                    <>
-                        <button
-                            className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
-                                isDark 
-                                ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                                : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
-                            }`}
-                            onClick={() => {
-                                const map = mapInstanceRef.current;
-                                if (map) {
-                                    map.zoomIn();
-                                }
-                            }}
-                        >
-                            <PlusIcon width={20} height={20} />
-                        </button>
-                        <button
-                            className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
-                                isDark 
-                                ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                                : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
-                            }`}
-                            onClick={() => {
-                                const map = mapInstanceRef.current;
-                                if (map) {
-                                    map.zoomOut();
-                                }
-                            }}
-                        >
-                            <MinusIcon width={20} height={20} />
-                        </button>
-                    </>
+                {!isMobile && !isFullscreen && (
+                    <button
+                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
+                            isDark 
+                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                            : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
+                        }`}
+                        onClick={() => {
+                            wrapperRef.current?.requestFullscreen().catch(err => {
+                                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                            });
+                        }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                        </svg>
+                    </button>
                 )}
                 <button
                     className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors ${
@@ -384,25 +370,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
                         : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
                     }`}
-                    onClick={() => {
-                        if (isMobile) {
-                            handleCenterMap();
-                        } else if (!document.fullscreenElement) {
-                            wrapperRef.current?.requestFullscreen().catch(err => {
-                                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                            });
-                        } else {
-                            handleCenterMap();
-                        }
-                    }}
+                    onClick={handleCenterMap}
                 >
-                    {isMobile || isFullscreen ? (
-                        <CenterIcon width={20} height={20} />
-                    ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                        </svg>
-                    )}
+                    <CenterIcon width={20} height={20} />
                 </button>
 
                 {routeCount > 1 && onRouteSelect && (
@@ -430,14 +400,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             <div className="absolute left-4 bottom-4 z-20 flex flex-col items-center">
                 {windDeg !== undefined && (
                     <div className="flex flex-col items-center gap-1">
-                        <button 
-                            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-colors ${
+                        <div 
+                            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
                                 isDark 
-                                ? "bg-[#333333]/70 active:bg-[#444444]" 
-                                : "bg-white/70 active:bg-white"
+                                ? "bg-[#333333]/70" 
+                                : "bg-white/70"
                             }`}
-                            title="Центрировать маршрут"
-                            onClick={handleCenterMap}
                         >
                             <svg 
                                 width="18" 
@@ -449,7 +417,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             >
                                 <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
                             </svg>
-                        </button>
+                        </div>
                         {(windSpeed || windDirection) && (
                             <div className="flex flex-col items-center">
                                 {windSpeed && (
