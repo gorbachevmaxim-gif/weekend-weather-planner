@@ -445,7 +445,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 viewBox="0 0 24 24" 
                                 fill={isDark ? "#FFFFFF" : "#1E1E1E"} 
                                 xmlns="http://www.w3.org/2000/svg"
-                                style={{ transform: `rotate(${windDeg + 180 + rotation}deg)` }}
+                                style={{ transform: `rotate(${windDeg + 180 - rotation}deg)` }}
                             >
                                 <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
                             </svg>
