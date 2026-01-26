@@ -149,9 +149,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                     onClick={() => setActiveOverlay(null)}
                     className={`flex items-baseline text-[14px] font-inter gap-0.5 ${isDark ? "text-white hover:text-[#777777]" : "text-black hover:text-[#777777]"}`}
                 >
-                    <span className="underline decoration-1 underline-offset-4">Закрыть</span>
+                    <span className="underline decoration-1 underline-offset-4">Прочитано</span>
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                    <span className="hidden md:inline"> [esc]</span>
+                    <span className="hidden md:inline"> </span>
                 </button>
             </div>
             
