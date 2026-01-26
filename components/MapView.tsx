@@ -465,6 +465,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
                 onMouseDown={handleWindMouseDown}
                 onTouchStart={handleWindMouseDown}
+                title={isFullscreen ? "Перемещай вдоль трека, вращай карту" : undefined}
             >
                 {windDeg !== undefined && (
                     <div className="flex flex-col items-center gap-1">

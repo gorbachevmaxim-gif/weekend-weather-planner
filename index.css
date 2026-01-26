@@ -69,10 +69,10 @@ body {
 }
 
 .dark-theme .maplibregl-ctrl-attrib {
-  background-color: #444444 !important;
+  background-color: rgba(125, 120, 120, 0.6) !important;
 }
 
 .dark-theme .maplibregl-ctrl-attrib a {
-  background-color: #444444 !important;
+  background-color: rgba(125, 120, 120, 0.6) !important;
   border-radius: 50%;
 }
