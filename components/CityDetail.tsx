@@ -340,6 +340,28 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         ? `1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º`
         : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
 
+    const touchStart = useRef<{ x: number, y: number } | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (!touchStart.current) return;
+
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+
+        const diffX = touchEndX - touchStart.current.x;
+        const diffY = touchEndY - touchStart.current.y;
+
+        if (diffX > 70 && Math.abs(diffX) > Math.abs(diffY)) {
+            onClose();
+        }
+
+        touchStart.current = null;
+    };
+
     const markers: { coords: [number, number]; label: string }[] = [];
 
     const calculateDuration = (distKm: number, speedKmH: number) => {
@@ -392,7 +414,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
             </div>
 
-            <div className="overflow-y-auto flex-1">
+            <div 
+                className="overflow-y-auto flex-1"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+            >
                 {activeStats && (
                     <div className="p-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
