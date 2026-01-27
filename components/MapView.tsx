@@ -411,8 +411,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         }
 
         const map = mapInstanceRef.current;
-        const centerX = windPos.x + 16;
-        const centerY = windPos.y + 16;
+        const centerX = windPos.x + 46;
+        const centerY = windPos.y + 46;
         const threshold = 30; // pixels
 
         // Find nearest point on route
@@ -565,7 +565,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {/* Bottom-left controls */}
             <div 
-                className={`absolute z-20 flex flex-col items-center ${windPos ? '' : 'left-4 bottom-4'} ${isFullscreen ? 'cursor-move' : ''}`}
+                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move' : ''}`}
                 style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
                 onMouseDown={handleWindMouseDown}
                 onTouchStart={handleWindMouseDown}
@@ -605,21 +605,21 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 )}
                             </div>
                         )}
-                    </div>
-                )}
-                {/* Hover Info Pill */}
-                {hoverInfo && (
-                    <div 
-                        className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-2 backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
-                            isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
-                        }`}
-                    >
-                        {hoverInfo.items.map((item, idx) => (
-                            <React.Fragment key={idx}>
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{item.value}</span>
-                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">{item.label}</span>
-                            </React.Fragment>
-                        ))}
+                        {/* Hover Info Pill */}
+                        {hoverInfo && (
+                            <div 
+                                className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-2 backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
+                                    isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
+                                }`}
+                            >
+                                {hoverInfo.items.map((item, idx) => (
+                                    <React.Fragment key={idx}>
+                                        <span className="text-[11px] font-sans leading-tight font-medium text-left">{item.value}</span>
+                                        <span className="text-[11px] font-sans leading-tight text-left opacity-75">{item.label}</span>
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
