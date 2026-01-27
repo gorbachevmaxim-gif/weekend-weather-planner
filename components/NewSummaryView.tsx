@@ -8,6 +8,18 @@ import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 import LightThemeIcon from "./icons/LightThemeIcon";
 import DarkThemeIcon from "./icons/DarkThemeIcon";
 
+// Helper component for smooth accordion animation
+const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => (
+  <div 
+      className="grid transition-all duration-300 ease-in-out" 
+      style={{ gridTemplateRows: isOpen ? '1fr' : '0fr', opacity: isOpen ? 1 : 0 }}
+  >
+    <div className="overflow-hidden">
+      {children}
+    </div>
+  </div>
+);
+
 interface NewSummaryViewProps {
   data: CityAnalysisResult[];
   onCityClick: (city: string, day: string) => void;
@@ -15,7 +27,7 @@ interface NewSummaryViewProps {
 }
 
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [openSections, setOpenSections] = useState<string[]>([]);
   const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -51,7 +63,18 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
   }, [activeOverlay]);
 
   const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? null : section);
+    if (section === "cities") {
+      setOpenSections(prev => prev.includes("cities") ? [] : ["cities"]);
+    } else {
+      setOpenSections(prev => {
+        if (prev.includes("cities")) {
+          return [section];
+        }
+        return prev.includes(section) 
+          ? prev.filter(s => s !== section)
+          : [...prev, section];
+      });
+    }
   };
 
   const { sunnyCities: sunnyCitiesW1 } = useSummaryFiltering({ data, isSecondWeekend: false });
@@ -282,9 +305,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
       </div>
       <div className="mt-0 space-y-1">
         {sections.map((section, index) => {
-          const isOpen = openSection === section.key;
+          const isOpen = openSections.includes(section.key);
           const isActive = isOpen;
-          const isInactive = openSection !== null && !isOpen;
+          const isInactive = openSections.length > 0 && !isOpen;
           
           let textColorClass = "";
           if (isDark) {
@@ -311,10 +334,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
               >
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
-              <div 
-                  className="transition-all duration-400 ease-in-out overflow-hidden" 
-                  style={{ maxHeight: isOpen ? '1000px' : '0', opacity: isOpen ? 1 : 0 }}
-              >
+              <AccordionContent isOpen={isOpen}>
                 <div className="mt-0 px-4 space-y-[8px]">
                   {section.w1Cities.length > 0 && (
                     <div className="flex flex-wrap gap-0">
@@ -350,7 +370,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                     </div>
                   ) : null}
                 </div>
-              </div>
+              </AccordionContent>
             </div>
           );
         })}
@@ -363,17 +383,14 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           <button
             className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
                 isDark 
-                ? (openSection === "cities" ? "text-white md:hover:text-[#777777]" : (openSection === null ? "text-white hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
-                : (openSection === "cities" ? "text-[#333333] md:hover:text-[#777777]" : (openSection === null ? "text-[#333333] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
+                ? (openSections.includes("cities") ? "text-white md:hover:text-[#777777]" : (openSections.length === 0 ? "text-white hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
+                : (openSections.includes("cities") ? "text-[#333333] md:hover:text-[#777777]" : (openSections.length === 0 ? "text-[#333333] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
             }`}
             onClick={() => toggleSection("cities")}
           >
-            <span className="flex items-center">Города<ArrowDown isOpen={openSection === "cities"} width="20" height="20" style={{ top: "-7px" }} /></span>
+            <span className="flex items-center">Города<ArrowDown isOpen={openSections.includes("cities")} width="20" height="20" style={{ top: "-7px" }} /></span>
           </button>
-          <div 
-              className="transition-all duration-400 ease-in-out overflow-hidden" 
-              style={{ maxHeight: openSection === "cities" ? '2000px' : '0', opacity: openSection === "cities" ? 1 : 0 }}
-          >
+          <AccordionContent isOpen={openSections.includes("cities")}>
             <div className="mt-0 flex flex-wrap gap-0 pl-4">
                   {allCities.map((city: string) => (
                 <button
@@ -385,7 +402,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 </button>
               ))}
             </div>
-          </div>
+          </AccordionContent>
         </div>
         <div 
             className={`transition-all duration-500 ease-out transform ${
@@ -399,8 +416,8 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
               isDark
-              ? (openSection !== null ? 'text-[#383838]' : 'text-white')
-              : (openSection !== null ? 'text-[#B2B2B2]' : 'text-[#333333]')
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
+              : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
             }`}            
           >
             <span className="flex items-center">Маршруты<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
@@ -418,8 +435,8 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
               isDark
-              ? (openSection !== null ? 'text-[#383838]' : 'text-white')
-              : (openSection !== null ? 'text-[#B2B2B2]' : 'text-[#333333]')
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
+              : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
             }`}            
           >
             <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
