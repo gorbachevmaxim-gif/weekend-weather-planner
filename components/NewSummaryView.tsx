@@ -80,7 +80,28 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
   const { sunnyCities: sunnyCitiesW1 } = useSummaryFiltering({ data, isSecondWeekend: false });
   const { sunnyCities: sunnyCitiesW2 } = useSummaryFiltering({ data, isSecondWeekend: true });
 
-  const allCities = useMemo(() => data.map(city => city.cityName), [data]);
+  const sortedCities = useMemo(() => {
+    let sorted = [...data];
+    // Sort by sun descending (most sunny first)
+    sorted.sort((a, b) => {
+      const getSun = (city: CityAnalysisResult) => {
+        let total = 0;
+        total += city.weekend1.saturday?.sunSeconds || 0;
+        total += city.weekend1.sunday?.sunSeconds || 0;
+        total += city.weekend2.saturday?.sunSeconds || 0;
+        total += city.weekend2.sunday?.sunSeconds || 0;
+        return total;
+      };
+      
+      const sunDiff = getSun(b) - getSun(a);
+      // Tie-breaker: Alphabetical
+      if (sunDiff === 0) {
+        return a.cityName.localeCompare(b.cityName);
+      }
+      return sunDiff;
+    });
+    return sorted.map(c => c.cityName);
+  }, [data]);
 
   const sections = useMemo(() => {
     const list = [];
@@ -392,7 +413,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           </button>
           <AccordionContent isOpen={openSections.includes("cities")}>
             <div className="mt-0 flex flex-wrap gap-0 pl-4">
-                  {allCities.map((city: string) => (
+                  {sortedCities.map((city: string) => (
                 <button
                   key={city}
                   className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#555555]" : "bg-white text-black hover:bg-pill-hover"}`}
