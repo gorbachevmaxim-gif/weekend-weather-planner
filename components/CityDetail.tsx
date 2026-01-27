@@ -507,6 +507,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         routeCount={foundRoutes.length}
                         selectedRouteIdx={selectedRouteIdx}
                         onRouteSelect={setSelectedRouteIdx}
+                        pace={speed}
+                        startTemp={activeStats?.startTemperature}
+                        endTemp={activeStats?.endTemperature}
                     />
                 </div>
 

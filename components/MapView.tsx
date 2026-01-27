@@ -25,13 +25,27 @@ interface MapViewProps {
     routeCount?: number;
     selectedRouteIdx?: number;
     onRouteSelect?: (idx: number) => void;
+    pace?: number;
+    startTemp?: number;
+    endTemp?: number;
 }
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect }) => {
+interface HoverInfo {
+    avgPace: string;
+    distFromStart: string;
+    distToFinish: string;
+    timeFromStart: string;
+    timeToFinish: string;
+    temp: string;
+}
+
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+    
     const wrapperRef = useRef<HTMLDivElement>(null);
     const windDragRef = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -352,6 +366,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     const handleCenterMap = useCallback(() => {
         setWindPos(null);
+        setHoverInfo(null);
         const map = mapInstanceRef.current;
         if (!map) return;
         
@@ -391,6 +406,89 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             }, 200);
         }
     }, [isFullscreen, handleCenterMap]);
+
+    // Calculate hover info when windPos changes
+    useEffect(() => {
+        if (!windPos || !currentRouteData || !mapInstanceRef.current) {
+            setHoverInfo(null);
+            return;
+        }
+
+        const map = mapInstanceRef.current;
+        const centerX = windPos.x + 16;
+        const centerY = windPos.y + 16;
+        const threshold = 30; // pixels
+
+        // Find nearest point on route
+        let minDistSq = Infinity;
+        let closestInfo: { distFromStart: number; index: number; t: number } | null = null;
+
+        const points = currentRouteData.points;
+        const cumDists = currentRouteData.cumulativeDistances;
+
+        for (let i = 0; i < points.length - 1; i++) {
+            const p1 = map.project([points[i][1], points[i][0]]);
+            const p2 = map.project([points[i+1][1], points[i+1][0]]);
+
+            // Vector P1 -> P2
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const lenSq = dx * dx + dy * dy;
+
+            let t = 0;
+            if (lenSq !== 0) {
+                // Project wind pos onto segment
+                t = ((centerX - p1.x) * dx + (centerY - p1.y) * dy) / lenSq;
+                t = Math.max(0, Math.min(1, t));
+            }
+
+            const closestX = p1.x + t * dx;
+            const closestY = p1.y + t * dy;
+            
+            const distSq = (centerX - closestX) ** 2 + (centerY - closestY) ** 2;
+
+            if (distSq < minDistSq) {
+                minDistSq = distSq;
+                closestInfo = {
+                    distFromStart: cumDists[i] + t * (cumDists[i+1] - cumDists[i]),
+                    index: i,
+                    t
+                };
+            }
+        }
+
+        if (closestInfo && minDistSq < threshold * threshold) {
+            const distStart = closestInfo.distFromStart;
+            const totalDist = currentRouteData.distanceKm;
+            const distEnd = totalDist - distStart;
+
+            const timeStartHours = distStart / pace;
+            const timeStartH = Math.floor(timeStartHours);
+            const timeStartM = Math.round((timeStartHours - timeStartH) * 60);
+            
+            const timeEndHours = distEnd / pace;
+            const timeEndH = Math.floor(timeEndHours);
+            const timeEndM = Math.round((timeEndHours - timeEndH) * 60);
+
+            let tempStr = "N/A";
+            if (startTemp !== undefined && endTemp !== undefined) {
+                const currentTemp = startTemp + (endTemp - startTemp) * (distStart / totalDist);
+                tempStr = `${Math.round(currentTemp)}º`;
+            }
+
+            setHoverInfo({
+                avgPace: `Средняя, ${pace} км/ч`,
+                distFromStart: `От старта, ${distStart.toFixed(0)} км`,
+                distToFinish: `До финиша, ${distEnd.toFixed(0)} км`,
+                timeFromStart: `От начала, ${String(timeStartH).padStart(2, '0')}:${String(timeStartM).padStart(2, '0')}`,
+                timeToFinish: `До конца, ${String(timeEndH).padStart(2, '0')}:${String(timeEndM).padStart(2, '0')}`,
+                temp: `Температура, ${tempStr}`
+            });
+        } else {
+            setHoverInfo(null);
+        }
+
+    }, [windPos, currentRouteData, pace, startTemp, endTemp]);
 
     return (
         <div ref={wrapperRef} className="relative w-full aspect-[3/4] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
@@ -501,6 +599,22 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 )}
                             </div>
                         )}
+                    </div>
+                )}
+                {/* Hover Info Pill */}
+                {hoverInfo && (
+                    <div 
+                        className={`absolute left-full ml-2 top-0 backdrop-blur rounded-md p-2 shadow-md flex flex-col gap-0.5 min-w-[140px] pointer-events-none ${
+                            isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
+                        }`}
+                        style={{ transform: 'translateY(-20%)' }} // Slight vertical adjustment
+                    >
+                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.avgPace}</span>
+                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.distFromStart}</span>
+                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.distToFinish}</span>
+                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.timeFromStart}</span>
+                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.timeToFinish}</span>
+                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.temp}</span>
                     </div>
                 )}
             </div>

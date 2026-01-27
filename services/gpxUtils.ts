@@ -4,6 +4,7 @@ interface RouteData {
     points: [number, number][];
     distanceKm: number;
     elevationM: number;
+    cumulativeDistances: number[];
 }
 
 const getDistanceFromLatLonInKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -38,6 +39,7 @@ const parseGpx = (str: string): RouteData | null => {
         if (pointsElements.length === 0) pointsElements = allElements.filter(el => (el.localName === 'rtept' || el.nodeName === 'rtept'));
         if (pointsElements.length === 0) return null;
         const points: [number, number][] = [];
+        const cumulativeDistances: number[] = [0];
         let totalDist = 0;
         let totalElev = 0;
         let prevLat = 0, prevLon = 0, prevEle = -10000;
@@ -51,14 +53,16 @@ const parseGpx = (str: string): RouteData | null => {
             if (!isNaN(lat) && !isNaN(lon)) {
                 points.push([lat, lon]);
                 if (index > 0) {
-                    totalDist += getDistanceFromLatLonInKm(prevLat, prevLon, lat, lon);
+                    const dist = getDistanceFromLatLonInKm(prevLat, prevLon, lat, lon);
+                    totalDist += dist;
+                    cumulativeDistances.push(totalDist);
                     if (!isNaN(ele) && prevEle !== -10000 && ele - prevEle > 0) totalElev += (ele - prevEle);
                 }
                 prevLat = lat; prevLon = lon; if (!isNaN(ele)) prevEle = ele;
             }
         });
         if (points.length === 0) return null;
-        return { points, distanceKm: totalDist, elevationM: totalElev };
+        return { points, distanceKm: totalDist, elevationM: totalElev, cumulativeDistances };
     } catch (e) { return null; }
 };
 
