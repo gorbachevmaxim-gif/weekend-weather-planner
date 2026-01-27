@@ -556,7 +556,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </a>
                     )}
                     <a
-                        href={`https://yandex.ru/maps/?ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
+                        href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
