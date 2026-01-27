@@ -484,7 +484,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{ transform: `rotate(${windDeg + 180 - rotation}deg)` }}
                             >
-                                <path d="M12 2L4.5 20.29C4.24 20.92 4.89 21.57 5.53 21.34L12 19L18.47 21.34C19.11 21.57 19.76 20.92 19.5 20.29L12 2Z" />
+                                <path d="M10.9 4.5L4.0 20.29C3.74 20.92 4.39 21.57 5.03 21.34L12 19L18.97 21.34C19.61 21.57 20.26 20.92 20.0 20.29L13.1 4.5Q12 1 10.9 4.5Z" />
                             </svg>
                         </div>
                         {(windSpeed || windDirection) && (
