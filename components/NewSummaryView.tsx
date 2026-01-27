@@ -312,7 +312,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
               <div 
-                  className="transition-all duration-300 ease-in-out overflow-hidden" 
+                  className="transition-all duration-400 ease-in-out overflow-hidden" 
                   style={{ maxHeight: isOpen ? '1000px' : '0', opacity: isOpen ? 1 : 0 }}
               >
                 <div className="mt-0 px-4 space-y-[8px]">
@@ -371,7 +371,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Города<ArrowDown isOpen={openSection === "cities"} width="20" height="20" style={{ top: "-7px" }} /></span>
           </button>
           <div 
-              className="transition-all duration-300 ease-in-out overflow-hidden" 
+              className="transition-all duration-400 ease-in-out overflow-hidden" 
               style={{ maxHeight: openSection === "cities" ? '2000px' : '0', opacity: openSection === "cities" ? 1 : 0 }}
           >
             <div className="mt-0 flex flex-wrap gap-0 pl-4">
