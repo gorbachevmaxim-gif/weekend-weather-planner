@@ -31,13 +31,20 @@ interface MapViewProps {
 }
 
 interface HoverInfo {
-    avgPace: string;
-    distFromStart: string;
-    distToFinish: string;
-    timeFromStart: string;
-    timeToFinish: string;
-    temp: string;
+    items: { value: string; label: string }[];
 }
+
+const getAverageWindSpeed = (range?: string) => {
+    if (!range) return "";
+    const parts = range.split("..");
+    if (parts.length === 2) {
+        const min = parseInt(parts[0], 10);
+        const max = parseInt(parts[1], 10);
+        const avg = Math.round((min + max) / 2);
+        return `${avg} км/ч`;
+    }
+    return `${range} км/ч`;
+};
 
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp }) => {
     const [rotation, setRotation] = useState(0);
@@ -292,17 +299,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         };
     }, [markers]);
 
-    const getAverageWindSpeed = (range?: string) => {
-        if (!range) return "";
-        const parts = range.split("..");
-        if (parts.length === 2) {
-            const min = parseInt(parts[0], 10);
-            const max = parseInt(parts[1], 10);
-            const avg = Math.round((min + max) / 2);
-            return `${avg} км/ч`;
-        }
-        return `${range} км/ч`;
-    };
 
     const handleWindMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
         if (!windDragRef.current) return;
@@ -476,19 +472,29 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 tempStr = `${Math.round(currentTemp)}º`;
             }
 
-            setHoverInfo({
-                avgPace: `Средняя, ${pace} км/ч`,
-                distFromStart: `От старта, ${distStart.toFixed(0)} км`,
-                distToFinish: `До финиша, ${distEnd.toFixed(0)} км`,
-                timeFromStart: `От начала, ${String(timeStartH).padStart(2, '0')}:${String(timeStartM).padStart(2, '0')}`,
-                timeToFinish: `До конца, ${String(timeEndH).padStart(2, '0')}:${String(timeEndM).padStart(2, '0')}`,
-                temp: `Температура, ${tempStr}`
-            });
+            const items = [
+                { value: `${pace} км/ч`, label: "Средняя" },
+                { value: `${distStart.toFixed(0)} км`, label: "От старта" },
+                { value: `${distEnd.toFixed(0)} км`, label: "До финиша" },
+                { value: `${String(timeStartH).padStart(2, '0')}:${String(timeStartM).padStart(2, '0')}`, label: "От начала" },
+                { value: `${String(timeEndH).padStart(2, '0')}:${String(timeEndM).padStart(2, '0')}`, label: "До конца" }
+            ];
+
+            if (windSpeed || windDirection) {
+                items.push({
+                    value: getAverageWindSpeed(windSpeed),
+                    label: `Ветер ${windDirection || ''}`.trim()
+                });
+            }
+
+            items.push({ value: `${tempStr}`, label: "Температура" });
+
+            setHoverInfo({ items });
         } else {
             setHoverInfo(null);
         }
 
-    }, [windPos, currentRouteData, pace, startTemp, endTemp]);
+    }, [windPos, currentRouteData, pace, startTemp, endTemp, windSpeed, windDirection]);
 
     return (
         <div ref={wrapperRef} className="relative w-full aspect-[3/4] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
@@ -566,7 +572,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 title={isFullscreen ? "Перемещай вдоль трека, вращай карту" : undefined}
             >
                 {windDeg !== undefined && (
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="relative flex flex-col items-center w-8">
                         <div 
                             className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
                                 isDark 
@@ -585,8 +591,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 <path d="M10.9 4.5L4.0 20.29C3.74 20.92 4.39 21.57 5.03 21.34L12 19L18.97 21.34C19.61 21.57 20.26 20.92 20.0 20.29L13.1 4.5Q12 1 10.9 4.5Z" />
                             </svg>
                         </div>
-                        {(windSpeed || windDirection) && (
-                            <div className="flex flex-col items-center">
+                        {(windSpeed || windDirection) && !windPos && (
+                            <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 flex flex-col items-center w-max pointer-events-none">
                                 {windSpeed && (
                                     <span className={`text-[13px] font-sans leading-none mb-0.5 ${isDark ? "text-[#EEEEEE]" : "text-[#444444]"}`}>
                                         {getAverageWindSpeed(windSpeed)}
@@ -604,17 +610,16 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {/* Hover Info Pill */}
                 {hoverInfo && (
                     <div 
-                        className={`absolute left-full ml-2 top-0 backdrop-blur rounded-md p-2 shadow-md flex flex-col gap-0.5 min-w-[140px] pointer-events-none ${
+                        className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-2 backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
                             isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
                         }`}
-                        style={{ transform: 'translateY(-20%)' }} // Slight vertical adjustment
                     >
-                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.avgPace}</span>
-                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.distFromStart}</span>
-                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.distToFinish}</span>
-                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.timeFromStart}</span>
-                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.timeToFinish}</span>
-                        <span className="text-[11px] font-sans leading-tight">{hoverInfo.temp}</span>
+                        {hoverInfo.items.map((item, idx) => (
+                            <React.Fragment key={idx}>
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{item.value}</span>
+                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">{item.label}</span>
+                            </React.Fragment>
+                        ))}
                     </div>
                 )}
             </div>
