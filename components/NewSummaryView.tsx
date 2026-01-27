@@ -311,7 +311,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
               >
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
-              {isOpen && (
+              <div 
+                  className="transition-all duration-300 ease-in-out overflow-hidden" 
+                  style={{ maxHeight: isOpen ? '1000px' : '0', opacity: isOpen ? 1 : 0 }}
+              >
                 <div className="mt-0 px-4 space-y-[8px]">
                   {section.w1Cities.length > 0 && (
                     <div className="flex flex-wrap gap-0">
@@ -347,7 +350,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                     </div>
                   ) : null}
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
@@ -367,7 +370,10 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
           >
             <span className="flex items-center">Города<ArrowDown isOpen={openSection === "cities"} width="20" height="20" style={{ top: "-7px" }} /></span>
           </button>
-          {openSection === "cities" && (
+          <div 
+              className="transition-all duration-300 ease-in-out overflow-hidden" 
+              style={{ maxHeight: openSection === "cities" ? '2000px' : '0', opacity: openSection === "cities" ? 1 : 0 }}
+          >
             <div className="mt-0 flex flex-wrap gap-0 pl-4">
                   {allCities.map((city: string) => (
                 <button
@@ -379,7 +385,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 </button>
               ))}
             </div>
-          )}
+          </div>
         </div>
         <div 
             className={`transition-all duration-500 ease-out transform ${
