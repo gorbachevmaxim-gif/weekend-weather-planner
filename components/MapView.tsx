@@ -46,6 +46,26 @@ const getAverageWindSpeed = (range?: string) => {
     return `${range} км/ч`;
 };
 
+const getPlacementClasses = (deg?: number) => {
+    if (deg === undefined) return "bottom-full left-1/2 -translate-x-1/2 mb-5"; 
+
+    const normalized = (deg % 360 + 360) % 360;
+    
+    if (normalized >= 315 || normalized < 45) {
+         // Wind from N -> Place N (Top)
+         return "bottom-full left-1/2 -translate-x-1/2 mb-5";
+    } else if (normalized >= 45 && normalized < 135) {
+         // Wind from E -> Place E (Right)
+         return "left-full top-1/2 -translate-y-1/2 ml-5";
+    } else if (normalized >= 135 && normalized < 225) {
+         // Wind from S -> Place S (Bottom)
+         return "top-full left-1/2 -translate-x-1/2 mt-5";
+    } else {
+         // Wind from W -> Place W (Left)
+         return "right-full top-1/2 -translate-y-1/2 mr-5";
+    }
+};
+
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -608,7 +628,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         {/* Hover Info Pill */}
                         {hoverInfo && (
                             <div 
-                                className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-2 backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
+                                className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
                                     isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
                                 }`}
                             >
