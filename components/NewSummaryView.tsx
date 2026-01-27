@@ -7,6 +7,7 @@ import RoutesIcon from "./icons/RoutesIcon";
 import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 import LightThemeIcon from "./icons/LightThemeIcon";
 import DarkThemeIcon from "./icons/DarkThemeIcon";
+import GeeseIcon from "./icons/GeeseIcon";
 
 // Helper component for smooth accordion animation
 const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => (
@@ -232,6 +233,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                             <p>
                                 <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
                             </p>
+                            <div className="pt-12 flex justify-center">
+                                <GeeseIcon className={`w-2/3 h-auto ${isDark ? "text-[#666666]" : ""}`} />
+                            </div>
                         </div>
                     </>
                 )}
