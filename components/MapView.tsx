@@ -31,7 +31,13 @@ interface MapViewProps {
 }
 
 interface HoverInfo {
-    items: { value: string; label: string }[];
+    pace: string;
+    distStart: string;
+    distEnd: string;
+    timeStart: string;
+    timeEnd: string;
+    temp: string;
+    wind?: { value: string; label: string };
 }
 
 const getAverageWindSpeed = (range?: string) => {
@@ -492,24 +498,23 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 tempStr = `${Math.round(currentTemp)}º`;
             }
 
-            const items = [
-                { value: `${pace} км/ч`, label: "Средняя" },
-                { value: `${distStart.toFixed(0)} км`, label: "От старта" },
-                { value: `${distEnd.toFixed(0)} км`, label: "До финиша" },
-                { value: `${String(timeStartH).padStart(2, '0')}:${String(timeStartM).padStart(2, '0')}`, label: "От начала" },
-                { value: `${String(timeEndH).padStart(2, '0')}:${String(timeEndM).padStart(2, '0')}`, label: "До конца" }
-            ];
+            const info: HoverInfo = {
+                pace: `${pace} км/ч`,
+                distStart: `${distStart.toFixed(0)} км`,
+                distEnd: `${distEnd.toFixed(0)} км`,
+                timeStart: `${String(timeStartH).padStart(2, '0')}:${String(timeStartM).padStart(2, '0')}`,
+                timeEnd: `${String(timeEndH).padStart(2, '0')}:${String(timeEndM).padStart(2, '0')}`,
+                temp: `${tempStr}`
+            };
 
             if (windSpeed || windDirection) {
-                items.push({
+                info.wind = {
                     value: getAverageWindSpeed(windSpeed),
                     label: `Ветер ${windDirection || ''}`.trim()
-                });
+                };
             }
 
-            items.push({ value: `${tempStr}`, label: "Температура" });
-
-            setHoverInfo({ items });
+            setHoverInfo(info);
         } else {
             setHoverInfo(null);
         }
@@ -628,16 +633,38 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         {/* Hover Info Pill */}
                         {hoverInfo && (
                             <div 
-                                className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
+                                className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
                                     isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
                                 }`}
                             >
-                                {hoverInfo.items.map((item, idx) => (
-                                    <React.Fragment key={idx}>
-                                        <span className="text-[11px] font-sans leading-tight font-medium text-left">{item.value}</span>
-                                        <span className="text-[11px] font-sans leading-tight text-left opacity-75">{item.label}</span>
-                                    </React.Fragment>
-                                ))}
+                                {/* Pace */}
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.pace}</span>
+                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">Средняя</span>
+                                <span />
+
+                                {/* Start */}
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.distStart}</span>
+                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">От старта</span>
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.timeStart}</span>
+
+                                {/* End */}
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.distEnd}</span>
+                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">До финиша</span>
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.timeEnd}</span>
+
+                                {/* Temperature */}
+                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.temp}</span>
+                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">Температура</span>
+                                <span />
+
+                                {/* Wind */}
+                                {hoverInfo.wind && (
+                                    <>
+                                        <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.wind.value}</span>
+                                        <span className="text-[11px] font-sans leading-tight text-left opacity-75">{hoverInfo.wind.label}</span>
+                                        <span />
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
