@@ -32,7 +32,8 @@ function savitzkyGolaySmooth(values: number[]): number[] {
 export function calculateElevationProfile(
     points: [number, number, number][], // lat, lon, ele
     cumulativeDistances: number[], // in km
-    targetSpeed: number = 27.0 // Target average speed
+    targetSpeed: number = 27.0, // Target average speed
+    isMountainRegion: boolean = false
 ): ElevationPoint[] {
     if (points.length < 2) return [];
 
@@ -115,11 +116,49 @@ export function calculateElevationProfile(
     }
 
     // Calculate final speeds
-    const speeds = gradients.map(grad => {
+    // Calculate continuous descent lengths
+    const descentLengths = new Array(points.length).fill(0);
+    let currentDescentStart = -1;
+    for (let i = 1; i < points.length; i++) {
+        if (gradients[i] < -0.5) {
+            if (currentDescentStart === -1) currentDescentStart = i - 1;
+            const length = cumulativeDistances[i] - cumulativeDistances[currentDescentStart];
+            // Update all points in current descent
+            for (let j = currentDescentStart; j <= i; j++) {
+                descentLengths[j] = length;
+            }
+        } else {
+            currentDescentStart = -1;
+        }
+    }
+
+    // Calculate final speeds
+    const speeds = gradients.map((grad, i) => {
         if (grad >= 0) {
             return V_FLAT_BASE / (1 + bestK * grad);
         } else {
-            return Math.min(65, V_FLAT_BASE * (1 + 0.05 * Math.abs(grad)));
+            const absGrad = Math.abs(grad);
+            let maxSpeed = 65;
+            
+            if (isMountainRegion) {
+                // In mountains: -10% slope > 1km length -> 95 km/h
+                // Proportionally scale: speed = V_FLAT_BASE * (1 + coef * absGrad)
+                // If at absGrad=10, speed should be 95 (if length > 1)
+                // 95 = V_FLAT_BASE * (1 + coef * 10) => coef = (95/V_FLAT_BASE - 1) / 10
+                const mountainCoef = descentLengths[i] > 1.0 
+                    ? (95 / V_FLAT_BASE - 1) / 10 
+                    : (75 / V_FLAT_BASE - 1) / 10; // Lower limit for short descents even in mountains
+                maxSpeed = V_FLAT_BASE * (1 + mountainCoef * absGrad);
+            } else {
+                // Central Russia: 10-12% slope -> 75 km/h
+                // 75 = V_FLAT_BASE * (1 + coef * 11) => coef = (75/V_FLAT_BASE - 1) / 11
+                const centralCoef = (75 / V_FLAT_BASE - 1) / 11;
+                maxSpeed = V_FLAT_BASE * (1 + centralCoef * absGrad);
+            }
+
+            // Fallback to original formula logic but capped by our new regional/length maxSpeed
+            const calculatedSpeed = V_FLAT_BASE * (1 + 0.05 * absGrad);
+            return Math.min(maxSpeed, calculatedSpeed);
         }
     });
 

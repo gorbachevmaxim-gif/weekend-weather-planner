@@ -516,7 +516,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
                 {!isMapFullscreen && currentRouteData && (
                     <div className="px-4 pt-2">
-                        <ElevationProfile routeData={currentRouteData} isDark={isDark} targetSpeed={speed} />
+                        <ElevationProfile 
+                            routeData={currentRouteData} 
+                            isDark={isDark} 
+                            targetSpeed={speed} 
+                            isMountainRegion={isMountainCity}
+                        />
                     </div>
                 )}
 

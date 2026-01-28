@@ -6,9 +6,15 @@ interface ElevationProfileProps {
     routeData: RouteData | null;
     isDark?: boolean;
     targetSpeed?: number;
+    isMountainRegion?: boolean;
 }
 
-const ElevationProfile: React.FC<ElevationProfileProps> = ({ routeData, isDark = false, targetSpeed = 27.0 }) => {
+const ElevationProfile: React.FC<ElevationProfileProps> = ({ 
+    routeData, 
+    isDark = false, 
+    targetSpeed = 27.0,
+    isMountainRegion = false
+}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hoverPoint, setHoverPoint] = useState<ElevationPoint | null>(null);
@@ -17,8 +23,13 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({ routeData, isDark =
 
     const data = useMemo(() => {
         if (!routeData) return [];
-        return calculateElevationProfile(routeData.points, routeData.cumulativeDistances, targetSpeed);
-    }, [routeData, targetSpeed]);
+        return calculateElevationProfile(
+            routeData.points, 
+            routeData.cumulativeDistances, 
+            targetSpeed,
+            isMountainRegion
+        );
+    }, [routeData, targetSpeed, isMountainRegion]);
 
     const { minEle, maxEle, totalDist } = useMemo(() => {
         if (data.length === 0) return { minEle: 0, maxEle: 0, totalDist: 0 };
@@ -237,8 +248,8 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({ routeData, isDark =
                 >
                     <div className="font-bold mb-1">{hoverPoint.dist.toFixed(1)} км</div>
                     <div>Высота: {Math.round(hoverPoint.ele)} м</div>
-                    <div>Уклон: {hoverPoint.gradient.toFixed(1)}%</div>
-                    <div>Скорость: {hoverPoint.speed.toFixed(1)} км/ч</div>
+                    <div>Уклон: {Math.round(hoverPoint.gradient)}%</div>
+                    <div>Скорость: {Math.round(hoverPoint.speed)} км/ч</div>
                 </div>
             )}
         </div>
