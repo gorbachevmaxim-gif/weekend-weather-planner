@@ -1,7 +1,7 @@
 import { CityCoordinates } from '../types';
 
 interface RouteData {
-    points: [number, number][];
+    points: [number, number, number][];
     distanceKm: number;
     elevationM: number;
     cumulativeDistances: number[];
@@ -38,7 +38,7 @@ const parseGpx = (str: string): RouteData | null => {
         let pointsElements = allElements.filter(el => (el.localName === 'trkpt' || el.nodeName === 'trkpt'));
         if (pointsElements.length === 0) pointsElements = allElements.filter(el => (el.localName === 'rtept' || el.nodeName === 'rtept'));
         if (pointsElements.length === 0) return null;
-        const points: [number, number][] = [];
+        const points: [number, number, number][] = [];
         const cumulativeDistances: number[] = [0];
         let totalDist = 0;
         let totalElev = 0;
@@ -51,7 +51,9 @@ const parseGpx = (str: string): RouteData | null => {
             const eleNode = children.find(c => c.localName === 'ele' || c.nodeName === 'ele');
             if (eleNode && eleNode.textContent) ele = parseFloat(eleNode.textContent);
             if (!isNaN(lat) && !isNaN(lon)) {
-                points.push([lat, lon]);
+                // If ele is NaN, use 0 or previous elevation, but ideally we want real data.
+                // For now, we store whatever we found. Consumers should handle NaN if necessary.
+                points.push([lat, lon, isNaN(ele) ? 0 : ele]);
                 if (index > 0) {
                     const dist = getDistanceFromLatLonInKm(prevLat, prevLon, lat, lon);
                     totalDist += dist;

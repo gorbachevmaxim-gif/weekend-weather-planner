@@ -11,6 +11,7 @@ import MinusIcon from "./icons/MinusIcon";
 import PlusIcon from "./icons/PlusIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
+import ElevationProfile from "./ElevationProfile";
 
 interface CityDetailProps {
     data: CityAnalysisResult;
@@ -512,6 +513,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         endTemp={activeStats?.endTemperature}
                     />
                 </div>
+
+                {!isMapFullscreen && currentRouteData && (
+                    <div className="px-4 pt-2">
+                        <ElevationProfile routeData={currentRouteData} isDark={isDark} targetSpeed={speed} />
+                    </div>
+                )}
 
                 <div className={`grid gap-4 px-4 pt-4 pb-2 ${canShare ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
                     <a
