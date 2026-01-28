@@ -32,7 +32,7 @@ function savitzkyGolaySmooth(values: number[]): number[] {
 export function calculateElevationProfile(
     points: [number, number, number][], // lat, lon, ele
     cumulativeDistances: number[], // in km
-    targetSpeed: number = 27.0, // Target average speed
+    targetSpeed: number = 32.0, // Target average speed
     isMountainRegion: boolean = false
 ): ElevationPoint[] {
     if (points.length < 2) return [];
@@ -45,7 +45,7 @@ export function calculateElevationProfile(
 
     // 3. Calculate Gradient
     // Window ~50m.
-    const windowDistKm = 0.05; // 50 meters
+    const windowDistKm = 0.20; // 50 meters
     const gradients = new Array(points.length).fill(0);
     
     // Distances are in km, convert to meters for calculation consistency with python script if needed
@@ -73,7 +73,7 @@ export function calculateElevationProfile(
 
     // 4. Calculate Speed
     const TARGET_AVG_SPEED = targetSpeed;
-    const V_FLAT_BASE = targetSpeed * 1.185; // Heuristic: Flat speed is slightly higher than average. 32/27 ~= 1.185
+    const V_FLAT_BASE = targetSpeed * 1.2; // Heuristic: Flat speed is slightly higher than average. 32/27 ~= 1.185
     // Or we can keep V_FLAT_BASE fixed? If user changes average speed, flat speed should probably scale too.
     // In original script: TARGET_AVG_SPEED = 27, V_FLAT_BASE = 32. 
     // If user sets pace to 20, flat base shouldn't be 32.
