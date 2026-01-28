@@ -138,7 +138,7 @@ export function calculateElevationProfile(
             return V_FLAT_BASE / (1 + bestK * grad);
         } else {
             const absGrad = Math.abs(grad);
-            let maxSpeed = 65;
+            let maxSpeed = 75;
             
             if (isMountainRegion) {
                 // In mountains: -10% slope > 1km length -> 95 km/h
@@ -172,10 +172,10 @@ export function calculateElevationProfile(
 }
 
 export function getGradientColor(g: number): string {
-    if (g < 1) return '#2ecc71';   // Flat (Green)
-    if (g < 3) return '#f1c40f';   // Easy (Yellow)
-    if (g < 6) return '#e67e22';   // Sensitive (Orange)
-    if (g < 10) return '#e74c3c';  // Steep (Red)
-    if (g < 15) return '#8e44ad';  // Very steep (Purple)
-    return '#2c3e50';             // Extreme (Black)
+    if (g < 1) return '#999999';   // Flat
+    if (g < 3) return '#777777';   // Easy
+    if (g < 6) return '#555555';   // Moderate
+    if (g < 10) return '#333333';  // Steep
+    if (g < 15) return '#111111';  // Very steep
+    return '#000000';             // Extreme
 }

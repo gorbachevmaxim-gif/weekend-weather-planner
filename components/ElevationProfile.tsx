@@ -12,7 +12,7 @@ interface ElevationProfileProps {
 const ElevationProfile: React.FC<ElevationProfileProps> = ({ 
     routeData, 
     isDark = false, 
-    targetSpeed = 27.0,
+    targetSpeed = 30.0,
     isMountainRegion = false
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
