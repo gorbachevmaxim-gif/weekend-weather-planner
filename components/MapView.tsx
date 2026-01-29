@@ -28,6 +28,7 @@ interface MapViewProps {
     pace?: number;
     startTemp?: number;
     endTemp?: number;
+    elevationCursor?: [number, number] | null;
 }
 
 interface HoverInfo {
@@ -72,7 +73,7 @@ const getPlacementClasses = (deg?: number) => {
     }
 };
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp, elevationCursor }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
@@ -292,6 +293,102 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [currentRouteData, isDark]);
 
     const markersRef = useRef<{ custom: maplibregl.Marker[] }>({ custom: [] });
+    const cursorRef = useRef<maplibregl.Marker | null>(null);
+
+    // Handle Elevation Cursor
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (!map) return;
+
+        const size = isMobile ? '14px' : '12px';
+
+        if (elevationCursor) {
+            let markerElement = cursorRef.current ? cursorRef.current.getElement() : null;
+
+            if (!markerElement) {
+                markerElement = document.createElement('div');
+                markerElement.className = 'elevation-cursor-marker';
+                markerElement.style.display = 'flex';
+                markerElement.style.alignItems = 'center';
+                markerElement.style.justifyContent = 'center';
+                
+                cursorRef.current = new maplibregl.Marker({ element: markerElement })
+                    .setLngLat([elevationCursor[1], elevationCursor[0]])
+                    .addTo(map);
+            } else if (cursorRef.current) {
+                cursorRef.current.setLngLat([elevationCursor[1], elevationCursor[0]]);
+            }
+
+            // Ensure container size
+            markerElement.style.width = size;
+            markerElement.style.height = size;
+            
+            // 1. Wind Arrow Wrapper
+            let arrowWrapper = markerElement.querySelector('.wind-arrow-wrapper') as HTMLElement;
+            if (windDeg !== undefined) {
+                if (!arrowWrapper) {
+                    arrowWrapper = document.createElement('div');
+                    arrowWrapper.className = 'wind-arrow-wrapper';
+                    arrowWrapper.style.position = 'absolute';
+                    arrowWrapper.style.top = '0';
+                    arrowWrapper.style.left = '0';
+                    arrowWrapper.style.width = '100%';
+                    arrowWrapper.style.height = '100%';
+                    arrowWrapper.style.pointerEvents = 'none';
+                    
+                    const arrow = document.createElement('div');
+                    arrow.style.position = 'absolute';
+                    arrow.style.top = '-33px';
+                    arrow.style.left = '50%';
+                    arrow.style.transform = 'translateX(-50%) rotate(180deg)';
+                    
+                    const fill = isDark ? "#FFFFFF" : "#1E1E1E";
+                    const stroke = isDark ? "#1E1E1E" : "#FFFFFF";
+                    
+                    arrow.innerHTML = `<svg width="27" height="27" viewBox="0 0 24 24" fill="${fill}" xmlns="http://www.w3.org/2000/svg"><path d="M10.9 4.5L4.0 20.29C3.74 20.92 4.39 21.57 5.03 21.34L12 19L18.97 21.34C19.61 21.57 20.26 20.92 20.0 20.29L13.1 4.5Q12 1 10.9 4.5Z" stroke="${stroke}" stroke-width="1.5" /></svg>`;
+                    
+                    arrowWrapper.appendChild(arrow);
+                    markerElement.appendChild(arrowWrapper);
+                }
+                // Update transform
+                arrowWrapper.style.transform = `rotate(${windDeg - rotation}deg)`;
+                
+                const svg = arrowWrapper.querySelector('svg');
+                if (svg) {
+                     const fill = isDark ? "#FFFFFF" : "#1E1E1E";
+                     const stroke = isDark ? "#1E1E1E" : "#FFFFFF";
+                     svg.setAttribute('fill', fill);
+                     const path = svg.querySelector('path');
+                     if (path) path.setAttribute('stroke', stroke);
+                }
+
+            } else {
+                if (arrowWrapper) {
+                    arrowWrapper.remove();
+                }
+            }
+
+            // 2. Dot
+            let dot = markerElement.querySelector('.cursor-dot') as HTMLElement;
+            if (!dot) {
+                dot = document.createElement('div');
+                dot.className = 'cursor-dot';
+                dot.style.width = '100%';
+                dot.style.height = '100%';
+                dot.style.borderRadius = '50%';
+                dot.style.border = '2px solid white';
+                dot.style.boxShadow = '0 0 4px rgba(0,0,0,0.5)';
+                markerElement.appendChild(dot);
+            }
+            dot.style.backgroundColor = isDark ? '#ffffff' : '#000000';
+
+        } else {
+            if (cursorRef.current) {
+                cursorRef.current.remove();
+                cursorRef.current = null;
+            }
+        }
+    }, [elevationCursor, isDark, isMobile, windDeg, rotation]);
 
     // Handle Custom Markers
     useEffect(() => {
@@ -522,7 +619,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [windPos, currentRouteData, pace, startTemp, endTemp, windSpeed, windDirection]);
 
     return (
-        <div ref={wrapperRef} className="relative w-full aspect-[3/4] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
+        <div ref={wrapperRef} className="relative w-full aspect-square md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
@@ -590,7 +687,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {/* Bottom-left controls */}
             <div 
-                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move' : ''}`}
+                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move' : ''} ${isMobile ? 'hidden' : ''}`}
                 style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
                 onMouseDown={handleWindMouseDown}
                 onTouchStart={handleWindMouseDown}

@@ -438,7 +438,9 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
                 endTemperature900hPa: endTemperature900hPa,
                 temperature850hPa: Math.round(temp850hPaMin),
                 startTemperature850hPa: startTemperature850hPa,
-                endTemperature850hPa: endTemperature850hPa
+                endTemperature850hPa: endTemperature850hPa,
+                hourlyWind: windSlice,
+                hourlyWindDir: windDirSlice
             };
 
             return { type: target.type, stats: dayStats };

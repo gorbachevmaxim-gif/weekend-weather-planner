@@ -5,12 +5,14 @@ export interface ElevationPoint {
     speed: number;
     time: number; // time from start in hours
     cumElevation: number; // cumulative elevation gain in meters
+    lat: number;
+    lon: number;
 }
 
 function gaussianSmooth(
     elevations: number[],
     cumulativeDistances: number[],
-    sigmaKm: number = 0.5 // 200 meters sigma
+    sigmaKm: number = 0.6 // 600 meters sigma, was 200 meters
 ): number[] {
     const smoothed = new Array(elevations.length).fill(0);
     const windowRadius = sigmaKm * 3; // 3 sigma rule
@@ -88,7 +90,7 @@ export function calculateElevationProfile(
 
     // 4. Calculate Speed
     const TARGET_AVG_SPEED = targetSpeed;
-    const V_FLAT_BASE = targetSpeed * 1.2; // Heuristic: Flat speed is slightly higher than average. 32/27 ~= 1.185
+    const V_FLAT_BASE = targetSpeed * 1.25; // Heuristic: Flat speed is slightly higher than average. 32/27 ~= 1.185
     // Or we can keep V_FLAT_BASE fixed? If user changes average speed, flat speed should probably scale too.
     // In original script: TARGET_AVG_SPEED = 27, V_FLAT_BASE = 32. 
     // If user sets pace to 20, flat base shouldn't be 32.
@@ -203,13 +205,15 @@ export function calculateElevationProfile(
     }
 
     // Assemble result
-    return points.map((_, i) => ({
+    return points.map((p, i) => ({
         dist: cumulativeDistances[i],
         ele: smoothedElevations[i],
         gradient: gradients[i],
         speed: speeds[i],
         time: times[i],
-        cumElevation: cumElevations[i]
+        cumElevation: cumElevations[i],
+        lat: p[0],
+        lon: p[1]
     }));
 }
 

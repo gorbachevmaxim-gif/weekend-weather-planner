@@ -47,6 +47,8 @@ export interface WeatherDayStats {
   temperature850hPa?: number;
   startTemperature850hPa?: number;
   endTemperature850hPa?: number;
+  hourlyWind?: number[]; // Wind speed km/h (slice 09:00-18:00)
+  hourlyWindDir?: number[]; // Wind direction degrees (slice 09:00-18:00)
 }
 
 export interface CityAnalysisResult {

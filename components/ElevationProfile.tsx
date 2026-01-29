@@ -7,19 +7,36 @@ interface ElevationProfileProps {
     isDark?: boolean;
     targetSpeed?: number;
     isMountainRegion?: boolean;
+    onHover?: (point: ElevationPoint | null) => void;
+    startTemp?: number;
+    endTemp?: number;
+    hourlyWind?: number[];
+    hourlyWindDir?: number[];
 }
+
+const getWindDirectionText = (deg: number) => {
+    const directions = ["Сев.", "СВ", "Вост.", "ЮВ", "Южн.", "ЮЗ", "Зап.", "СЗ"];
+    const index = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
+    return directions[index];
+};
 
 const ElevationProfile: React.FC<ElevationProfileProps> = ({ 
     routeData, 
     isDark = false, 
     targetSpeed = 30.0,
-    isMountainRegion = false
+    isMountainRegion = false,
+    onHover,
+    startTemp,
+    endTemp,
+    hourlyWind,
+    hourlyWindDir
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hoverPoint, setHoverPoint] = useState<ElevationPoint | null>(null);
     const [hoverPos, setHoverPos] = useState<{ x: number, y: number } | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 200 });
+    const [isMobile, setIsMobile] = useState(false);
 
     const data = useMemo(() => {
         if (!routeData) return [];
@@ -31,8 +48,8 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         );
     }, [routeData, targetSpeed, isMountainRegion]);
 
-    const { minEle, maxEle, totalDist } = useMemo(() => {
-        if (data.length === 0) return { minEle: 0, maxEle: 0, totalDist: 0 };
+    const { minEle, maxEle, totalDist, totalTime } = useMemo(() => {
+        if (data.length === 0) return { minEle: 0, maxEle: 0, totalDist: 0, totalTime: 0 };
         let min = Infinity;
         let max = -Infinity;
         data.forEach(p => {
@@ -40,12 +57,14 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             if (p.ele > max) max = p.ele;
         });
         const dist = data[data.length - 1].dist;
+        const time = data[data.length - 1].time;
         // Add some padding to Y
         const range = max - min;
         return { 
             minEle: Math.max(0, min - range * 0.1), 
             maxEle: max + range * 0.1, 
-            totalDist: dist 
+            totalDist: dist,
+            totalTime: time
         };
     }, [data]);
 
@@ -53,9 +72,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     useEffect(() => {
         const handleResize = () => {
             if (containerRef.current) {
+                const mobile = window.innerWidth <= 768;
+                setIsMobile(mobile);
                 setDimensions({
                     width: containerRef.current.clientWidth,
-                    height: 200 // Fixed height
+                    height: mobile ? 140 : 200
                 });
             }
         };
@@ -209,15 +230,18 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         if (x >= padding.left && x <= width - padding.right) {
             setHoverPoint(closest);
             setHoverPos({ x: clientX, y: rect.top }); // Global coordinates for tooltip
+            if (onHover) onHover(closest);
         } else {
             setHoverPoint(null);
             setHoverPos(null);
+            if (onHover) onHover(null);
         }
     };
 
     const handleMouseLeave = () => {
         setHoverPoint(null);
         setHoverPos(null);
+        if (onHover) onHover(null);
     };
 
     if (!routeData || data.length === 0) return null;
@@ -235,21 +259,36 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             />
             {hoverPoint && hoverPos && containerRef.current && (
                 <div 
-                    className={`absolute z-30 pointer-events-none p-2 rounded shadow-md text-xs font-sans whitespace-nowrap ${
+                    className={`absolute z-30 pointer-events-none p-2 rounded shadow-md text-xs font-sans whitespace-nowrap w-max ${
                         isDark ? 'bg-[#333]/90 text-white' : 'bg-white/90 text-black'
                     }`}
                     style={{
                         top: '10px',
-                        left: (hoverPos.x - containerRef.current.getBoundingClientRect().left) + ((hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? -15 : 15),
+                        left: (hoverPos.x - containerRef.current.getBoundingClientRect().left) + ((hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? -(isMobile ? 30 : 15) : (isMobile ? 30 : 15)),
                         transform: (hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? 'translateX(-100%)' : 'none'
                     }}
                 >
-                    <div className="flex gap-3 font-medium">
+                    <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium">
                         <span>{Math.floor(hoverPoint.time)}:{(Math.round((hoverPoint.time - Math.floor(hoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
                         <span>{hoverPoint.dist.toFixed(1)} км</span>
+                        <span>
+                            {startTemp !== undefined && endTemp !== undefined && totalTime > 0 
+                                ? `${Math.round(startTemp + (endTemp - startTemp) * (hoverPoint.time / totalTime))}°` 
+                                : ''}
+                        </span>
                         <span>{Math.round(hoverPoint.speed)} км/ч</span>
                         <span>{Math.round(hoverPoint.ele)} м</span>
                         <span>{Math.round(hoverPoint.gradient)}%</span>
+                        {hourlyWind && hourlyWindDir && (
+                            <>
+                                <span>
+                                    {Math.round(hourlyWind[Math.min(Math.round(hoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
+                                </span>
+                                <span>
+                                    {getWindDirectionText(hourlyWindDir[Math.min(Math.round(hoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)}
+                                </span>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

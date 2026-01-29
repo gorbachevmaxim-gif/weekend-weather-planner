@@ -3,6 +3,7 @@ import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
+import { ElevationPoint } from "../utils/elevationUtils";
 import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
@@ -57,6 +58,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [openSection, setOpenSection] = useState<string | null>(null);
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
+    const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
 
     const toggleSection = (section: string) => {
         setOpenSection(openSection === section ? null : section);
@@ -511,6 +513,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         pace={speed}
                         startTemp={activeStats?.startTemperature}
                         endTemp={activeStats?.endTemperature}
+                        elevationCursor={elevationHoverPoint ? [elevationHoverPoint.lat, elevationHoverPoint.lon] : null}
                     />
                 </div>
 
@@ -521,6 +524,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             isDark={isDark} 
                             targetSpeed={speed} 
                             isMountainRegion={isMountainCity}
+                            onHover={setElevationHoverPoint}
+                            startTemp={activeStats?.startTemperature}
+                            endTemp={activeStats?.endTemperature}
+                            hourlyWind={activeStats?.hourlyWind}
+                            hourlyWindDir={activeStats?.hourlyWindDir}
                         />
                     </div>
                 )}
