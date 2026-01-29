@@ -3,7 +3,7 @@ import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
-import { ElevationPoint } from "../utils/elevationUtils";
+import { ElevationPoint, calculateProfileScore } from "../utils/elevationUtils";
 import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
@@ -13,6 +13,18 @@ import PlusIcon from "./icons/PlusIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
+
+// Helper component for smooth accordion animation
+const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => (
+  <div 
+      className="grid transition-all duration-300 ease-in-out" 
+      style={{ gridTemplateRows: isOpen ? '1fr' : '0fr', opacity: isOpen ? 1 : 0 }}
+  >
+    <div className="overflow-hidden">
+      {children}
+    </div>
+  </div>
+);
 
 interface CityDetailProps {
     data: CityAnalysisResult;
@@ -343,6 +355,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         ? `1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º`
         : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
 
+    const profileScore = useMemo(() => {
+        if (!currentRouteData) return 0;
+        return calculateProfileScore(currentRouteData.points, currentRouteData.cumulativeDistances);
+    }, [currentRouteData]);
+
     const touchStart = useRef<{ x: number, y: number } | null>(null);
 
     const handleTouchStart = (e: React.TouchEvent) => {
@@ -556,43 +573,32 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </a>
                     )}
                 </div>
-                <div className={`mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 ${routeStartCity === "Москва" || routeEndCity === "Москва" ? "" : "md:grid-cols-2"} gap-4 border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
-                    {routeStartCity !== "Москва" && (
-                        <a
-                            href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
-                            target="_blank"
+                <div className={`mt-6 px-4 pb-4 pt-6 mb-12 grid grid-cols-1 md:grid-cols-2 gap-4 border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
+                    {/* Details Section (Left Col, 1st on Mobile) */}
+                    <div className="flex flex-col md:col-start-1">
+                        <button
+                            className={`text-xl font-unbounded font-medium text-left py-px ${
+                                openSection === "детали" || openSection === null 
+                                    ? (isDark ? "text-[#EEEEEE]" : "text-[#1E1E1E]") 
+                                    : (isDark ? "text-[#777777]" : "text-[#B2B2B2]")
+                            } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                            onClick={() => toggleSection("детали")}
                         >
-                            <div className="flex flex-col">
-                                <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
-                                <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
+                            <span className="flex items-center">Детали<ArrowDown isOpen={openSection === "детали"} width="23" height="23" style={{ top: "-7px" }} /></span>
+                        </button>
+                        <AccordionContent isOpen={openSection === "детали"}>
+                            <div className="mt-0 flex flex-wrap pl-0">
+                                <span
+                                    className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
+                                >
+                                    ProfileScore {profileScore}
+                                </span>
                             </div>
-                        </a>
-                    )}
-                    {routeEndCity !== "Москва" && (
-                        <a
-                            href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
-                            target="_blank"
-                        >
-                            <div className="flex flex-col">
-                                <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
-                                <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
-                            </div>
-                        </a>
-                    )}
-                    <a
-                        href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
-                    >
-                        <div className="flex flex-col">
-                            <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
-                            <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
-                        </div>
-                    </a>
-                    <div className="flex flex-col">
+                        </AccordionContent>
+                    </div>
+
+                    {/* What to wear (Right Col, 2nd on Mobile) */}
+                    <div className="flex flex-col md:col-start-2">
                         <button
                             className={`text-xl font-unbounded font-medium text-left py-px ${
                                 openSection === "одежда" || openSection === null 
@@ -603,10 +609,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         >
                             <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
                         </button>
-                        <div
-                            className={`transition-all duration-300 ease-in-out overflow-hidden`}
-                            style={{ maxHeight: openSection === "одежда" ? "200px" : "0" }}
-                        >
+                        <AccordionContent isOpen={openSection === "одежда"}>
                             {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
                                 <div className="mt-0 flex flex-wrap pl-0">
                                     {activeStats.clothingHints.map((hint: string) => (
@@ -623,8 +626,49 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
                                 </div>
                             )}
-                        </div>
+                        </AccordionContent>
                     </div>
+
+                    {/* Transport To (Left Col, 3rd on Mobile) */}
+                    {routeStartCity !== "Москва" && (
+                        <a
+                            href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
+                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px md:col-start-1 ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
+                            target="_blank"
+                        >
+                            <div className="flex flex-col">
+                                <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
+                                <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
+                            </div>
+                        </a>
+                    )}
+
+                    {/* Transport Back (Right Col, 4th on Mobile) */}
+                    {routeEndCity !== "Москва" && (
+                        <a
+                            href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
+                            className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px md:col-start-2 ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
+                            target="_blank"
+                        >
+                            <div className="flex flex-col">
+                                <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
+                                <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
+                            </div>
+                        </a>
+                    )}
+
+                    {/* Delicious Places (Left Col, 5th on Mobile) */}
+                    <a
+                        href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px md:col-start-1 ${openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
+                    >
+                        <div className="flex flex-col">
+                            <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
+                            <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>

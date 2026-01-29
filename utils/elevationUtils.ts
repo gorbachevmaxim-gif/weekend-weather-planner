@@ -238,3 +238,46 @@ export function getGradientColor(g: number): string {
     if (g < 15) return '#111111';  // Very steep
     return '#000000';             // Extreme
 }
+
+export function calculateProfileScore(
+    points: [number, number, number][], 
+    cumulativeDistances: number[]
+): number {
+    // Reuse calculation logic to get gradients (and smoothed elevations)
+    // We use isMountainRegion=false and default speed as they don't affect gradients/distances much
+    // (except descentLengths optimization for speed, but gradients are calculated before that? 
+    // Wait, gradients are calculated in step 3. Speeds in step 4. So it's fine.)
+    const data = calculateElevationProfile(points, cumulativeDistances);
+    
+    if (data.length < 2) return 0;
+
+    let totalScore = 0;
+    const totalDist = data[data.length - 1].dist;
+    
+    for (let i = 1; i < data.length; i++) {
+        const p = data[i];
+        const prev = data[i-1];
+        const lengthKm = p.dist - prev.dist;
+        const grad = p.gradient; 
+        
+        // Only consider positive gradients significantly above 0
+        // Use 0.5% as threshold to filter noise
+        if (grad > 0.5) { 
+            const steepness = grad;
+            // Formula: (Steepness / 2)^2 * Length
+            const segmentScore = Math.pow(steepness / 2, 2) * lengthKm;
+            
+            // Weighting based on distance from finish
+            const distFromFinish = totalDist - p.dist;
+            let factor = 0.2;
+            if (distFromFinish <= 10) factor = 1.0;
+            else if (distFromFinish <= 25) factor = 0.8;
+            else if (distFromFinish <= 50) factor = 0.6;
+            else if (distFromFinish <= 75) factor = 0.4;
+            
+            totalScore += segmentScore * factor;
+        }
+    }
+    
+    return Math.round(totalScore);
+}
