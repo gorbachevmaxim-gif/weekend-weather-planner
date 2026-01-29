@@ -3,30 +3,44 @@ export interface ElevationPoint {
     ele: number;
     gradient: number;
     speed: number;
+    time: number; // time from start in hours
+    cumElevation: number; // cumulative elevation gain in meters
 }
 
-// Savitzky-Golay filter implementation (Window 11, Polynomial 3)
-// Coefficients for the center point of the window (size 11).
-// Source: https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter#Tables_of_selected_convolution_coefficients
-// Window size 11, cubic/quadratic:
-// Norm: 429
-// Coeffs: -36, 9, 44, 69, 84, 89, 84, 69, 44, 9, -36
-const SG_COEFFS_11 = [-36, 9, 44, 69, 84, 89, 84, 69, 44, 9, -36];
-const SG_NORM_11 = 429;
+function gaussianSmooth(
+    elevations: number[],
+    cumulativeDistances: number[],
+    sigmaKm: number = 0.5 // 200 meters sigma
+): number[] {
+    const smoothed = new Array(elevations.length).fill(0);
+    const windowRadius = sigmaKm * 3; // 3 sigma rule
 
-function savitzkyGolaySmooth(values: number[]): number[] {
-    const result = [...values];
-    const halfWindow = Math.floor(SG_COEFFS_11.length / 2);
-    
-    for (let i = halfWindow; i < values.length - halfWindow; i++) {
-        let sum = 0;
-        for (let j = 0; j < SG_COEFFS_11.length; j++) {
-            sum += values[i - halfWindow + j] * SG_COEFFS_11[j];
+    for (let i = 0; i < elevations.length; i++) {
+        let sumWeights = 0;
+        let weightedSum = 0;
+
+        // Expand backwards
+        for (let j = i; j >= 0; j--) {
+            const dist = cumulativeDistances[i] - cumulativeDistances[j];
+            if (dist > windowRadius) break;
+            const weight = Math.exp(-(dist * dist) / (2 * sigmaKm * sigmaKm));
+            weightedSum += elevations[j] * weight;
+            sumWeights += weight;
         }
-        result[i] = sum / SG_NORM_11;
+
+        // Expand forwards (start from i+1)
+        for (let j = i + 1; j < elevations.length; j++) {
+            const dist = cumulativeDistances[j] - cumulativeDistances[i];
+            if (dist > windowRadius) break;
+            const weight = Math.exp(-(dist * dist) / (2 * sigmaKm * sigmaKm));
+            weightedSum += elevations[j] * weight;
+            sumWeights += weight;
+        }
+
+        smoothed[i] = weightedSum / sumWeights;
     }
-    // Edges are left as is (or could be handled better, but this is simple)
-    return result;
+
+    return smoothed;
 }
 
 export function calculateElevationProfile(
@@ -41,11 +55,12 @@ export function calculateElevationProfile(
     const elevations = points.map(p => p[2]);
 
     // 2. Smooth elevation
-    const smoothedElevations = savitzkyGolaySmooth(elevations);
+    // Use Gaussian smoothing for better noise reduction
+    const smoothedElevations = gaussianSmooth(elevations, cumulativeDistances);
 
     // 3. Calculate Gradient
-    // Window ~50m.
-    const windowDistKm = 0.20; // 50 meters
+    // Window ~200m.
+    const windowDistKm = 0.20; // 200 meters
     const gradients = new Array(points.length).fill(0);
     
     // Distances are in km, convert to meters for calculation consistency with python script if needed
@@ -162,12 +177,39 @@ export function calculateElevationProfile(
         }
     });
 
+    // 5. Calculate Time and Cumulative Elevation
+    const times: number[] = [0]; // in hours
+    const cumElevations: number[] = [0]; // in meters
+    
+    let totalTime = 0;
+    let totalAscent = 0;
+    
+    for (let i = 1; i < points.length; i++) {
+        const distLegKm = cumulativeDistances[i] - cumulativeDistances[i-1];
+        const speed = speeds[i]; // Use speed at current point
+        
+        // Time
+        const timeLeg = distLegKm / speed;
+        totalTime += timeLeg;
+        times.push(totalTime);
+        
+        // Elevation Gain
+        // Use smoothed elevation for consistency
+        const eleDiff = smoothedElevations[i] - smoothedElevations[i-1];
+        if (eleDiff > 0) {
+            totalAscent += eleDiff;
+        }
+        cumElevations.push(totalAscent);
+    }
+
     // Assemble result
     return points.map((_, i) => ({
         dist: cumulativeDistances[i],
         ele: smoothedElevations[i],
         gradient: gradients[i],
-        speed: speeds[i]
+        speed: speeds[i],
+        time: times[i],
+        cumElevation: cumElevations[i]
     }));
 }
 

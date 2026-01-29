@@ -134,9 +134,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             const x = getX(hoverPoint.dist);
             const y = getY(hoverPoint.ele);
 
-            ctx.strokeStyle = isDark ? '#fff' : '#000';
+            ctx.strokeStyle = isDark ? '#666666' : '#000000';
             ctx.lineWidth = 1;
-            ctx.setLineDash([4, 4]);
+            ctx.setLineDash([]);
             
             // Vertical cursor line
             ctx.beginPath();
@@ -149,8 +149,6 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.moveTo(padding.left, y);
             ctx.lineTo(width - padding.right, y);
             ctx.stroke();
-
-            ctx.setLineDash([]);
 
             // Dot
             ctx.fillStyle = isDark ? '#fff' : '#000';
@@ -246,10 +244,13 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                         transform: (hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? 'translateX(-100%)' : 'none'
                     }}
                 >
-                    <div className="font-bold mb-1">{hoverPoint.dist.toFixed(1)} км</div>
-                    <div>Высота: {Math.round(hoverPoint.ele)} м</div>
-                    <div>Уклон: {Math.round(hoverPoint.gradient)}%</div>
-                    <div>Скорость: {Math.round(hoverPoint.speed)} км/ч</div>
+                    <div className="flex gap-3 font-medium">
+                        <span>{Math.floor(hoverPoint.time)}:{(Math.round((hoverPoint.time - Math.floor(hoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
+                        <span>{hoverPoint.dist.toFixed(1)} км</span>
+                        <span>{Math.round(hoverPoint.speed)} км/ч</span>
+                        <span>{Math.round(hoverPoint.ele)} м</span>
+                        <span>{Math.round(hoverPoint.gradient)}%</span>
+                    </div>
                 </div>
             )}
         </div>
