@@ -518,7 +518,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
 
                 {!isMapFullscreen && currentRouteData && (
-                    <div className="pt-2">
+                    <div 
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                    className="pt-2">
                         <ElevationProfile 
                             routeData={currentRouteData} 
                             isDark={isDark} 
