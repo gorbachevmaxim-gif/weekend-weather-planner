@@ -15,7 +15,7 @@ interface ElevationProfileProps {
 }
 
 const getWindDirectionText = (deg: number) => {
-    const directions = ["Сев.", "СВ", "Вост.", "ЮВ", "Южн.", "ЮЗ", "Зап.", "СЗ"];
+    const directions = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
     const index = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
     return directions[index];
 };
@@ -118,9 +118,12 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         ctx.strokeStyle = isDark ? '#333' : '#e5e5e5';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        const numGridLines = 5;
-        for (let i = 0; i <= numGridLines; i++) {
-            const val = minEle + (i / numGridLines) * (maxEle - minEle);
+        
+        const step = isMountainRegion ? 200 : 20;
+        const startYVal = Math.ceil(minEle / step) * step;
+        const endYVal = Math.floor(maxEle / step) * step;
+
+        for (let val = startYVal; val <= endYVal; val += step) {
             const y = getY(val);
             ctx.moveTo(padding.left, y);
             ctx.lineTo(width - padding.right, y);
@@ -132,6 +135,38 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.fillText(Math.round(val).toString(), padding.left - 5, y + 3);
         }
         ctx.stroke();
+
+        // X axis ticks every 20km
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let d = 20; d < totalDist; d += 20) {
+            const x = getX(d);
+            
+            // Tick
+            ctx.beginPath();
+            ctx.strokeStyle = isDark ? '#777' : '#999';
+            ctx.moveTo(x, height - padding.bottom);
+            ctx.lineTo(x, height - padding.bottom - 5);
+            ctx.stroke();
+
+            // Label
+            ctx.fillStyle = isDark ? '#777' : '#999';
+            ctx.fillText(Math.round(d).toString(), x, height - padding.bottom + 5);
+        }
+
+        // Draw fill
+        ctx.beginPath();
+        ctx.moveTo(getX(data[0].dist), height - padding.bottom);
+        for (let i = 0; i < data.length; i++) {
+            ctx.lineTo(getX(data[i].dist), getY(data[i].ele));
+        }
+        ctx.lineTo(getX(data[data.length - 1].dist), height - padding.bottom);
+        ctx.closePath();
+        
+        ctx.fillStyle = '#666666';
+        ctx.globalAlpha = 0.2;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
 
         // Draw segments
         ctx.lineWidth = 2;
@@ -264,7 +299,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                     }`}
                     style={{
                         top: '10px',
-                        left: (hoverPos.x - containerRef.current.getBoundingClientRect().left) + ((hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? -(isMobile ? 30 : 15) : (isMobile ? 30 : 15)),
+                        left: (hoverPos.x - containerRef.current.getBoundingClientRect().left) + ((hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? -(isMobile ? 30 : 25) : (isMobile ? 30 : 25)),
                         transform: (hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? 'translateX(-100%)' : 'none'
                     }}
                 >
@@ -277,18 +312,25 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                                 : ''}
                         </span>
                         <span>{Math.round(hoverPoint.speed)} км/ч</span>
-                        <span>{Math.round(hoverPoint.ele)} м</span>
+                        
+                        <span>{Math.round(hoverPoint.originalEle)} м</span>
+                        <span>+{Math.round(hoverPoint.realCumElevation)} м</span>
+
                         <span>{Math.round(hoverPoint.gradient)}%</span>
-                        {hourlyWind && hourlyWindDir && (
-                            <>
-                                <span>
-                                    {Math.round(hourlyWind[Math.min(Math.round(hoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
-                                </span>
-                                <span>
-                                    {getWindDirectionText(hourlyWindDir[Math.min(Math.round(hoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)}
-                                </span>
-                            </>
-                        )}
+                        <span>
+                            {hourlyWind && hourlyWindDir && (
+                                <>
+                                   {getWindDirectionText(hourlyWindDir[Math.min(Math.round(hoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(hoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
+                                </>
+                            )}
+                        </span>
+
+                        <span>
+                            -{Math.floor(Math.max(0, totalTime - hoverPoint.time))}:{(Math.round((Math.max(0, totalTime - hoverPoint.time) - Math.floor(Math.max(0, totalTime - hoverPoint.time))) * 60)).toString().padStart(2, '0')}
+                        </span>
+                        <span>
+                            {Math.max(0, totalDist - hoverPoint.dist).toFixed(1)} км
+                        </span>
                     </div>
                 </div>
             )}

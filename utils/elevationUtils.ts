@@ -1,10 +1,12 @@
 export interface ElevationPoint {
     dist: number; // distance from start in km
     ele: number;
+    originalEle: number;
     gradient: number;
     speed: number;
     time: number; // time from start in hours
     cumElevation: number; // cumulative elevation gain in meters
+    realCumElevation: number; // cumulative elevation gain based on original elevations
     lat: number;
     lon: number;
 }
@@ -182,9 +184,11 @@ export function calculateElevationProfile(
     // 5. Calculate Time and Cumulative Elevation
     const times: number[] = [0]; // in hours
     const cumElevations: number[] = [0]; // in meters
+    const realCumElevations: number[] = [0]; // in meters
     
     let totalTime = 0;
     let totalAscent = 0;
+    let totalRealAscent = 0;
     
     for (let i = 1; i < points.length; i++) {
         const distLegKm = cumulativeDistances[i] - cumulativeDistances[i-1];
@@ -202,16 +206,25 @@ export function calculateElevationProfile(
             totalAscent += eleDiff;
         }
         cumElevations.push(totalAscent);
+
+        // Real Elevation Gain
+        const realEleDiff = elevations[i] - elevations[i-1];
+        if (realEleDiff > 0) {
+            totalRealAscent += realEleDiff;
+        }
+        realCumElevations.push(totalRealAscent);
     }
 
     // Assemble result
     return points.map((p, i) => ({
         dist: cumulativeDistances[i],
         ele: smoothedElevations[i],
+        originalEle: elevations[i],
         gradient: gradients[i],
         speed: speeds[i],
         time: times[i],
         cumElevation: cumElevations[i],
+        realCumElevation: realCumElevations[i],
         lat: p[0],
         lon: p[1]
     }));
