@@ -408,7 +408,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     // Sub-render methods
     const renderWeatherSection = () => (
         activeStats && (
-            <div className={`p-4 ${isDesktop ? `bg-transparent p-0 border-y py-6 ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}` : ''}`}>
+            <div className={`${isDesktop ? `bg-transparent border-y py-6 ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}` : 'p-4'}`}>
                 <div className={`grid gap-4 ${isDesktop ? 'grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
                     {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, temperatureSubValue)}
                     <div className="flex flex-col">
