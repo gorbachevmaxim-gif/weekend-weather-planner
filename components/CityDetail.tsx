@@ -442,7 +442,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <a
                                 href="#"
                                 onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
-                                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5 mb-[5px]`}
                             >
                                 <span className="underline decoration-1 underline-offset-4">Скачать</span>
                                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />

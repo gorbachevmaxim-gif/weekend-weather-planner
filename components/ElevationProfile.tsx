@@ -48,8 +48,8 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         );
     }, [routeData, targetSpeed, isMountainRegion]);
 
-    const { minEle, maxEle, totalDist, totalTime } = useMemo(() => {
-        if (data.length === 0) return { minEle: 0, maxEle: 0, totalDist: 0, totalTime: 0 };
+    const { minEle, maxEle, totalDist, totalTime, step } = useMemo(() => {
+        if (data.length === 0) return { minEle: 0, maxEle: 0, totalDist: 0, totalTime: 0, step: 10 };
         let min = Infinity;
         let max = -Infinity;
         data.forEach(p => {
@@ -58,13 +58,25 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         });
         const dist = data[data.length - 1].dist;
         const time = data[data.length - 1].time;
-        // Add some padding to Y
+        
         const range = max - min;
+        // Calculate step to fit approx 4 lines (divide by 3 to ensure enough slack for snapping)
+        let s = Math.ceil(range / 3 / 10) * 10;
+        if (s < 10) s = 10;
+
+        const center = (min + max) / 2;
+        // We want 4 lines: L1, L2, L3, L4 separated by s.
+        // Center of lines grid is L1 + 1.5s
+        // We align this center approx to data center
+        const base = center - 1.5 * s;
+        const l1 = Math.round(base / s) * s;
+        
         return { 
-            minEle: Math.max(0, min - range * 0.1), 
-            maxEle: max + range * 0.1, 
+            minEle: l1 - 0.5 * s, 
+            maxEle: l1 + 3.5 * s, 
             totalDist: dist,
-            totalTime: time
+            totalTime: time,
+            step: s
         };
     }, [data]);
 
@@ -119,7 +131,6 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         ctx.lineWidth = 1;
         ctx.beginPath();
         
-        const step = isMountainRegion ? 200 : 20;
         const startYVal = Math.ceil(minEle / step) * step;
         const endYVal = Math.floor(maxEle / step) * step;
 
@@ -213,7 +224,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.fill();
         }
 
-    }, [data, dimensions, isDark, minEle, maxEle, totalDist, hoverPoint, hoverPos]);
+    }, [data, dimensions, isDark, minEle, maxEle, totalDist, hoverPoint, hoverPos, step]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (data.length === 0) return;
