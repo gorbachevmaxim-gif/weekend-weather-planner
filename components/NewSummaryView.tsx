@@ -25,27 +25,38 @@ interface NewSummaryViewProps {
   data: CityAnalysisResult[];
   onCityClick: (city: string, day: string) => void;
   onCityClickW2: (city: string, day: string) => void;
+  theme?: "light" | "dark";
+  toggleTheme?: () => void;
+  contentPadding?: string;
 }
 
-const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2 }) => {
+const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2, theme: propTheme, toggleTheme: propToggleTheme, contentPadding = "px-4" }) => {
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
+  
+  // Local state as fallback if props not provided
+  const [localTheme, setLocalTheme] = useState<"light" | "dark">(() => {
     return document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
   });
+
+  const theme = propTheme || localTheme;
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark-theme');
+  const handleToggleTheme = () => {
+    if (propToggleTheme) {
+        propToggleTheme();
     } else {
-      document.documentElement.classList.remove('dark-theme');
+        const newTheme = localTheme === 'light' ? 'dark' : 'light';
+        setLocalTheme(newTheme);
+        if (newTheme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        } else {
+          document.documentElement.classList.remove('dark-theme');
+        }
     }
   };
 
@@ -306,7 +317,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         </div>
       </div>
 
-      <div className="px-4 mb-8 flex justify-between items-center">
+      <div className={`${contentPadding} mb-8 flex justify-between items-center`}>
         <div className="flex items-center gap-4">
             <button
                 onClick={() => setActiveOverlay('manifesto')}
@@ -322,7 +333,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 <span className="underline decoration-1 underline-offset-4">Правила</span>
                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
             </button>
-            <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
+            <button className="flex items-center mt-[3px]" onClick={handleToggleTheme}>
                 {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}
             </button>
         </div>
@@ -354,13 +365,13 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 style={{ transitionDelay: `${index * 50}ms` }}
             >
               <button
-                className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${textColorClass}`}
+                className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px ${textColorClass}`}
                 onClick={() => toggleSection(section.key)}
               >
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
               </button>
               <AccordionContent isOpen={isOpen}>
-                <div className="mt-0 px-4 space-y-[8px]">
+                <div className={`mt-0 ${contentPadding} space-y-[8px]`}>
                   {section.w1Cities.length > 0 && (
                     <div className="flex flex-wrap gap-0">
                       <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Эти выходные</div>
@@ -406,7 +417,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             style={{ transitionDelay: `${sections.length * 50}ms` }}
         >
           <button
-            className={`w-full text-[30px] font-unbounded font-medium text-left px-4 py-px ${
+            className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px ${
                 isDark 
                 ? (openSections.includes("cities") ? "text-white md:hover:text-[#777777]" : (openSections.length === 0 ? "text-white hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
                 : (openSections.includes("cities") ? "text-[#333333] md:hover:text-[#777777]" : (openSections.length === 0 ? "text-[#333333] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
@@ -416,7 +427,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <span className="flex items-center">Города<ArrowDown isOpen={openSections.includes("cities")} width="20" height="20" style={{ top: "-7px" }} /></span>
           </button>
           <AccordionContent isOpen={openSections.includes("cities")}>
-            <div className="mt-0 flex flex-wrap gap-0 pl-4">
+            <div className={`mt-0 flex flex-wrap gap-0 ${contentPadding.replace('px-', 'pl-')}`}> 
                   {sortedCities.map((city: string) => (
                 <button
                   key={city}
@@ -439,7 +450,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             href="https://www.komoot.com/collection/2674102/-lechappe-belle?ref=collection"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px hover:text-[#777777] ${
               isDark
               ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
@@ -458,7 +469,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px hover:text-[#777777] ${
               isDark
               ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
