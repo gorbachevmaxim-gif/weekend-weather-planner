@@ -193,15 +193,15 @@ const App: React.FC = () => {
                 <div 
                     className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 >
-                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-y-0' : '-translate-y-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
                         <div className="w-full px-16">
                             <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-300 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
                                 <button
                                     onClick={() => setActiveOverlay(null)}
-                                    className={`flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
+                                    className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
                                 >
                                     <span className="underline decoration-1 underline-offset-4">Прочитано</span>
-                                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                                    <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[45deg] group-hover:rotate-[-45deg] transition-transform duration-300" style={{ position: "relative", top: "7px", left: "-2px" }} />
                                     <span className="hidden md:inline"> </span>
                                 </button>
                             </div>
@@ -325,17 +325,17 @@ const App: React.FC = () => {
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setActiveOverlay('manifesto')}
-                                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
+                                className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
                             >
                                 <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
-                                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
+                                <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
                             </button>
                             <button
                                 onClick={() => setActiveOverlay('rules')}
-                                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
+                                className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
                             >
                                 <span className="underline decoration-1 underline-offset-4">Правила</span>
-                                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
+                                <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
                             </button>
                             <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                                 {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}
