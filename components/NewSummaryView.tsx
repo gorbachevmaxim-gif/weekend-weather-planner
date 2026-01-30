@@ -455,7 +455,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             style={{ transitionDelay: `${(sections.length + 2) * 50}ms` }}
         >
           <a
-            href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0&source=copy_link"
+            href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0"
             target="_blank"
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left px-4 py-px hover:text-[#777777] ${
