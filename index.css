@@ -65,14 +65,32 @@ body {
 }
 
 .maplibregl-ctrl-attrib {
-  background-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.is-dragging .maplibregl-ctrl-attrib {
+  opacity: 0 !important;
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
 
 .dark-theme .maplibregl-ctrl-attrib {
-  background-color: rgba(125, 120, 120, 0.6) !important;
+  background-color: transparent !important;
+  color: #555555 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .dark-theme .maplibregl-ctrl-attrib a {
-  background-color: rgba(125, 120, 120, 0.6) !important;
-  border-radius: 50%;
+  color: #555555 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.maplibregl-ctrl-attrib button {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
