@@ -192,7 +192,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
             <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-300 ${isDark ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
                 <button
                     onClick={() => setActiveOverlay(null)}
-                    className={`flex items-baseline text-[14px] font-inter gap-0.5 ${isDark ? "text-white hover:text-[#777777]" : "text-black hover:text-[#777777]"}`}
+                    className={`flex items-baseline text-[14px] font-inter gap-0.5 ${isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
                 >
                     <span className="underline decoration-1 underline-offset-4">Прочитано</span>
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
@@ -200,7 +200,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
                 </button>
             </div>
             
-            <div className={`mt-4 px-0 text-sm leading-relaxed text-left ${isDark ? "text-white" : "text-[#333333]"}`}>
+            <div className={`mt-4 px-0 text-sm leading-relaxed text-left ${isDark ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
                 {activeOverlay === 'manifesto' && (
                     <>
                         <div className="mb-6">
@@ -310,14 +310,14 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         <div className="flex items-center gap-4">
             <button
                 onClick={() => setActiveOverlay('manifesto')}
-                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-[#555555]" : "text-black"}`}
+                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-white" : "text-black"}`}
             >
                 <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
             </button>
             <button
                 onClick={() => setActiveOverlay('rules')}
-                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-[#555555]" : "text-black"}`}
+                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-white" : "text-black"}`}
             >
                 <span className="underline decoration-1 underline-offset-4">Правила</span>
                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
