@@ -76,7 +76,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 setIsMobile(mobile);
                 setDimensions({
                     width: containerRef.current.clientWidth,
-                    height: mobile ? 150 : 200
+                    height: mobile ? 150 : 150
                 });
             }
         };

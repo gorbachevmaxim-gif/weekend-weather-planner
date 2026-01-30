@@ -310,14 +310,14 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
         <div className="flex items-center gap-4">
             <button
                 onClick={() => setActiveOverlay('manifesto')}
-                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-white" : "text-black"}`}
+                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-[#555555]" : "text-black"}`}
             >
                 <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
             </button>
             <button
                 onClick={() => setActiveOverlay('rules')}
-                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-white" : "text-black"}`}
+                className={`flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${isDark ? "text-[#555555]" : "text-black"}`}
             >
                 <span className="underline decoration-1 underline-offset-4">Правила</span>
                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "1px", left: "-2px" }} />
