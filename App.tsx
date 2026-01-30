@@ -10,6 +10,7 @@ import ArrowUp from "./components/icons/ArrowUp";
 import LightThemeIcon from "./components/icons/LightThemeIcon";
 import DarkThemeIcon from "./components/icons/DarkThemeIcon";
 import GeeseIcon from "./components/icons/GeeseIcon";
+import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
 
 const App: React.FC = () => {
   const [data, setData] = useState<CityAnalysisResult[]>([]);
@@ -192,8 +193,8 @@ const App: React.FC = () => {
                 <div 
                     className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 >
-                    <div className={`fixed inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-y-0' : '-translate-y-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
-                        <div className="w-[90%] md:max-w-[50%] mx-auto px-4">
+                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-y-0' : '-translate-y-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+                        <div className="w-full px-16">
                             <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-300 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
                                 <button
                                     onClick={() => setActiveOverlay(null)}
@@ -238,8 +239,8 @@ const App: React.FC = () => {
                                             <p>
                                                 <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
                                             </p>
-                                            <div className="pt-12 flex justify-center">
-                                                <GeeseIcon className={`w-2/3 h-auto ${theme === 'dark' ? "text-[#666666]" : ""}`} />
+                                            <div className={`pt-12 mt-12 border-t ${theme === 'dark' ? "border-[#333333]" : "border-[#D9D9D9]"} flex justify-center`}>
+                                                <GstrdnmcLogo fill={theme === 'dark' ? "#777777" : "#111111"} className="w-1/3 h-auto" />
                                             </div>
                                         </div>
                                     </>
@@ -251,7 +252,7 @@ const App: React.FC = () => {
                                                 Мы едем не просто кататься, мы едем вместе. Чтобы райд прошел безопасно и в кайф, мы договариваемся о правилах «на берегу».
                                             </p>
                                         </div>
-                                        <div className="flex flex-col gap-y-4 pb-12">
+                                        <div className="flex flex-col gap-y-4 pb-0">
                                             <div>
                                                 <p className="font-bold text-base mb-2">1. Я – не пассажир, я – пилот.</p>
                                                 <p>Организаторы обеспечивают логистику, маршрут и сопровождение. Но они не няньки.</p>
@@ -303,6 +304,9 @@ const App: React.FC = () => {
                                                     <li>Мы общаемся на равных и с уважением.</li>
                                                     <li>Любая помощь организаторам приветствуется и повышает карму (резерв ресторанов, организация трансфера и машины сопровождения).</li>
                                                 </ul>
+                                            </div>
+                                            <div className="pt-12 flex justify-center mx-[-64px]">
+                                                <GeeseIcon className={`w-[76%] h-auto ${theme === 'dark' ? "text-[#666666]" : ""}`} />
                                             </div>
                                         </div>
                                     </>
