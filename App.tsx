@@ -48,6 +48,16 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === "Escape") {
+              setIsSliderOpen(prev => !prev);
+          }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       const cityNames = Object.keys(CITIES).sort();
       const results: CityAnalysisResult[] = [];
@@ -171,9 +181,9 @@ const App: React.FC = () => {
             <div className={`min-h-screen ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} relative`}>
                 {/* Slider */}
                 <div 
-                    className={`fixed top-0 left-0 h-full w-[550px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 >
-                    <div className={`flex justify-start p-4 pl-16 border-b ${theme === 'dark' ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
+                    <div className={`flex justify-start pt-[25px] pb-4 pr-4 pl-[53px]`}>
                         <button onClick={() => setIsSliderOpen(false)} className={`p-2 ${theme === 'dark' ? "text-white hover:text-gray-300" : "text-black hover:text-gray-500"}`}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -188,14 +198,14 @@ const App: React.FC = () => {
                             onCityClickW2={(city, day) => handleCitySelect(city, "w2", day)}
                             theme={theme}
                             toggleTheme={toggleTheme}
-                            contentPadding="pl-16 pr-4"
+                            contentPadding="pl-16 pr-16"
                         />
                     </div>
                 </div>
                 
                 {/* Overlay */}
                 <div 
-                    className={`fixed inset-0 bg-[#333333] z-40 transition-opacity duration-300 ease-in-out pointer-events-none ${isSliderOpen ? 'opacity-70 pointer-events-auto' : 'opacity-0'}`}
+                    className={`fixed inset-0 ${theme === 'dark' ? "bg-black" : "bg-[#333333]"} z-40 transition-opacity duration-300 ease-in-out pointer-events-none ${isSliderOpen ? (theme === 'dark' ? 'opacity-80 pointer-events-auto' : 'opacity-70 pointer-events-auto') : 'opacity-0'}`}
                     onClick={() => setIsSliderOpen(false)}
                 />
 

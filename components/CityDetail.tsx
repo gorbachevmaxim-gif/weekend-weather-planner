@@ -69,13 +69,16 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
-    const [openSection, setOpenSection] = useState<string | null>(null);
+    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({});
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
 
     const toggleSection = (section: string) => {
-        setOpenSection(openSection === section ? null : section);
+        setOpenSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
     };
 
     const allAvailableDays = useMemo(() => {
@@ -338,7 +341,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     );
 
     const renderWeatherBlock = (title: string, value: string, unit: string, subValue: string) => (
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col">
             <p className="text-xs text-neutral-400">{title}</p>
             {title === "ОСАДКИ" ? (
                 <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
@@ -405,10 +408,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     // Sub-render methods
     const renderWeatherSection = () => (
         activeStats && (
-            <div className={`p-4 ${isDesktop ? 'bg-transparent p-0' : ''}`}>
+            <div className={`p-4 ${isDesktop ? `bg-transparent p-0 border-y py-6 ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}` : ''}`}>
                 <div className={`grid gap-4 ${isDesktop ? 'grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
                     {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, temperatureSubValue)}
-                    <div className="flex flex-col flex-1">
+                    <div className="flex flex-col">
                         <p className="text-xs text-neutral-400">ВЕТЕР</p>
                         {renderWeatherValue(activeStats.windRange, " км/ч")}
                         <p className="text-xs text-neutral-400 flex items-center">
@@ -426,11 +429,34 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     const renderRouteName = () => (
         activeStats && (
-            <div className={`${isDesktop ? '' : 'p-4 mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
-                <p className="text-xs text-neutral-400">МАРШРУТ</p>
-                <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
-                    {routeStartCity}—{routeEndCity}
-                </p>
+            <div className={`${isDesktop ? 'border-b pb-6' : 'p-4 mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
+                {isDesktop ? (
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="col-span-3">
+                            <p className="text-xs text-neutral-400">МАРШРУТ</p>
+                            <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
+                                {routeStartCity}—{routeEndCity}
+                            </p>
+                        </div>
+                        <div className="flex flex-col justify-end">
+                            <a
+                                href="#"
+                                onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
+                                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                            >
+                                <span className="underline decoration-1 underline-offset-4">Скачать</span>
+                                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
+                            </a>
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        <p className="text-xs text-neutral-400">МАРШРУТ</p>
+                        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
+                            {routeStartCity}—{routeEndCity}
+                        </p>
+                    </div>
+                )}
             </div>
         )
     );
@@ -549,102 +575,116 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         </div>
     );
 
-    const renderDetails = () => (
-        <div className={`${isDesktop ? '' : 'mt-6 px-4 pb-4 pt-6 mb-12 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"} grid grid-cols-1 ${isDesktop ? 'grid-cols-1' : 'md:grid-cols-2'} gap-4`}>
-            {/* Details Section */}
-            <div className="flex flex-col">
-                <button
-                    className={`text-xl font-unbounded font-medium text-left py-px ${
-                        (openSection === "детали" || openSection === null) 
-                            ? (isDark ? "text-[#EEEEEE]" : "text-[#1E1E1E]") 
-                            : (isDark ? "text-[#777777]" : "text-[#B2B2B2]")
-                    } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                    onClick={() => toggleSection("детали")}
-                >
-                    <span className="flex items-center">Профиль<ArrowDown isOpen={openSection === "детали"} width="23" height="23" style={{ top: "-7px" }} /></span>
-                </button>
-                <AccordionContent isOpen={openSection === "детали"}>
-                    <div className="mt-0 flex flex-wrap pl-0">
-                        <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
-                            ProfileScore {profileScore}
-                        </span>
-                    </div>
-                </AccordionContent>
-            </div>
+    const renderDetails = () => {
+        const hasOpenSection = Object.values(openSections).some(Boolean);
+        const inactiveColor = isDark ? 'text-[#777777]' : 'text-[#B2B2B2]';
+        const activeColor = isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]';
+        const linkClass = (baseClass: string) => 
+            `${baseClass} ${!isDesktop && hasOpenSection ? inactiveColor : activeColor} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`;
 
-            {/* Transport Links */}
-            {routeStartCity !== "Москва" && (
+        return (
+            <div className={`${isDesktop ? '' : 'mt-6 px-4 pb-4 pt-6 mb-12 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"} grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4`}>
+                {/* Transport Links - Row 1 */}
+                {routeStartCity !== "Москва" && (
+                    <a
+                        href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
+                        className={linkClass(`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${isDesktop ? 'col-start-1' : 'md:col-start-1'}`)}
+                        target="_blank"
+                    >
+                        <div className="flex flex-col">
+                            <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
+                            <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
+                        </div>
+                    </a>
+                )}
+
+                {routeEndCity !== "Москва" && (
+                    <a
+                        href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
+                        className={linkClass(`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${isDesktop ? 'col-start-2' : 'md:col-start-2'}`)}
+                        target="_blank"
+                    >
+                        <div className="flex flex-col">
+                            <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
+                            <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
+                        </div>
+                    </a>
+                )}
+
+                {/* Places - Row 2 */}
                 <a
-                    href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                    className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${isDesktop ? '' : 'md:col-start-1'} ${!isDesktop && openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
+                    href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                     target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass(`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${isDesktop ? 'col-span-2' : 'md:col-start-1'}`)}
                 >
                     <div className="flex flex-col">
-                        <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
-                        <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
+                        <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
+                        <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
                     </div>
                 </a>
-            )}
 
-            {routeEndCity !== "Москва" && (
-                <a
-                    href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                    className={`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${isDesktop ? '' : 'md:col-start-2'} ${!isDesktop && openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
-                    target="_blank"
-                >
-                    <div className="flex flex-col">
-                        <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
-                        <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
-                    </div>
-                </a>
-            )}
+                {/* Separator - Row 3 Top */}
+                {isDesktop && (
+                    <div className={`col-span-2 border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}></div>
+                )}
 
-            {/* Places */}
-            <a
-                href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${isDesktop ? '' : 'md:col-start-1'} ${!isDesktop && openSection !== null ? (isDark ? 'text-[#777777]' : 'text-[#B2B2B2]') : (isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]')} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`}
-            >
-                <div className="flex flex-col">
-                    <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
-                    <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
+                {/* What to wear - Row 3 Left */}
+                <div className={`flex flex-col ${isDesktop ? 'col-start-1' : ''}`}>
+                    <button
+                        className={`text-xl font-unbounded font-medium text-left py-px ${
+                            (openSections["одежда"])
+                                ? activeColor 
+                                : inactiveColor
+                        } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                        onClick={() => toggleSection("одежда")}
+                    >
+                        <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                    </button>
+                    <AccordionContent isOpen={!!openSections["одежда"]}>
+                        {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                            <div className="mt-0 flex flex-wrap pl-0">
+                                {activeStats.clothingHints.map((hint: string) => (
+                                    <span
+                                        key={hint}
+                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
+                                    >
+                                        {hint}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={`mt-0 pl-0 ${isDark ? "text-[#EEEEEE]" : "text-[#222222]"} text-sm`}>
+                                Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
+                            </div>
+                        )}
+                    </AccordionContent>
                 </div>
-            </a>
 
-            {/* What to wear */}
-            <div className="flex flex-col">
-                <button
-                    className={`text-xl font-unbounded font-medium text-left py-px ${
-                        (openSection === "одежда" || openSection === null)
-                            ? (isDark ? "text-[#EEEEEE]" : "text-[#1E1E1E]") 
-                            : (isDark ? "text-[#777777]" : "text-[#B2B2B2]")
-                    } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                    onClick={() => toggleSection("одежда")}
-                >
-                    <span className="flex items-center">Что надеть<ArrowDown isOpen={openSection === "одежда"} width="23" height="23" style={{ top: "-7px" }} /></span>
-                </button>
-                <AccordionContent isOpen={openSection === "одежда"}>
-                    {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                {/* Details Section (Profile) - Row 3 Right */}
+                <div className={`flex flex-col ${isDesktop ? 'col-start-2' : ''}`}>
+                    <button
+                        className={`text-xl font-unbounded font-medium text-left py-px ${
+                            (openSections["детали"]) 
+                                ? activeColor 
+                                : inactiveColor
+                        } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                        onClick={() => toggleSection("детали")}
+                    >
+                        <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                    </button>
+                    <AccordionContent isOpen={!!openSections["детали"]}>
                         <div className="mt-0 flex flex-wrap pl-0">
-                            {activeStats.clothingHints.map((hint: string) => (
-                                <span
-                                    key={hint}
-                                    className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
-                                >
-                                    {hint}
-                                </span>
-                            ))}
+                            <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
+                                ProfileScore {profileScore}
+                            </span>
                         </div>
-                    ) : (
-                        <div className={`mt-0 pl-0 ${isDark ? "text-[#EEEEEE]" : "text-[#222222]"} text-sm`}>
-                            Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
-                        </div>
-                    )}
-                </AccordionContent>
+                    </AccordionContent>
+                </div>
+
             </div>
-        </div>
-    );
+        );
+    };
 
     if (isDesktop) {
         return (
@@ -652,7 +692,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 {/* Header: Burger + Days */}
                 <div className="w-full mb-6 flex items-center gap-4">
                     {onToggleSlider && (
-                        <button onClick={onToggleSlider} className={`p-2 ${isDark ? "text-white" : "text-black"}`}>
+                        <button onClick={onToggleSlider} className={`p-2 ml-[7px] ${isDark ? "text-white" : "text-black"}`}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -687,20 +727,18 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 </div>
 
-                <div className="grid grid-cols-10 gap-16">
-                    {/* Left Column 40% */}
-                    <div className="col-span-4 flex flex-col gap-6">
+                <div className="flex gap-16">
+                    {/* Left Column 45% */}
+                    <div className="w-[45%] flex flex-col gap-6 pl-4">
                         {renderRouteName()}
                         {renderRouteStats()}
                         {renderWeatherSection()}
                         {/* Transport, Places, Wear - reusing renderDetails but simplified logic inside */}
                         {renderDetails()}
-                        {/* Download links */}
-                        {renderDownloads()}
                     </div>
 
-                    {/* Right Column 60% */}
-                    <div className="col-span-6 flex flex-col gap-6">
+                    {/* Right Column 55% */}
+                    <div className="w-[55%] flex flex-col gap-6">
                         {renderMap()}
                         {renderProfile()}
                     </div>
