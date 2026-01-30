@@ -651,8 +651,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
                         </svg>
-                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-black text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg">
-                            <div className="absolute left-[2px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rotate-45"></div>
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-[#333333] text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg">
+                            <div className="absolute left-[2px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#333333] rotate-45"></div>
                             Развернуть
                         </div>
                     </button>
@@ -666,8 +666,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     onClick={handleCenterMap}
                 >
                     <CenterIcon width={20} height={20} />
-                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-black text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg">
-                        <div className="absolute left-[2px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-[#333333] text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg">
+                        <div className="absolute left-[2px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#333333] rotate-45"></div>
                         Центрировать
                     </div>
                 </button>
