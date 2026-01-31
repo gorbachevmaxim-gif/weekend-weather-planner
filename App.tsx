@@ -125,16 +125,22 @@ const App: React.FC = () => {
           for (const slot of timeSlots) {
               const candidates = data.filter(city => {
                   const stats = slot.getter(city);
-                  // Ensure we use the exact same logic as visual list: isRideable + not mountain
-                  return stats && stats.isRideable && !MOUNTAIN_CITIES.includes(city.cityName);
+                  // Ensure we use the exact same logic as visual list: isRideable + hasRoute + not mountain
+                  return stats && stats.isRideable && stats.hasRoute && !MOUNTAIN_CITIES.includes(city.cityName);
               });
 
               if (candidates.length > 0) {
                   // Sort by sun descending, then alphabetical
+                  // If sun difference is small (less than 1 hour), prefer alphabetical to avoid jumping around similar cities
                   candidates.sort((a, b) => {
                       const sunA = slot.getter(a)?.sunSeconds || 0;
                       const sunB = slot.getter(b)?.sunSeconds || 0;
-                      if (sunB !== sunA) return sunB - sunA;
+                      
+                      const diff = sunB - sunA;
+                      if (Math.abs(diff) > 3600) {
+                          return diff;
+                      }
+
                       return a.cityName.localeCompare(b.cityName);
                   });
 
@@ -148,9 +154,27 @@ const App: React.FC = () => {
           }
 
           if (!found) {
-              // Fallback: First alphabetical non-mountain city
+              // Fallback: Best option for W1 Saturday (least rain, then most sun)
               const fallbackCandidates = data.filter(c => !MOUNTAIN_CITIES.includes(c.cityName));
-              fallbackCandidates.sort((a, b) => a.cityName.localeCompare(b.cityName));
+              
+              fallbackCandidates.sort((a, b) => {
+                  const statA = a.weekend1.saturday;
+                  const statB = b.weekend1.saturday;
+                  
+                  if (!statA || !statB) return 0;
+                  
+                  // 1. Least rain
+                  if (Math.abs(statA.precipSum - statB.precipSum) > 0.1) {
+                      return statA.precipSum - statB.precipSum;
+                  }
+                  
+                  // 2. Most sun
+                  if (statA.sunSeconds !== statB.sunSeconds) {
+                      return statB.sunSeconds - statA.sunSeconds;
+                  }
+
+                  return a.cityName.localeCompare(b.cityName);
+              });
 
               if (fallbackCandidates.length > 0) {
                   const first = fallbackCandidates[0];

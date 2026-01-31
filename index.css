@@ -67,12 +67,7 @@ body {
 .maplibregl-ctrl-attrib {
   background-color: transparent !important;
   box-shadow: none !important;
-}
-
-.is-dragging .maplibregl-ctrl-attrib {
-  opacity: 0 !important;
   transition: opacity 0.2s;
-  pointer-events: none;
 }
 
 .dark-theme .maplibregl-ctrl-attrib {

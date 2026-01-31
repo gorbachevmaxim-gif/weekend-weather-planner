@@ -79,7 +79,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
     
     const wrapperRef = useRef<HTMLDivElement>(null);
     const windDragRef = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
@@ -127,9 +126,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             cooperativeGestures: true
         });
 
-        map.on('dragstart', () => setIsDragging(true));
-        map.on('dragend', () => setIsDragging(false));
-        map.on('moveend', () => setIsDragging(false));
+        const hideAttrib = () => {
+            const attrib = mapContainerRef.current?.querySelector('.maplibregl-ctrl-attrib') as HTMLElement;
+            if (attrib) {
+                attrib.style.opacity = '0';
+                attrib.style.pointerEvents = 'none';
+            }
+        };
+
+        map.on('dragstart', hideAttrib);
 
         map.on('rotate', () => {
             setRotation(map.getBearing());
@@ -624,7 +629,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [windPos, currentRouteData, pace, startTemp, endTemp, windSpeed, windDirection]);
 
     return (
-        <div ref={wrapperRef} className={`relative w-full aspect-square md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden ${isDragging ? 'is-dragging' : ''}`}>
+        <div ref={wrapperRef} className="relative w-full aspect-square md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
