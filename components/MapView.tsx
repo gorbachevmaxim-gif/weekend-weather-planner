@@ -705,7 +705,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {/* Bottom-left controls */}
             <div 
-                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move' : ''} ${isMobile ? 'hidden' : ''}`}
+                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move' : ''}`}
                 style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
                 onMouseDown={handleWindMouseDown}
                 onTouchStart={handleWindMouseDown}
