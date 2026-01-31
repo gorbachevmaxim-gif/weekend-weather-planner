@@ -629,7 +629,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [windPos, currentRouteData, pace, startTemp, endTemp, windSpeed, windDirection]);
 
     return (
-        <div ref={wrapperRef} className="relative w-full aspect-square md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
+        <div ref={wrapperRef} className="relative w-full aspect-[4/3] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (

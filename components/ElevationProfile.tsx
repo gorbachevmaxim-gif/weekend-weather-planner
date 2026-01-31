@@ -88,7 +88,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 setIsMobile(mobile);
                 setDimensions({
                     width: containerRef.current.clientWidth,
-                    height: mobile ? 150 : 150
+                    height: mobile ? 120 : 150
                 });
             }
         };
@@ -116,7 +116,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         canvas.style.height = `${dimensions.height}px`;
 
         const { width, height } = dimensions;
-        const padding = { top: 20, right: 10, bottom: 20, left: 40 };
+        const padding = { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 };
         const graphWidth = width - padding.left - padding.right;
         const graphHeight = height - padding.top - padding.bottom;
 
@@ -244,7 +244,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         const x = clientX - rect.left;
         
         const { width } = dimensions;
-        const padding = { top: 20, right: 10, bottom: 20, left: 40 };
+        const padding = { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 };
         const graphWidth = width - padding.left - padding.right;
 
         // Map x to distance
