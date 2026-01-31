@@ -10,6 +10,8 @@ import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
 import ArrowUp from "./icons/ArrowUp";
 import MinusIcon from "./icons/MinusIcon";
 import PlusIcon from "./icons/PlusIcon";
+import DownloadIcon from "./icons/DownloadIcon";
+import ShareIcon from "./icons/ShareIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
@@ -429,24 +431,37 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     const renderRouteName = () => (
         activeStats && (
-            <div className={`${isDesktop ? 'border-y py-6' : 'p-4 mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
+            <div className={`${isDesktop ? 'border-y' : 'p-4 mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
                 {isDesktop ? (
                     <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-3">
+                        <div className="col-span-3 py-6">
                             <p className="text-xs text-neutral-400">МАРШРУТ</p>
                             <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
                                 {routeStartCity}—{routeEndCity}
                             </p>
                         </div>
-                        <div className="flex flex-col justify-end">
-                            <a
-                                href="#"
-                                onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
-                                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5 mb-[5px]`}
+                        <div className="flex items-center justify-start gap-[16px] translate-y-[6px]">
+                            <button
+                                onClick={handleForwardGpx}
+                                className="group relative focus:outline-none"
                             >
-                                <span className="underline decoration-1 underline-offset-4">Скачать</span>
-                                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
-                            </a>
+                                <ShareIcon width="20" height="20" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                                    <div className={`absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                    В Telegram
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={handleDownloadGpx}
+                                className="group relative focus:outline-none"
+                            >
+                                <DownloadIcon width="20" height="20" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                                    <div className={`absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                    Скачать
+                                </div>
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -583,103 +598,108 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             `${baseClass} ${!isDesktop && hasOpenSection ? inactiveColor : activeColor} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`;
 
         return (
-            <div className={`${isDesktop ? '' : 'mt-6 px-4 pb-4 pt-6 mb-12 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"} grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4`}>
-                {/* Transport Links - Row 1 */}
-                {routeStartCity !== "Москва" && (
+            <div className={`${isDesktop ? '' : 'mt-6 px-4 pb-4 pt-6 mb-12 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"} flex flex-col gap-4`}>
+                
+                {/* Transport & Places Group */}
+                <div className="flex flex-wrap gap-4 w-full">
+                    {routeStartCity !== "Москва" && (
+                        <a
+                            href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
+                            className={linkClass(`flex-1 min-w-full md:min-w-[45%] flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px`)}
+                            target="_blank"
+                        >
+                            <div className="flex flex-col">
+                                <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
+                                <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
+                            </div>
+                        </a>
+                    )}
+
+                    {routeEndCity !== "Москва" && (
+                        <a
+                            href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
+                            className={linkClass(`flex-1 min-w-full md:min-w-[45%] flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px`)}
+                            target="_blank"
+                        >
+                            <div className="flex flex-col">
+                                <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
+                                <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
+                            </div>
+                        </a>
+                    )}
+
                     <a
-                        href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                        className={linkClass(`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${isDesktop ? 'col-start-1' : 'md:col-start-1'}`)}
+                        href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
                         target="_blank"
+                        rel="noopener noreferrer"
+                        className={linkClass(`flex-1 min-w-full md:min-w-[45%] self-start flex items-center text-xl font-unbounded font-medium text-left py-px`)}
                     >
                         <div className="flex flex-col">
-                            <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
-                            <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
+                            <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
+                            <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
                         </div>
                     </a>
-                )}
-
-                {routeEndCity !== "Москва" && (
-                    <a
-                        href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                        className={linkClass(`flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px ${isDesktop ? 'col-start-2' : 'md:col-start-2'}`)}
-                        target="_blank"
-                    >
-                        <div className="flex flex-col">
-                            <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
-                            <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
-                        </div>
-                    </a>
-                )}
-
-                {/* Places - Row 2 */}
-                <a
-                    href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkClass(`self-start flex items-center text-xl font-unbounded font-medium text-left py-px ${isDesktop ? 'col-span-2' : 'md:col-start-1'}`)}
-                >
-                    <div className="flex flex-col">
-                        <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
-                        <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
-                    </div>
-                </a>
-
-                {/* Separator - Row 3 Top */}
-                {isDesktop && (
-                    <div className={`col-span-2 border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}></div>
-                )}
-
-                {/* What to wear - Row 3 Left */}
-                <div className={`flex flex-col ${isDesktop ? 'col-start-1' : ''}`}>
-                    <button
-                        className={`text-xl font-unbounded font-medium text-left py-px ${
-                            (openSections["одежда"])
-                                ? activeColor 
-                                : inactiveColor
-                        } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                        onClick={() => toggleSection("одежда")}
-                    >
-                        <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                    </button>
-                    <AccordionContent isOpen={!!openSections["одежда"]}>
-                        {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
-                            <div className="mt-0 flex flex-wrap pl-0">
-                                {activeStats.clothingHints.map((hint: string) => (
-                                    <span
-                                        key={hint}
-                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
-                                    >
-                                        {hint}
-                                    </span>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className={`mt-0 pl-0 ${isDark ? "text-[#EEEEEE]" : "text-[#222222]"} text-sm`}>
-                                Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
-                            </div>
-                        )}
-                    </AccordionContent>
                 </div>
 
-                {/* Details Section (Profile) - Row 3 Right */}
-                <div className={`flex flex-col ${isDesktop ? 'col-start-2' : ''}`}>
-                    <button
-                        className={`text-xl font-unbounded font-medium text-left py-px ${
-                            (openSections["детали"]) 
-                                ? activeColor 
-                                : inactiveColor
-                        } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                        onClick={() => toggleSection("детали")}
-                    >
-                        <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                    </button>
-                    <AccordionContent isOpen={!!openSections["детали"]}>
-                        <div className="mt-0 flex flex-wrap pl-0">
-                            <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
-                                ProfileScore {profileScore}
-                            </span>
-                        </div>
-                    </AccordionContent>
+                {/* Separator - Desktop only */}
+                {isDesktop && (
+                    <div className={`w-full border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}></div>
+                )}
+
+                {/* Info Group: Wear & Profile */}
+                <div className={`grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4 w-full`}>
+                    {/* What to wear */}
+                    <div className="flex flex-col">
+                        <button
+                            className={`text-xl font-unbounded font-medium text-left py-px ${
+                                (openSections["одежда"])
+                                    ? activeColor 
+                                    : inactiveColor
+                            } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                            onClick={() => toggleSection("одежда")}
+                        >
+                            <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                        </button>
+                        <AccordionContent isOpen={!!openSections["одежда"]}>
+                            {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                                <div className="mt-0 flex flex-wrap pl-0">
+                                    {activeStats.clothingHints.map((hint: string) => (
+                                        <span
+                                            key={hint}
+                                            className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
+                                        >
+                                            {hint}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={`mt-0 pl-0 ${isDark ? "text-[#EEEEEE]" : "text-[#222222]"} text-sm`}>
+                                    Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
+                                </div>
+                            )}
+                        </AccordionContent>
+                    </div>
+
+                    {/* Profile */}
+                    <div className="flex flex-col">
+                        <button
+                            className={`text-xl font-unbounded font-medium text-left py-px ${
+                                (openSections["детали"]) 
+                                    ? activeColor 
+                                    : inactiveColor
+                            } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                            onClick={() => toggleSection("детали")}
+                        >
+                            <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                        </button>
+                        <AccordionContent isOpen={!!openSections["детали"]}>
+                            <div className="mt-0 flex flex-wrap pl-0">
+                                <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
+                                    ProfileScore {profileScore}
+                                </span>
+                            </div>
+                        </AccordionContent>
+                    </div>
                 </div>
 
             </div>
