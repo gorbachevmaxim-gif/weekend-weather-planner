@@ -747,7 +747,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 </div>
 
-                <div className="flex gap-16">
+                <div className="flex gap-[5%]">
                     {/* Left Column 45% */}
                     <div className="w-[45%] flex flex-col gap-6 pl-4">
                         {renderRouteName()}

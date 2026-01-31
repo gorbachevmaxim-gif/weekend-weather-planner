@@ -289,7 +289,7 @@ const App: React.FC = () => {
                 />
 
                 {/* Main Content */}
-                <div className="w-[1440px] mx-auto pt-6 px-12 relative z-10 box-border">
+                <div className="w-full max-w-[1440px] mx-auto pt-6 px-[3.5%] relative z-10 box-border">
                     {selectedData && (
                         <CityDetail 
                             data={selectedData} 
