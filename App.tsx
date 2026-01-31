@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { CITIES } from "./constants";
 import { CityAnalysisResult, LoadingState } from "./types";
 import { analyzeCity, getWeekendDates, MOUNTAIN_CITIES } from "./services/weatherService";
@@ -25,6 +25,13 @@ const App: React.FC = () => {
   const [isDesktop, setIsDesktop] = useState<boolean>(window.innerWidth >= 1200);
   const [isSliderOpen, setIsSliderOpen] = useState<boolean>(false);
   const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | null>(null);
+  const lastActiveOverlayRef = useRef<'manifesto' | 'rules' | null>(null);
+
+  useEffect(() => {
+    if (activeOverlay) {
+        lastActiveOverlayRef.current = activeOverlay;
+    }
+  }, [activeOverlay]);
   
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -302,8 +309,10 @@ const App: React.FC = () => {
     return (
         <div className={`min-h-screen pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
       
-      {activeOverlay && (
-        <div className={`fixed inset-0 z-50 overflow-y-auto ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+      <div 
+        className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        {(activeOverlay || lastActiveOverlayRef.current) && (
             <div className="w-full px-4">
                  <div className={`sticky top-0 pt-[18px] pb-8 z-10 flex justify-between items-center ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
                     <button
@@ -311,13 +320,13 @@ const App: React.FC = () => {
                         className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Прочитано</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[45deg] group-hover:rotate-[-45deg] transition-transform duration-300" style={{ position: "relative", top: "7px", left: "-2px" }} />
+                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[45deg]" style={{ position: "relative", top: "7px", left: "-2px" }} />
                     </button>
                 </div>
-                <OverlayContent activeOverlay={activeOverlay} theme={theme} />
+                <OverlayContent activeOverlay={(activeOverlay || lastActiveOverlayRef.current) as 'manifesto' | 'rules'} theme={theme} />
             </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-auto max-w-2xl mt-4" role="alert">
@@ -336,14 +345,14 @@ const App: React.FC = () => {
                         className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
+                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
                     </button>
                     <button
                         onClick={() => setActiveOverlay('rules')}
                         className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Правила</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
+                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
                     </button>
                     <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                         {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}

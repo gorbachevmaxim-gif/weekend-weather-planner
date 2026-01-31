@@ -9,7 +9,7 @@ interface OverlayContentProps {
 
 const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme }) => {
     return (
-        <div className={`mt-4 px-0 text-sm leading-relaxed text-left ${theme === 'dark' ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
+        <div className={`mt-4 px-0 text-sm leading-relaxed text-left w-full max-w-[343px] min-[1200px]:max-w-none mx-auto ${theme === 'dark' ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
             {activeOverlay === 'manifesto' && (
                 <>
                     <div className="mb-6">
@@ -108,8 +108,8 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                                 <li>Любая помощь организаторам приветствуется и повышает карму (резерв ресторанов, организация трансфера и машины сопровождения).</li>
                             </ul>
                         </div>
-                        <div className="pt-12 flex justify-center mx-[-64px]">
-                            <GeeseIcon className={`w-[76%] h-auto ${theme === 'dark' ? "text-[#666666]" : ""}`} />
+                        <div className="pt-12 flex justify-center mx-[-16px] min-[1200px]:mx-[-64px]">
+                            <GeeseIcon className={`w-[68%] min-[1200px]:w-[76%] h-auto ${theme === 'dark' ? "text-[#666666]" : ""}`} />
                         </div>
                     </div>
                 </>
