@@ -24,9 +24,17 @@ interface NewSummaryViewProps {
   theme?: "light" | "dark";
   toggleTheme?: () => void;
   contentPadding?: string;
+  isDesktop?: boolean;
 }
 
-const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCityClickW2, theme: propTheme, contentPadding = "px-4" }) => {
+const NewSummaryView: React.FC<NewSummaryViewProps> = ({ 
+  data, 
+  onCityClick, 
+  onCityClickW2, 
+  theme: propTheme, 
+  contentPadding = "px-4",
+  isDesktop = false
+}) => {
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   
@@ -42,6 +50,11 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({ data, onCityClick, onCi
   }, []);
 
   const toggleSection = (section: string) => {
+    if (!isDesktop) {
+      setOpenSections(prev => prev.includes(section) ? [] : [section]);
+      return;
+    }
+
     if (section === "cities") {
       setOpenSections(prev => prev.includes("cities") ? [] : ["cities"]);
     } else {

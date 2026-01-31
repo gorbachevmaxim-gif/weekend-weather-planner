@@ -270,6 +270,7 @@ const App: React.FC = () => {
                             theme={theme}
                             toggleTheme={toggleTheme}
                             contentPadding="pl-16 pr-16"
+                            isDesktop={true}
                         />
                     </div>
                 </div>
@@ -354,6 +355,7 @@ const App: React.FC = () => {
                     onCityClickW2={(city, day) => handleCitySelect(city, "w2", day)}
                     theme={theme}
                     toggleTheme={toggleTheme}
+                    isDesktop={false}
                 />
             </>
         ) : (
