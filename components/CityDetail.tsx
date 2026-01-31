@@ -429,7 +429,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     const renderRouteName = () => (
         activeStats && (
-            <div className={`${isDesktop ? 'border-b pb-6' : 'p-4 mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
+            <div className={`${isDesktop ? 'border-y py-6' : 'p-4 mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
                 {isDesktop ? (
                     <div className="grid grid-cols-4 gap-4">
                         <div className="col-span-3">
@@ -504,7 +504,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     const renderMap = () => (
         <div 
-            className={isMapFullscreen ? "fixed inset-0 z-50" : "relative"}
+            className={`${isMapFullscreen ? "fixed inset-0 z-50" : "relative"} ${isDesktop && !isMapFullscreen ? `border rounded-lg ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}` : ""}`}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
         >
