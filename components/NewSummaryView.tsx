@@ -202,7 +202,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                 style={{ transitionDelay: `${index * 50}ms` }}
             >
               <button
-                className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px ${textColorClass}`}
+                className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 ${textColorClass}`}
                 onClick={() => toggleSection(section.key)}
               >
                 <span className="flex items-center">{section.label}<ArrowDown isOpen={isOpen} width="20" height="20" style={{ top: "-7px" }} /></span>
@@ -254,7 +254,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             style={{ transitionDelay: `${sections.length * 50}ms` }}
         >
           <button
-            className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px ${
+            className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 ${
                 isDark 
                 ? (openSections.includes("cities") ? "text-white md:hover:text-[#777777]" : (openSections.length === 0 ? "text-white hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
                 : (openSections.includes("cities") ? "text-[#333333] md:hover:text-[#777777]" : (openSections.length === 0 ? "text-[#333333] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
@@ -287,7 +287,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             href="https://www.komoot.com/collection/2674102/-lechappe-belle?ref=collection"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px hover:text-[#777777] ${
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
               isDark
               ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
@@ -306,7 +306,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-px hover:text-[#777777] ${
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
               isDark
               ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')

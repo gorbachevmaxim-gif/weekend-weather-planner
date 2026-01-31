@@ -307,7 +307,7 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className={`min-h-screen pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+        <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
       
       <div 
         className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
@@ -342,14 +342,14 @@ const App: React.FC = () => {
                 <div className="flex items-center pb-4 pl-4 gap-4">
                     <button
                         onClick={() => setActiveOverlay('manifesto')}
-                        className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
+                        className={`group flex items-center text-[16px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
                         <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
                     </button>
                     <button
                         onClick={() => setActiveOverlay('rules')}
-                        className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
+                        className={`group flex items-center text-[16px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Правила</span>
                         <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
