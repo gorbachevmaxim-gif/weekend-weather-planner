@@ -10,7 +10,7 @@ import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
 import ArrowUp from "./icons/ArrowUp";
 import MinusIcon from "./icons/MinusIcon";
 import PlusIcon from "./icons/PlusIcon";
-import DownloadIcon from "./icons/DownloadIcon";
+import GpxIcon from "./icons/GpxIcon";
 import ShareIcon from "./icons/ShareIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
@@ -367,32 +367,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         return calculateProfileScore(currentRouteData.points, currentRouteData.cumulativeDistances);
     }, [currentRouteData]);
 
-    const touchStart = useRef<{ x: number, y: number } | null>(null);
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-        if (e.touches.length !== 1) {
-            touchStart.current = null;
-            return;
-        }
-        touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    };
-
-    const handleTouchEnd = (e: React.TouchEvent) => {
-        if (!touchStart.current) return;
-
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-
-        const diffX = touchEndX - touchStart.current.x;
-        const diffY = touchEndY - touchStart.current.y;
-
-        if (diffX > 70 && Math.abs(diffX) > Math.abs(diffY)) {
-            onClose();
-        }
-
-        touchStart.current = null;
-    };
-
     const markers: { coords: [number, number]; label: string }[] = [];
 
     const calculateDuration = (distKm: number, speedKmH: number) => {
@@ -456,10 +430,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 onClick={handleDownloadGpx}
                                 className="group relative focus:outline-none"
                             >
-                                <DownloadIcon width="20" height="20" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <GpxIcon width="24" height="24" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
                                     <div className={`absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
-                                    Скачать GPX
+                                    Скачать
                                 </div>
                             </button>
                         </div>
@@ -806,8 +780,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
             <div 
                 className="overflow-y-auto flex-1"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
             >
                 {renderWeatherSection()}
                 
