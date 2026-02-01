@@ -345,32 +345,20 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     arrowWrapper.style.width = '100%';
                     arrowWrapper.style.height = '100%';
                     arrowWrapper.style.pointerEvents = 'none';
-                    
-                    const arrow = document.createElement('div');
-                    arrow.style.position = 'absolute';
-                    arrow.style.top = '-33px';
-                    arrow.style.left = '50%';
-                    arrow.style.transform = 'translateX(-50%) rotate(180deg)';
-                    
-                    const fill = isDark ? "#FFFFFF" : "#1E1E1E";
-                    const stroke = isDark ? "#1E1E1E" : "#FFFFFF";
-                    
-                    arrow.innerHTML = `<svg width="27" height="27" viewBox="0 0 24 24" fill="${fill}" xmlns="http://www.w3.org/2000/svg"><path d="M10.9 4.5L4.0 20.29C3.74 20.92 4.39 21.57 5.03 21.34L12 19L18.97 21.34C19.61 21.57 20.26 20.92 20.0 20.29L13.1 4.5Q12 1 10.9 4.5Z" stroke="${stroke}" stroke-width="1.5" /></svg>`;
-                    
-                    arrowWrapper.appendChild(arrow);
                     markerElement.appendChild(arrowWrapper);
                 }
+
+                const color = isDark ? "#F5F5F5" : "#1E1E1E";
+                const arrowHtml = isDark 
+                    ? `<div style="position: absolute; top: -33px; left: 50%; transform: translateX(-50%) rotate(180deg);"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 19V5M5 12l7-7 7 7" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`
+                    : `<div style="position: absolute; top: -33px; left: 50%; transform: translateX(-50%) rotate(180deg);"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`;
+                
+                if (arrowWrapper.innerHTML !== arrowHtml) {
+                     arrowWrapper.innerHTML = arrowHtml;
+                }
+
                 // Update transform
                 arrowWrapper.style.transform = `rotate(${windDeg - rotation}deg)`;
-                
-                const svg = arrowWrapper.querySelector('svg');
-                if (svg) {
-                     const fill = isDark ? "#FFFFFF" : "#1E1E1E";
-                     const stroke = isDark ? "#1E1E1E" : "#FFFFFF";
-                     svg.setAttribute('fill', fill);
-                     const path = svg.querySelector('path');
-                     if (path) path.setAttribute('stroke', stroke);
-                }
 
             } else {
                 if (arrowWrapper) {
@@ -386,10 +374,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 dot.style.width = '100%';
                 dot.style.height = '100%';
                 dot.style.borderRadius = '50%';
-                dot.style.border = '2px solid white';
-                dot.style.boxShadow = '0 0 4px rgba(0,0,0,0.5)';
                 markerElement.appendChild(dot);
             }
+            dot.style.border = `2px solid ${isDark ? 'white' : 'rgb(243, 242, 242)'}`;
+            dot.style.boxShadow = isDark ? '0 0 4px rgba(0,0,0,0.5)' : 'none';
             dot.style.backgroundColor = isDark ? '#ffffff' : '#000000';
 
         } else {
@@ -714,21 +702,18 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {windDeg !== undefined && (
                     <div className="relative flex flex-col items-center w-8">
                         <div 
-                            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
-                                isDark 
-                                ? "bg-[#333333]/70" 
-                                : "bg-white/70"
-                            }`}
+                            className="w-8 h-8 rounded-full flex items-center justify-center"
                         >
                             <svg 
-                                width="18" 
-                                height="18" 
+                                width={isDark ? "24" : "26"} 
+                                height={isDark ? "24" : "26"} 
                                 viewBox="0 0 24 24" 
-                                fill={isDark ? "#FFFFFF" : "#1E1E1E"} 
+                                fill="none" 
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{ transform: `rotate(${windDeg + 180 - rotation}deg)` }}
                             >
-                                <path d="M10.9 4.5L4.0 20.29C3.74 20.92 4.39 21.57 5.03 21.34L12 19L18.97 21.34C19.61 21.57 20.26 20.92 20.0 20.29L13.1 4.5Q12 1 10.9 4.5Z" />
+                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "white" : "rgb(243, 242, 242)"} strokeWidth={isDark ? "4" : "6"} strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "#FFFFFF" : "#1E1E1E"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </div>
                         {(windSpeed || windDirection) && !windPos && (
