@@ -7,8 +7,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import NewSummaryView from "./components/NewSummaryView";
 import CityDetail from "./components/CityDetail";
 import ArrowUp from "./components/icons/ArrowUp";
-import LightThemeIcon from "./components/icons/LightThemeIcon";
-import DarkThemeIcon from "./components/icons/DarkThemeIcon";
+import ThemeToggleIcon from "./components/icons/ThemeToggleIcon";
 import GeeseIcon from "./components/icons/GeeseIcon";
 import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
 import OverlayContent from "./components/OverlayContent";
@@ -265,7 +264,7 @@ const App: React.FC = () => {
                                 <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
                             </button>
                             <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
-                                {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}
+                                <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
                             </button>
                         </div>
                     </div>
@@ -355,7 +354,7 @@ const App: React.FC = () => {
                         <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
                     </button>
                     <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
-                        {theme === 'light' ? <LightThemeIcon width="60" /> : <DarkThemeIcon width="60" />}
+                        <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
                     </button>
                 </div>
                 <NewSummaryView 
