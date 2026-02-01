@@ -202,6 +202,15 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
 
   const isDark = theme === "dark";
 
+  const getCityScore = (city: CityAnalysisResult, section: any, isW2: boolean) => {
+    if (section.isStandard) {
+        const key = section.key as "saturday" | "sunday";
+        const weekend = isW2 ? city.weekend2 : city.weekend1;
+        return weekend[key]?.profileScore;
+    }
+    return city.extraDays?.find(d => d.dateStr === section.dateStr)?.profileScore;
+  };
+
   return (
     <div>
       <div className="mt-0 space-y-1">
@@ -240,29 +249,35 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                   {section.w1Cities.length > 0 && (
                     <div className="flex flex-wrap gap-0">
                       <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Эти выходные</div>
-                      {section.w1Cities.map((city: CityAnalysisResult) => (
-                        <button
-                          key={city.cityName}
-                          className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
-                          onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
-                        >
-                          {city.cityName}
-                        </button>
-                      ))}
+                      {section.w1Cities.map((city: CityAnalysisResult) => {
+                        const score = getCityScore(city, section, false);
+                        return (
+                          <button
+                            key={city.cityName}
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                            onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
+                          >
+                            {city.cityName}{score !== undefined && <span className="text-[9px] relative -top-[3px] ml-1">{score}</span>}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                   {section.w2Cities.length > 0 ? (
                     <div className="flex flex-wrap gap-0">
                       <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
-                      {section.w2Cities.map((city: CityAnalysisResult) => (
-                        <button
-                          key={city.cityName}
-                          className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
-                          onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
-                        >
-                          {city.cityName}
-                        </button>
-                      ))}
+                      {section.w2Cities.map((city: CityAnalysisResult) => {
+                        const score = getCityScore(city, section, true);
+                        return (
+                          <button
+                            key={city.cityName}
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                            onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
+                          >
+                            {city.cityName}{score !== undefined && <span className="text-[9px] relative -top-[3px] ml-1">{score}</span>}
+                          </button>
+                        );
+                      })}
                     </div>
                   ) : section.key === 'saturday' ? (
                     <div className="flex flex-wrap gap-0">
