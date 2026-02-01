@@ -348,10 +348,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     markerElement.appendChild(arrowWrapper);
                 }
 
-                const color = isDark ? "#F5F5F5" : "#1E1E1E";
-                const arrowHtml = isDark 
-                    ? `<div style="position: absolute; top: -33px; left: 50%; transform: translateX(-50%) rotate(180deg);"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 19V5M5 12l7-7 7 7" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`
-                    : `<div style="position: absolute; top: -33px; left: 50%; transform: translateX(-50%) rotate(180deg);"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`;
+            const color = isDark ? "#FFFFFF" : "#1E1E1E";
+            const outlineColor = isDark ? "rgb(19, 13, 8)" : "rgb(243, 242, 242)";
+            const outlinePath = `<path d="M12 19V5M5 12l7-7 7 7" stroke="${outlineColor}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />`;
+            const arrowHtml = `<div style="position: absolute; top: -33px; left: 50%; transform: translateX(-50%) rotate(180deg);"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${outlinePath}<path d="M12 19V5M5 12l7-7 7 7" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`;
                 
                 if (arrowWrapper.innerHTML !== arrowHtml) {
                      arrowWrapper.innerHTML = arrowHtml;
@@ -376,7 +376,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 dot.style.borderRadius = '50%';
                 markerElement.appendChild(dot);
             }
-            dot.style.border = `2px solid ${isDark ? 'white' : 'rgb(243, 242, 242)'}`;
+            dot.style.border = `2px solid ${isDark ? 'rgb(19, 13, 8)' : 'rgb(243, 242, 242)'}`;
             dot.style.boxShadow = isDark ? '0 0 4px rgba(0,0,0,0.5)' : 'none';
             dot.style.backgroundColor = isDark ? '#ffffff' : '#000000';
 
@@ -705,14 +705,14 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             className="w-8 h-8 rounded-full flex items-center justify-center"
                         >
                             <svg 
-                                width={isDark ? "24" : "26"} 
-                                height={isDark ? "24" : "26"} 
+                                width="26" 
+                                height="26" 
                                 viewBox="0 0 24 24" 
                                 fill="none" 
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{ transform: `rotate(${windDeg + 180 - rotation}deg)` }}
                             >
-                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "white" : "rgb(243, 242, 242)"} strokeWidth={isDark ? "4" : "6"} strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "rgb(19, 13, 8)" : "rgb(243, 242, 242)"} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
                                 <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "#FFFFFF" : "#1E1E1E"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </div>
