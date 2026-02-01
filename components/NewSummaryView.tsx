@@ -303,7 +303,13 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                 </button>
               ))}
               <button
-                className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors text-[#F3F3F3] ${isSortByProfileScore ? "bg-[#333333]" : "bg-[#777777] hover:bg-[#555555]"}`}
+                className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${
+                  isDark
+                    ? isSortByProfileScore
+                      ? "bg-[#888888] text-[#000000] hover:bg-[#999999]"
+                      : "bg-[#333333] text-[#FFFFFF] hover:bg-[#555555]"
+                    : `text-[#F3F3F3] ${isSortByProfileScore ? "bg-[#333333] hover:bg-[#555555]" : "bg-[#777777] hover:bg-[#555555]"}`
+                }`}
                 onClick={() => setIsSortByProfileScore(prev => !prev)}
               >
                 #ProfileScore
