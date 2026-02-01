@@ -419,10 +419,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 onClick={handleForwardGpx}
                                 className="group relative focus:outline-none"
                             >
-                                <ShareIcon width="20" height="20" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <ShareIcon width="24" height="24" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
                                     <div className={`absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
-                                    Отправить GPX
+                                    Отправить
                                 </div>
                             </button>
 
