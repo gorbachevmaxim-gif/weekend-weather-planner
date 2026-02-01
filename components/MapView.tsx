@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import PlusIcon from "./icons/PlusIcon";
 import MinusIcon from "./icons/MinusIcon";
 import CenterIcon from "./icons/CenterIcon";
+import EscIcon from "./icons/EscIcon";
+import ExpandIcon from "./icons/ExpandIcon";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
 import maplibregl from "maplibre-gl";
@@ -85,6 +87,28 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
     const isMountedRef = useRef(false);
+
+    const handleZoomIn = useCallback(() => {
+        mapInstanceRef.current?.zoomIn();
+    }, []);
+
+    const handleZoomOut = useCallback(() => {
+        mapInstanceRef.current?.zoomOut();
+    }, []);
+
+    const handleCollapse = useCallback(() => {
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(err => {
+                console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+            });
+        }
+    }, []);
+
+    const handleExpand = useCallback(() => {
+        wrapperRef.current?.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+    }, []);
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -633,41 +657,58 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {/* Top-left controls */}
             <div className="absolute left-4 top-4 z-20 flex flex-col items-center gap-2">
-                {!isMobile && !isFullscreen && (
-                    <button
-                        className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors relative group ${
-                            isDark 
-                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                            : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
-                        }`}
-                        onClick={() => {
-                            wrapperRef.current?.requestFullscreen().catch(err => {
-                                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                            });
-                        }}
-                    >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                        </svg>
-                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-[#333333] text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg">
-                            <div className="absolute left-[2px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#333333] rotate-45"></div>
-                            Развернуть
-                        </div>
-                    </button>
+                {!isMobile && (
+                    <>
+                        <button
+                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            onClick={isFullscreen ? handleCollapse : handleExpand}
+                        >
+                            {isFullscreen ? (
+                                <EscIcon isDark={isDark} width={28} height={28} />
+                            ) : (
+                                <ExpandIcon isDark={isDark} width={28} height={28} />
+                            )}
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                                <div className={`absolute left-[-3px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                {isFullscreen ? "Свернуть" : "Развернуть"}
+                            </div>
+                        </button>
+                        
+                        <button
+                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            onClick={handleZoomIn}
+                        >
+                            <PlusIcon isDark={isDark} width={28} height={28} />
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                                <div className={`absolute left-[-3px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                Поближе
+                            </div>
+                        </button>
+
+                        <button
+                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            onClick={handleZoomOut}
+                        >
+                            <MinusIcon isDark={isDark} width={28} height={28} />
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                                <div className={`absolute left-[-3px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                Подальше
+                            </div>
+                        </button>
+                    </>
                 )}
+
                 <button
-                    className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors relative group ${
-                        isDark 
-                        ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                        : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100"
-                    }`}
+                    className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
                     onClick={handleCenterMap}
                 >
-                    <CenterIcon width={20} height={20} />
-                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-[#333333] text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg">
-                        <div className="absolute left-[2px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#333333] rotate-45"></div>
-                        Центрировать
-                    </div>
+                    <CenterIcon isDark={isDark} width={30} height={30} />
+                    {!isMobile && (
+                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                            <div className={`absolute left-[-3px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                            Центрировать
+                        </div>
+                    )}
                 </button>
 
                 {routeCount > 1 && onRouteSelect && (
