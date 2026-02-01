@@ -38,6 +38,7 @@ export interface WeatherDayStats {
   accuracy: 'High' | 'Medium' | 'Low';
   clothingHints: string[];
 
+  profileScore?: number;
   rideDuration?: string;
   startTemperature?: number;
   endTemperature?: number;

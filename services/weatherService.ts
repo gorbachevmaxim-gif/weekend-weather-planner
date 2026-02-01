@@ -1,5 +1,6 @@
 import { API_URL, CITY_FILENAMES, FLIGHT_CITIES } from '../constants';
 import { parseGpx, RouteData } from './gpxUtils';
+import { calculateProfileScore } from '../utils/elevationUtils';
 import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types';
 
 export const MOUNTAIN_CITIES: string[] = ["Кемер", "Фетхие"];
@@ -364,6 +365,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
 
             const isDry = activeRainSum <= 0.5;
             let hasRoute = false;
+            let profileScore: number | undefined = undefined;
             let rideDuration: string | undefined = undefined;
             let startTemperature: number | undefined = undefined;
             let endTemperature: number | undefined = undefined;
@@ -389,6 +391,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
                     const routeData = await checkRouteAvailability(cityName, windDeg);
                     if (routeData) {
                         hasRoute = true;
+                        profileScore = calculateProfileScore(routeData.points, routeData.cumulativeDistances);
                         const estimatedRideHours = Math.floor(routeData.distanceKm / 30);
                         const estimatedRideMinutes = Math.round((routeData.distanceKm / 30 - estimatedRideHours) * 60);
                         rideDuration = `${String(estimatedRideHours).padStart(2, "0")}:${String(estimatedRideMinutes).padStart(2, "0")}`;
@@ -430,6 +433,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
                 sunStr: formatSunTime(sunVal),
                 accuracy: "High",
                 clothingHints,
+                profileScore: profileScore,
                 rideDuration: rideDuration,
                 startTemperature: startTemperature,
                 endTemperature: endTemperature,
