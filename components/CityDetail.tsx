@@ -8,8 +8,6 @@ import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
 import ArrowUp from "./icons/ArrowUp";
-import MinusIcon from "./icons/MinusIcon";
-import PlusIcon from "./icons/PlusIcon";
 import GpxIcon from "./icons/GpxIcon";
 import ShareIcon from "./icons/ShareIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
@@ -467,15 +465,15 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <div className="flex items-center gap-1.5">
                             <button 
                                 onClick={() => setSpeed(s => Math.max(23, s - 1))} 
-                                className={`text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
+                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-0.5 text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
                             >
-                                <MinusIcon width="12" height="12" />
+                                −
                             </button>
                             <button 
                                 onClick={() => setSpeed(s => Math.min(38, s + 1))} 
-                                className={`text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
+                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-1 text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
                             >
-                                <PlusIcon width="12" height="12" />
+                                +
                             </button>
                         </div>
                     </div>
