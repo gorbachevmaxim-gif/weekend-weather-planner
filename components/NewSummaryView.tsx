@@ -36,7 +36,6 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
   isDesktop = false
 }) => {
   const [openSections, setOpenSections] = useState<string[]>([]);
-  const [isSortByProfileScore, setIsSortByProfileScore] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   
   // Local state as fallback if props not provided
@@ -75,53 +74,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
 
   const sortedCities = useMemo(() => {
     let sorted = [...data];
-    
-    if (isSortByProfileScore) {
-      // Sort by ProfileScore descending
-      sorted.sort((a, b) => {
-        const getMaxProfileScore = (city: CityAnalysisResult) => {
-          const scores = [
-            city.weekend1.saturday?.profileScore,
-            city.weekend1.sunday?.profileScore,
-            city.weekend2.saturday?.profileScore,
-            city.weekend2.sunday?.profileScore,
-            ...(city.extraDays?.map(d => d.profileScore) || [])
-          ].filter(s => s !== undefined) as number[];
-          
-          return scores.length > 0 ? Math.max(...scores) : -1;
-        };
-
-        const scoreA = getMaxProfileScore(a);
-        const scoreB = getMaxProfileScore(b);
-
-        const diff = scoreB - scoreA;
-        if (diff === 0) {
-          return a.cityName.localeCompare(b.cityName);
-        }
-        return diff;
-      });
-    } else {
-      // Sort by sun descending (most sunny first)
-      sorted.sort((a, b) => {
-        const getSun = (city: CityAnalysisResult) => {
-          let total = 0;
-          total += city.weekend1.saturday?.sunSeconds || 0;
-          total += city.weekend1.sunday?.sunSeconds || 0;
-          total += city.weekend2.saturday?.sunSeconds || 0;
-          total += city.weekend2.sunday?.sunSeconds || 0;
-          return total;
-        };
-        
-        const sunDiff = getSun(b) - getSun(a);
-        // Tie-breaker: Alphabetical
-        if (sunDiff === 0) {
-          return a.cityName.localeCompare(b.cityName);
-        }
-        return sunDiff;
-      });
-    }
+    sorted.sort((a, b) => a.cityName.localeCompare(b.cityName));
     return sorted.map(c => c.cityName);
-  }, [data, isSortByProfileScore]);
+  }, [data]);
 
   const sections = useMemo(() => {
     const list = [];
@@ -317,18 +272,6 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                   {city}
                 </button>
               ))}
-              <button
-                className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors ${
-                  isDark
-                    ? isSortByProfileScore
-                      ? "bg-[#888888] text-[#000000] hover:bg-[#999999]"
-                      : "bg-[#333333] text-[#FFFFFF] hover:bg-[#555555]"
-                    : `text-[#F3F3F3] ${isSortByProfileScore ? "bg-[#333333] hover:bg-[#555555]" : "bg-[#777777] hover:bg-[#555555]"}`
-                }`}
-                onClick={() => setIsSortByProfileScore(prev => !prev)}
-              >
-                #ProfileScore
-              </button>
             </div>
           </AccordionContent>
         </div>
