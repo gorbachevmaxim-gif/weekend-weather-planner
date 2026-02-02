@@ -3,7 +3,7 @@ import { CityAnalysisResult } from "../types";
 import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
-import { ElevationPoint, calculateProfileScore } from "../utils/elevationUtils";
+import { ElevationPoint, calculateProfileScore, getDifficultyLabel } from "../utils/elevationUtils";
 import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
@@ -665,9 +665,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
                         </button>
                         <AccordionContent isOpen={!!openSections["детали"]}>
-                            <div className="mt-0 flex flex-wrap pl-0">
+                            <div className="mt-0 flex flex-wrap pl-0 gap-0">
                                 <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
-                                    ProfileScore {profileScore}
+                                    Profile Score {profileScore}
+                                </span>
+                                <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
+                                    {getDifficultyLabel(profileScore)}
                                 </span>
                             </div>
                         </AccordionContent>
