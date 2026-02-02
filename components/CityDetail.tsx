@@ -694,7 +694,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setShowProfileTooltip(!showProfileTooltip);
+                                            if (isDesktop) setShowProfileTooltip(!showProfileTooltip);
                                         }}
                                         onMouseEnter={() => isDesktop && setShowProfileTooltip(true)}
                                         onMouseLeave={() => isDesktop && setShowProfileTooltip(false)}
@@ -740,7 +740,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setShowDistanceTooltip(!showDistanceTooltip);
+                                            if (isDesktop) setShowDistanceTooltip(!showDistanceTooltip);
                                         }}
                                         onMouseEnter={() => isDesktop && setShowDistanceTooltip(true)}
                                         onMouseLeave={() => isDesktop && setShowDistanceTooltip(false)}
