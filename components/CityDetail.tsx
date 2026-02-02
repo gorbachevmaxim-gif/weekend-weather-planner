@@ -15,16 +15,29 @@ import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
 
 // Helper component for smooth accordion animation
-const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => (
-  <div 
-      className="grid transition-all duration-300 ease-in-out" 
-      style={{ gridTemplateRows: isOpen ? '1fr' : '0fr', opacity: isOpen ? 1 : 0 }}
-  >
-    <div className="overflow-hidden">
-      {children}
+const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => {
+  const [overflow, setOverflow] = useState("overflow-hidden");
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => setOverflow("overflow-visible"), 300);
+      return () => clearTimeout(timer);
+    } else {
+      setOverflow("overflow-hidden");
+    }
+  }, [isOpen]);
+
+  return (
+    <div 
+        className="grid transition-all duration-300 ease-in-out" 
+        style={{ gridTemplateRows: isOpen ? '1fr' : '0fr', opacity: isOpen ? 1 : 0 }}
+    >
+      <div className={overflow}>
+        {children}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface CityDetailProps {
     data: CityAnalysisResult;
@@ -73,6 +86,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
+    const [showProfileTooltip, setShowProfileTooltip] = useState(false);
 
     const toggleSection = (section: string) => {
         setOpenSections(prev => ({
@@ -666,9 +680,29 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </button>
                         <AccordionContent isOpen={!!openSections["детали"]}>
                             <div className="mt-0 flex flex-wrap pl-0 gap-0">
-                                <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
-                                    Profile Score {profileScore}
-                                </span>
+                                <div className="relative inline-block">
+                                    <button 
+                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowProfileTooltip(!showProfileTooltip);
+                                        }}
+                                        onMouseEnter={() => isDesktop && setShowProfileTooltip(true)}
+                                        onMouseLeave={() => isDesktop && setShowProfileTooltip(false)}
+                                    >
+                                        Profile Score {profileScore}
+                                    </button>
+                                    
+                                    {showProfileTooltip && (
+                                        <div 
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое — в конце. (Формула ProCyclingStats)
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                        </div>
+                                    )}
+                                </div>
                                 <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
                                     {getDifficultyLabel(profileScore)}
                                 </span>
