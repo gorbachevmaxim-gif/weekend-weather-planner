@@ -87,6 +87,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
     const [showProfileTooltip, setShowProfileTooltip] = useState(false);
+    const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false);
 
     const toggleSection = (section: string) => {
         setOpenSections(prev => ({
@@ -703,9 +704,29 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         </div>
                                     )}
                                 </div>
-                                <span className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}>
-                                    {getDifficultyLabel(profileScore)}
-                                </span>
+                                <div className="relative inline-block">
+                                    <button 
+                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowDifficultyTooltip(!showDifficultyTooltip);
+                                        }}
+                                        onMouseEnter={() => isDesktop && setShowDifficultyTooltip(true)}
+                                        onMouseLeave={() => isDesktop && setShowDifficultyTooltip(false)}
+                                    >
+                                        {getDifficultyLabel(profileScore)}
+                                    </button>
+                                    
+                                    {showDifficultyTooltip && (
+                                        <div 
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Предупрежден — значит вооружен. Речь только о рельефе? Нет, речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Затратный – от 12 до 20.  Экономный – менее 12.
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </AccordionContent>
                     </div>
