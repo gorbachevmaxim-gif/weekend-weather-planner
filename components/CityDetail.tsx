@@ -82,7 +82,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
-    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({});
+    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(isDesktop ? { "одежда": true, "детали": true } : {});
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
@@ -647,7 +647,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <div className="flex flex-col">
                         <button
                             className={`text-xl font-unbounded font-medium text-left py-px ${
-                                (openSections["одежда"])
+                                openSections["одежда"]
                                     ? activeColor 
                                     : inactiveColor
                             } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
@@ -679,7 +679,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <div className="flex flex-col">
                         <button
                             className={`text-xl font-unbounded font-medium text-left py-px ${
-                                (openSections["детали"]) 
+                                openSections["детали"] 
                                     ? activeColor 
                                     : inactiveColor
                             } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
@@ -730,7 +730,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                             className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Предупрежден — значит вооружен. Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Затратный – от 12 до 20.  Экономный – менее 12.
+                                            С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Затратный – от 12 до 20.  Экономный – менее 12.
                                             <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
                                         </div>
                                     )}

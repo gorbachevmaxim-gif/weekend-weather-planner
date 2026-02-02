@@ -374,7 +374,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
             let startTemperature850hPa: number | undefined = undefined;
             let endTemperature850hPa: number | undefined = undefined;
 
-            if (isDry) {
+            if (isRideable) {
                 if (FLIGHT_CITIES.includes(cityName)) {
                     hasRoute = true;
                     const estimatedRideHours = 3;
