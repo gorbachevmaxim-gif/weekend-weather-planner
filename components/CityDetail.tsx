@@ -88,6 +88,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
     const [showProfileTooltip, setShowProfileTooltip] = useState(false);
     const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false);
+    const [showDistanceTooltip, setShowDistanceTooltip] = useState(false);
+    const [showPaceTooltip, setShowPaceTooltip] = useState(false);
 
     const toggleSection = (section: string) => {
         setOpenSections(prev => ({
@@ -577,6 +579,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         </div>
     );
 
+    const getDistanceLabel = (dist: number) => {
+        if (dist > 160) return "Большой";
+        if (dist >= 120) return "Объемный";
+        return "Короткий";
+    };
+
     const renderDetails = () => {
         const hasOpenSection = Object.values(openSections).some(Boolean);
         const inactiveColor = isDark ? 'text-[#777777]' : 'text-[#B2B2B2]';
@@ -723,6 +731,52 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Предупрежден — значит вооружен. Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Затратный – от 12 до 20.  Экономный – менее 12.
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="relative inline-block">
+                                    <button 
+                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowDistanceTooltip(!showDistanceTooltip);
+                                        }}
+                                        onMouseEnter={() => isDesktop && setShowDistanceTooltip(true)}
+                                        onMouseLeave={() => isDesktop && setShowDistanceTooltip(false)}
+                                    >
+                                        {getDistanceLabel(currentRouteData?.distanceKm || 0)}
+                                    </button>
+                                    
+                                    {showDistanceTooltip && (
+                                        <div 
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="relative inline-block">
+                                    <button 
+                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowPaceTooltip(!showPaceTooltip);
+                                        }}
+                                        onMouseEnter={() => isDesktop && setShowPaceTooltip(true)}
+                                        onMouseLeave={() => isDesktop && setShowPaceTooltip(false)}
+                                    >
+                                        {(currentRouteData?.distanceKm || 0) > 160 ? "Быстрый" : "Спокойный"}
+                                    </button>
+                                    
+                                    {showPaceTooltip && (
+                                        <div 
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Быстрый – средняя скорость в движении должна быть выше 33 км/ч. Спокойный – средняя скорость от 30 до 33 км/ч
                                             <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
                                         </div>
                                     )}
