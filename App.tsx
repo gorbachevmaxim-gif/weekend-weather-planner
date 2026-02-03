@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { CITIES } from "./constants";
 import { CityAnalysisResult, LoadingState } from "./types";
 import { analyzeCity, getWeekendDates, MOUNTAIN_CITIES } from "./services/weatherService";
@@ -301,6 +302,7 @@ const App: React.FC = () => {
                         />
                     )}
                 </div>
+                <Analytics />
             </div>
         );
     }
@@ -378,6 +380,7 @@ const App: React.FC = () => {
             )
         )}
       </div>
+      <Analytics />
     </div>
   );
 };
