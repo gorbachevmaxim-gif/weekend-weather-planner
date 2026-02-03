@@ -14,6 +14,7 @@ import OverlayContent from "./components/OverlayContent";
 import AuthScreen from "./components/AuthScreen";
 import { isAuthenticated } from "./utils/auth";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState(isAuthenticated());
@@ -231,6 +232,7 @@ const App: React.FC = () => {
         return (
             <div className={`min-h-screen ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} relative`}>
                 <Analytics />
+                <SpeedInsights />
                 {/* Slider */}
                 <div 
                     className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -319,6 +321,7 @@ const App: React.FC = () => {
     return (
         <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
       <Analytics />
+      <SpeedInsights />
       
       <div 
         className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
