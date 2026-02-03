@@ -11,8 +11,12 @@ import ThemeToggleIcon from "./components/icons/ThemeToggleIcon";
 import GeeseIcon from "./components/icons/GeeseIcon";
 import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
 import OverlayContent from "./components/OverlayContent";
+import AuthScreen from "./components/AuthScreen";
+import { isAuthenticated } from "./utils/auth";
+import { Analytics } from "@vercel/analytics/react";
 
 const App: React.FC = () => {
+  const [isAuth, setIsAuth] = useState(isAuthenticated());
   const [data, setData] = useState<CityAnalysisResult[]>([]);
   const [loading, setLoading] = useState<LoadingState>({ total: 0, current: 0, status: "Starting..." });
   const [showLoading, setShowLoading] = useState(true);
@@ -75,6 +79,8 @@ const App: React.FC = () => {
   }, [activeOverlay]);
 
   useEffect(() => {
+    if (!isAuth) return;
+
     const fetchData = async () => {
       const cityNames = Object.keys(CITIES).sort();
       const results: CityAnalysisResult[] = [];
@@ -115,7 +121,7 @@ const App: React.FC = () => {
       }
     };
     fetchDataAndHandleErrors();
-  }, [dates]);
+  }, [dates, isAuth]);
 
   // Auto-select logic for desktop
   useEffect(() => {
@@ -213,6 +219,10 @@ const App: React.FC = () => {
       }
   };
 
+    if (!isAuth) {
+        return <AuthScreen onLogin={() => setIsAuth(true)} />;
+    }
+
     if (showLoading) {
             return <LoadingScreen state={loading} onComplete={() => setShowLoading(false)} />;
     }
@@ -220,6 +230,7 @@ const App: React.FC = () => {
     if (isDesktop) {
         return (
             <div className={`min-h-screen ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} relative`}>
+                <Analytics />
                 {/* Slider */}
                 <div 
                     className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -307,6 +318,7 @@ const App: React.FC = () => {
 
     return (
         <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+      <Analytics />
       
       <div 
         className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}

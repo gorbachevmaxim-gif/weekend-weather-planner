@@ -2,6 +2,7 @@ import { API_URL, CITY_FILENAMES, FLIGHT_CITIES } from '../constants';
 import { parseGpx, RouteData } from './gpxUtils';
 import { calculateProfileScore } from '../utils/elevationUtils';
 import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types';
+import { track } from '@vercel/analytics';
 
 export const MOUNTAIN_CITIES: string[] = ["Кемер", "Фетхие"];
 
@@ -273,6 +274,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
     });
 
     try {
+        track('API Request', { endpoint: 'open-meteo', city: cityName });
         const response = await retry(async () => {
             const res = await fetchWithTimeout(`${API_URL}?${params.toString()}`);
             if (!res.ok) throw new Error(`API Error: ${res.status}`);
