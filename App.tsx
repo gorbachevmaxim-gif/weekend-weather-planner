@@ -7,6 +7,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import NewSummaryView from "./components/NewSummaryView";
 import CityDetail from "./components/CityDetail";
 import ArrowUp from "./components/icons/ArrowUp";
+import SquareLockIcon from "./components/icons/SquareLockIcon";
 import ThemeToggleIcon from "./components/icons/ThemeToggleIcon";
 import GeeseIcon from "./components/icons/GeeseIcon";
 import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
@@ -290,31 +291,17 @@ const App: React.FC = () => {
 
                     <div className={`flex justify-start items-center gap-12 pt-[25px] pb-4 pr-16 pl-[53px]`}>
                         <button onClick={() => setIsSliderOpen(false)} className={`p-2 ${theme === 'dark' ? "text-white hover:text-gray-300" : "text-black hover:text-gray-500"}`}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="translate-x-[4px]" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
                         </button>
                         <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => setActiveOverlay('manifesto')}
-                                className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
-                            >
-                                <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
-                                <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
-                            </button>
-                            <button
-                                onClick={() => setActiveOverlay('rules')}
-                                className={`group flex items-center text-[14px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
-                            >
-                                <span className="underline decoration-1 underline-offset-4">Правила</span>
-                                <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
-                            </button>
-                            <button onClick={handleLogout} className={`text-[12px] opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
-                                Выход
-                            </button>
                             <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                                 <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
+                            </button>
+                            <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                                <SquareLockIcon />
                             </button>
                         </div>
                     </div>
@@ -327,6 +314,8 @@ const App: React.FC = () => {
                             toggleTheme={toggleTheme}
                             contentPadding="pl-16 pr-16"
                             isDesktop={true}
+                            onCommunityClick={() => setActiveOverlay('manifesto')}
+                            onRulesClick={() => setActiveOverlay('rules')}
                         />
                     </div>
                 </div>
@@ -391,25 +380,11 @@ const App: React.FC = () => {
         {!selectedCity ? (
             <>
                 <div className="flex items-center pb-4 pl-4 gap-4">
-                    <button
-                        onClick={() => setActiveOverlay('manifesto')}
-                        className={`group flex items-center text-[16px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Комьюнити</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
-                    </button>
-                    <button
-                        onClick={() => setActiveOverlay('rules')}
-                        className={`group flex items-center text-[16px] font-inter hover:text-[#777777] gap-0.5 ${theme === 'dark' ? "text-white" : "text-black"}`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Правила</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
-                    </button>
-                    <button onClick={handleLogout} className={`text-[12px] opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
-                        Выход
-                    </button>
                     <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                         <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
+                    </button>
+                    <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                        <SquareLockIcon />
                     </button>
                 </div>
                 <NewSummaryView 
@@ -419,6 +394,8 @@ const App: React.FC = () => {
                     theme={theme}
                     toggleTheme={toggleTheme}
                     isDesktop={false}
+                    onCommunityClick={() => setActiveOverlay('manifesto')}
+                    onRulesClick={() => setActiveOverlay('rules')}
                 />
             </>
         ) : (

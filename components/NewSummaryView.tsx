@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { CityAnalysisResult } from "../types";
 import { useSummaryFiltering } from "../hooks/useSummaryFiltering";
 import ArrowDown from "./icons/ArrowDown";
+import ArrowUp from "./icons/ArrowUp";
 import RoutesIcon from "./icons/RoutesIcon";
 import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 
@@ -25,6 +26,8 @@ interface NewSummaryViewProps {
   toggleTheme?: () => void;
   contentPadding?: string;
   isDesktop?: boolean;
+  onCommunityClick: () => void;
+  onRulesClick: () => void;
 }
 
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ 
@@ -33,7 +36,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
   onCityClickW2, 
   theme: propTheme, 
   contentPadding = "px-4",
-  isDesktop = false
+  isDesktop = false,
+  onCommunityClick,
+  onRulesClick
 }) => {
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -300,18 +305,33 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             }`}
             style={{ transitionDelay: `${(sections.length + 2) * 50}ms` }}
         >
-          <a
-            href="https://spotty-knee-d45.notion.site/2b4539890ee28104bc8aed31be5878f8?v=2b4539890ee281018d17000c41107ec0"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={onCommunityClick}
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
               isDark
               ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
             }`}            
           >
-            <span className="flex items-center">Календарь<RoutesIcon width="19" height="19" style={{ top: "-7px" }} /></span>
-          </a>
+            <span className="flex items-center">Комьюнити<ArrowUp width="19" height="19" className="rotate-90" style={{ top: "-7px", position: "relative" }} /></span>
+          </button>
+        </div>
+        <div 
+            className={`transition-all duration-500 ease-out transform ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            }`}
+            style={{ transitionDelay: `${(sections.length + 3) * 50}ms` }}
+        >
+          <button
+            onClick={onRulesClick}
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
+              isDark
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
+              : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
+            }`}            
+          >
+            <span className="flex items-center">Правила<ArrowUp width="19" height="19" className="rotate-90" style={{ top: "-7px", position: "relative" }} /></span>
+          </button>
         </div>
       </div>
     </div>
