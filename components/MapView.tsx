@@ -306,7 +306,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 const bounds = new maplibregl.LngLatBounds();
                 coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                 
-                const padding = 60;
+                const padding = isMobile ? 50 : 60;
 
                 map.fitBounds(bounds, {
                     padding: padding,
@@ -324,7 +324,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         return () => {
             map.off('load', setupRoute);
         };
-    }, [currentRouteData, isDark]);
+    }, [currentRouteData, isDark, isMobile]);
 
     const markersRef = useRef<{ custom: maplibregl.Marker[] }>({ custom: [] });
     const cursorRef = useRef<maplibregl.Marker | null>(null);
@@ -518,7 +518,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             const bounds = new maplibregl.LngLatBounds();
             coordinates.forEach(coord => bounds.extend(coord as [number, number]));
             
-            const padding = 60;
+            const padding = isMobile ? 50 : 60;
 
             map.fitBounds(bounds, {
                 padding: padding,
@@ -531,7 +531,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 duration: 500
             });
         }
-    }, [currentRouteData, cityCoords]);
+    }, [currentRouteData, cityCoords, isMobile]);
 
     useEffect(() => {
         if (!isMountedRef.current) {
