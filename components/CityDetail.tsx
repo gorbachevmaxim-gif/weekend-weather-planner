@@ -792,7 +792,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     if (isDesktop) {
         return (
-            <div className={`w-full ${isDark ? "text-white" : "text-black"}`}>
+            <div className={`w-full ${isDark ? "text-white" : "text-black"} transition-colors duration-700`}>
                 {/* Header: Burger + Days */}
                 <div className="w-full mb-6 flex items-center gap-4">
                     {onToggleSlider && (
@@ -812,7 +812,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             return (
                                 <button
                                     key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
-                                    className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors ${
+                                    className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-700 ${
                                         isSelected 
                                             ? (isDark ? "text-[#EEEEEE]" : "text-[#111111]") 
                                             : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")
@@ -852,8 +852,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     }
 
     return (
-        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-white" : "text-black"}`} style={{ backgroundColor: isDark ? "#1E1E1E" : "#F5F5F5" }}>
-            <div className={`sticky top-0 z-10 pt-2 pb-2 border-b ${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-[#F5F5F5] border-[#D9D9D9]"}`}>
+        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-white" : "text-black"} transition-colors duration-700`} style={{ backgroundColor: isDark ? "#1E1E1E" : "#F5F5F5" }}>
+            <div className={`sticky top-0 z-10 pt-2 pb-2 border-b ${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-[#F5F5F5] border-[#D9D9D9]"} transition-colors duration-700`}>
                 <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
                     {allAvailableDays.map((dayItem: any) => {
                         const isSelected = dayItem.date.getTime().toString() === routeDay;
@@ -863,7 +863,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <button
                                 key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
                                 ref={isSelected ? activeDayRef : null}
-                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors ${
+                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-700 ${
                                     isSelected 
                                         ? (isDark ? "text-[#EEEEEE]" : "text-[#111111]") 
                                         : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")

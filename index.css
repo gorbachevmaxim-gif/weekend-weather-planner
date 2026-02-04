@@ -20,7 +20,7 @@ body {
   text-rendering: optimizeLegibility;
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  transition: background-color 0.7s ease-out, color 0.7s ease-out;
 }
 
 .open-meteo-link-hover:hover {

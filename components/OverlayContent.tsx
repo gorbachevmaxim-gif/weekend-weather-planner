@@ -9,7 +9,7 @@ interface OverlayContentProps {
 
 const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme }) => {
     return (
-        <div className={`mt-4 px-0 text-sm leading-relaxed text-left w-full max-w-[343px] min-[1200px]:max-w-none mx-auto ${theme === 'dark' ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
+        <div className={`mt-4 px-0 text-sm leading-relaxed text-left w-full max-w-[343px] min-[1200px]:max-w-none mx-auto transition-colors duration-700 ${theme === 'dark' ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
             {activeOverlay === 'manifesto' && (
                 <>
                     <div className="mb-6">
@@ -42,7 +42,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         <p>
                             <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
                         </p>
-                        <div className={`pt-12 mt-12 border-t ${theme === 'dark' ? "border-[#333333]" : "border-[#D9D9D9]"} flex justify-center`}>
+                        <div className={`pt-12 mt-12 border-t transition-colors duration-700 ${theme === 'dark' ? "border-[#333333]" : "border-[#D9D9D9]"} flex justify-center`}>
                             <GstrdnmcLogo fill={theme === 'dark' ? "#777777" : "#111111"} className="w-1/3 h-auto" />
                         </div>
                     </div>
@@ -109,7 +109,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                             </ul>
                         </div>
                         <div className="pt-12 flex justify-center mx-[-16px] min-[1200px]:mx-[-64px]">
-                            <GeeseIcon className={`w-[68%] min-[1200px]:w-[76%] h-auto ${theme === 'dark' ? "text-[#666666]" : ""}`} />
+                            <GeeseIcon className={`w-[68%] min-[1200px]:w-[76%] h-auto transition-colors duration-700 ${theme === 'dark' ? "text-[#666666]" : ""}`} />
                         </div>
                     </div>
                 </>

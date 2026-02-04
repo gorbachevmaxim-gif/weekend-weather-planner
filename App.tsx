@@ -230,16 +230,16 @@ const App: React.FC = () => {
 
     if (isDesktop) {
         return (
-            <div className={`min-h-screen ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} relative`}>
+            <div className={`min-h-screen ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} relative transition-colors duration-700`}>
                 <Analytics />
                 <SpeedInsights />
                 {/* Slider */}
                 <div 
-                    className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out transition-colors duration-700 ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 >
-                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
                         <div className="w-full px-16">
-                            <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-300 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
+                            <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-700 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
                                 <button
                                     onClick={() => setActiveOverlay(null)}
                                     className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
@@ -296,7 +296,7 @@ const App: React.FC = () => {
                 
                 {/* Overlay */}
                 <div 
-                    className={`fixed inset-0 ${theme === 'dark' ? "bg-black" : "bg-[#333333]"} z-40 transition-opacity duration-300 ease-in-out pointer-events-none ${isSliderOpen ? (theme === 'dark' ? 'opacity-80 pointer-events-auto' : 'opacity-70 pointer-events-auto') : 'opacity-0'}`}
+                    className={`fixed inset-0 ${theme === 'dark' ? "bg-black" : "bg-[#333333]"} z-40 transition-opacity duration-300 ease-in-out pointer-events-none transition-colors duration-700 ${isSliderOpen ? (theme === 'dark' ? 'opacity-80 pointer-events-auto' : 'opacity-70 pointer-events-auto') : 'opacity-0'}`}
                     onClick={() => setIsSliderOpen(false)}
                 />
 
@@ -319,16 +319,16 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"}`}>
+        <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
       <Analytics />
       <SpeedInsights />
       
       <div 
-        className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700 ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {(activeOverlay || lastActiveOverlayRef.current) && (
             <div className="w-full px-4">
-                 <div className={`sticky top-0 pt-[18px] pb-8 z-10 flex justify-between items-center ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"}`}>
+                 <div className={`sticky top-0 pt-[18px] pb-8 z-10 flex justify-between items-center ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} transition-colors duration-700`}>
                     <button
                         onClick={() => setActiveOverlay(null)}
                         className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
