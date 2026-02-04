@@ -429,7 +429,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 {routeStartCity}—{routeEndCity}
                             </p>
                         </div>
-                        <div className="flex items-center justify-start gap-[16px] translate-y-[6px]">
+                        <div className="flex items-center justify-start gap-[16px] mt-[6px]">
                             <button
                                 onClick={handleForwardGpx}
                                 className="group relative focus:outline-none"
