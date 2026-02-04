@@ -301,7 +301,7 @@ export function calculateProfileScore(
 }
 
 export function getDifficultyLabel(score: number): string {
-    if (score < 12) return "Экономный";
-    if (score <= 20) return "Затратный";
+    if (score < 12) return "Легкий";
+    if (score <= 20) return "Бодрый";
     return "Тяжелый";
 }
