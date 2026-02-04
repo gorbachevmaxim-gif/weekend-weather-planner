@@ -39,7 +39,35 @@ const App: React.FC = () => {
   
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const dates = useMemo(() => getWeekendDates(), []);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const dates = useMemo(() => getWeekendDates(), [refreshTrigger]);
+  const lastFetchTimeRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    const handleRevalidation = () => {
+        const now = Date.now();
+        const fourHours = 4 * 60 * 60 * 1000;
+        if (now - lastFetchTimeRef.current > fourHours) {
+            console.log("Revalidating data...");
+            setRefreshTrigger(prev => prev + 1);
+        }
+    };
+
+    window.addEventListener('focus', handleRevalidation);
+    window.addEventListener('online', handleRevalidation);
+    const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+            handleRevalidation();
+        }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+        window.removeEventListener('focus', handleRevalidation);
+        window.removeEventListener('online', handleRevalidation);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -110,6 +138,7 @@ const App: React.FC = () => {
 
       setData(results);
       setLoading(prev => ({ ...prev, current: total, status: "Готово" }));
+      lastFetchTimeRef.current = Date.now();
     };
 
     const fetchDataAndHandleErrors = async () => {
