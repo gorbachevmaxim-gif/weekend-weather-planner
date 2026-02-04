@@ -12,7 +12,7 @@ import GeeseIcon from "./components/icons/GeeseIcon";
 import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
 import OverlayContent from "./components/OverlayContent";
 import AuthScreen from "./components/AuthScreen";
-import { isAuthenticated } from "./utils/auth";
+import { isAuthenticated, logout } from "./utils/auth";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -91,6 +91,11 @@ const App: React.FC = () => {
       } else {
           document.documentElement.classList.remove('dark-theme');
       }
+  };
+
+  const handleLogout = () => {
+      logout();
+      setIsAuth(false);
   };
 
   useEffect(() => {
@@ -305,6 +310,9 @@ const App: React.FC = () => {
                                 <span className="underline decoration-1 underline-offset-4">Правила</span>
                                 <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg] group-hover:rotate-[90deg] transition-transform duration-300" style={{ position: "relative", top: "1px", left: "-2px" }} />
                             </button>
+                            <button onClick={handleLogout} className={`text-[12px] opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                                Выход
+                            </button>
                             <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                                 <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
                             </button>
@@ -396,6 +404,9 @@ const App: React.FC = () => {
                     >
                         <span className="underline decoration-1 underline-offset-4">Правила</span>
                         <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[135deg]" style={{ position: "relative", top: "1px", left: "-2px" }} />
+                    </button>
+                    <button onClick={handleLogout} className={`text-[12px] opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                        Выход
                     </button>
                     <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                         <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
