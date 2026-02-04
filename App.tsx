@@ -377,7 +377,7 @@ const App: React.FC = () => {
         
         {!selectedCity ? (
             <>
-                <div className="flex items-center pb-4 pl-4 gap-4">
+                <div className="flex items-center justify-between pb-4 px-4 pr-20">
                     <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                         <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
                     </button>
