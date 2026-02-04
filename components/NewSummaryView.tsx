@@ -209,7 +209,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                         return (
                           <button
                             key={city.cityName}
-                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-700 ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                             onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                           >
                             {city.cityName}{score !== undefined && <span className="text-[9px] relative -top-[3px] ml-1">{score}</span>}
@@ -226,7 +226,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                         return (
                           <button
                             key={city.cityName}
-                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-700 ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                             onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                           >
                             {city.cityName}{score !== undefined && <span className="text-[9px] relative -top-[3px] ml-1">{score}</span>}
@@ -266,7 +266,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                   {sortedCities.map((city: string) => (
                 <button
                   key={city}
-                  className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-700 ${isDark ? "bg-[#333333] text-white hover:bg-[#555555]" : "bg-white text-black hover:bg-pill-hover"}`}
+                  className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#333333] text-white hover:bg-[#555555]" : "bg-white text-black hover:bg-pill-hover"}`}
                   onClick={() => onCityClick(city, "saturday")}
                 >
                   {city}

@@ -264,7 +264,7 @@ const App: React.FC = () => {
                 <SpeedInsights />
                 {/* Slider */}
                 <div 
-                    className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-300 ease-in-out transition-colors duration-700 ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#1E1E1E]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-500 ease-in-out transition-colors duration-500 ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 >
                     <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
                         <div className="w-full px-16">
