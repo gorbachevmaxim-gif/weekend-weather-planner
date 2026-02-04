@@ -289,21 +289,19 @@ const App: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className={`flex justify-start items-center gap-12 pt-[25px] pb-4 pr-16 pl-[53px]`}>
+                    <div className={`flex justify-between items-center pt-[25px] pb-4 pr-[200px] pl-[53px]`}>
                         <button onClick={() => setIsSliderOpen(false)} className={`p-2 ${theme === 'dark' ? "text-white hover:text-gray-300" : "text-black hover:text-gray-500"}`}>
                             <svg className="translate-x-[4px]" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
                         </button>
-                        <div className="flex items-center gap-4">
-                            <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
-                                <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
-                            </button>
-                            <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
-                                <SquareLockIcon />
-                            </button>
-                        </div>
+                        <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
+                            <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
+                        </button>
+                        <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                            <SquareLockIcon />
+                        </button>
                     </div>
                     <div className="h-[calc(100%-60px)] overflow-y-auto pb-10">
                         <NewSummaryView 
