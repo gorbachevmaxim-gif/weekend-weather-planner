@@ -657,23 +657,25 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {/* Top-left controls */}
             <div className="absolute left-4 top-4 z-20 flex flex-col items-center gap-2">
+                <button
+                    className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                    onClick={isFullscreen ? handleCollapse : handleExpand}
+                >
+                    {isFullscreen ? (
+                        <EscIcon isDark={isDark} width={28} height={28} />
+                    ) : (
+                        <ExpandIcon isDark={isDark} width={28} height={28} />
+                    )}
+                    {!isMobile && (
+                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
+                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                            {isFullscreen ? "Свернуть" : "Развернуть"}
+                        </div>
+                    )}
+                </button>
+
                 {!isMobile && (
                     <>
-                        <button
-                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
-                            onClick={isFullscreen ? handleCollapse : handleExpand}
-                        >
-                            {isFullscreen ? (
-                                <EscIcon isDark={isDark} width={28} height={28} />
-                            ) : (
-                                <ExpandIcon isDark={isDark} width={28} height={28} />
-                            )}
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
-                                {isFullscreen ? "Свернуть" : "Развернуть"}
-                            </div>
-                        </button>
-                        
                         <button
                             className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
                             onClick={handleZoomIn}
