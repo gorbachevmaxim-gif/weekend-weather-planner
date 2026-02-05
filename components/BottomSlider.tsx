@@ -37,7 +37,7 @@ const BottomSlider: React.FC<BottomSliderProps> = ({ isOpen, onClose, content, i
             <div 
                 className={`fixed bottom-0 left-0 right-0 z-[70] transform transition-transform duration-300 ease-out ${
                     isOpen ? 'translate-y-0' : 'translate-y-full'
-                } ${isDark ? 'bg-[#1E1E1E] text-white' : 'bg-white text-black'} rounded-t-2xl p-6 shadow-xl cursor-pointer`}
+                } ${isDark ? 'bg-[#333333] text-white' : 'bg-white text-black'} rounded-t-2xl p-6 shadow-xl cursor-pointer`}
                 onClick={onClose}
             >
                 {/* Drag handle indicator (visual only) */}
