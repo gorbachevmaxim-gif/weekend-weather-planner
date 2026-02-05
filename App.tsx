@@ -13,6 +13,7 @@ import GeeseIcon from "./components/icons/GeeseIcon";
 import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
 import OverlayContent from "./components/OverlayContent";
 import AuthScreen from "./components/AuthScreen";
+import OrientationBlocker from "./components/OrientationBlocker";
 import { isAuthenticated, logout } from "./utils/auth";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -256,11 +257,21 @@ const App: React.FC = () => {
   };
 
     if (!isAuth) {
-        return <AuthScreen onLogin={() => setIsAuth(true)} />;
+        return (
+            <>
+                <OrientationBlocker />
+                <AuthScreen onLogin={() => setIsAuth(true)} />
+            </>
+        );
     }
 
     if (showLoading) {
-            return <LoadingScreen state={loading} onComplete={() => setShowLoading(false)} />;
+        return (
+            <>
+                <OrientationBlocker />
+                <LoadingScreen state={loading} onComplete={() => setShowLoading(false)} />
+            </>
+        );
     }
 
     if (isDesktop) {
@@ -343,6 +354,8 @@ const App: React.FC = () => {
     }
 
     return (
+        <>
+        <OrientationBlocker />
         <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
       <Analytics />
       <SpeedInsights />
@@ -409,6 +422,7 @@ const App: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
