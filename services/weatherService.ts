@@ -4,7 +4,7 @@ import { calculateProfileScore } from '../utils/elevationUtils';
 import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types';
 import { track } from '@vercel/analytics';
 
-export const MOUNTAIN_CITIES: string[] = ["Кемер", "Фетхие"];
+export const MOUNTAIN_CITIES: string[] = [/*"Кемер",*/ "Фетхие"];
 
 const HOLIDAYS = [
   "2026-05-01", "2026-05-11", "2026-06-12", "2026-11-04"

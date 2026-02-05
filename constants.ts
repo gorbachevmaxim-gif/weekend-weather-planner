@@ -27,7 +27,7 @@ export const CITIES: CityMap = {
     "Подольск": { lat: 55.43, lon: 37.55 },
     "Тула": { lat: 54.19, lon: 37.61 },
     "Пушкино": { lat: 56.01, lon: 37.85 },
-    "Кемер": { lat: 36.60, lon: 30.56 },
+    // "Кемер": { lat: 36.60, lon: 30.56 },
     "Звенигород": { lat: 55.73, lon: 36.86 }
 };
 
@@ -63,10 +63,10 @@ export const CITY_FILENAMES: Record<string, string> = {
     "Тула": "Tula",
     "Пушкино": "Pushkino",
     "Звенигород": "Zvenigorod",
-    "Кемер": "Kemer"
+    // "Кемер": "Kemer"
 };
 
-export const FLIGHT_CITIES: FlightCities = ["Кемер"];
+export const FLIGHT_CITIES: FlightCities = [/*"Кемер"*/];
 
 // Map City Name -> Komoot Tour ID
 export const KOMOOT_ROUTE_IDS: Record<string, string> = {
