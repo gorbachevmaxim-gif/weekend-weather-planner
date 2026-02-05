@@ -13,6 +13,7 @@ import ShareIcon from "./icons/ShareIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
+import BottomSlider from "./BottomSlider";
 
 // Helper component for smooth accordion animation
 const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => {
@@ -90,6 +91,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false);
     const [showDistanceTooltip, setShowDistanceTooltip] = useState(false);
     const [showPaceTooltip, setShowPaceTooltip] = useState(false);
+    const [activeSliderContent, setActiveSliderContent] = useState<string | null>(null);
 
     const toggleSection = (section: string) => {
         setOpenSections(prev => ({
@@ -694,7 +696,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if (isDesktop) setShowProfileTooltip(!showProfileTooltip);
+                                            if (isDesktop) {
+                                                setShowProfileTooltip(!showProfileTooltip);
+                                            } else {
+                                                setActiveSliderContent("Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое в конце. (Формула ProCyclingStats)");
+                                            }
                                         }}
                                         onMouseEnter={() => isDesktop && setShowProfileTooltip(true)}
                                         onMouseLeave={() => isDesktop && setShowProfileTooltip(false)}
@@ -717,7 +723,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setShowDifficultyTooltip(!showDifficultyTooltip);
+                                            if (isDesktop) {
+                                                setShowDifficultyTooltip(!showDifficultyTooltip);
+                                            } else {
+                                                setActiveSliderContent("С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Бодрый – от 12 до 20. Легкий – менее 12.");
+                                            }
                                         }}
                                         onMouseEnter={() => isDesktop && setShowDifficultyTooltip(true)}
                                         onMouseLeave={() => isDesktop && setShowDifficultyTooltip(false)}
@@ -740,7 +750,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if (isDesktop) setShowDistanceTooltip(!showDistanceTooltip);
+                                            if (isDesktop) {
+                                                setShowDistanceTooltip(!showDistanceTooltip);
+                                            } else {
+                                                setActiveSliderContent("Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.");
+                                            }
                                         }}
                                         onMouseEnter={() => isDesktop && setShowDistanceTooltip(true)}
                                         onMouseLeave={() => isDesktop && setShowDistanceTooltip(false)}
@@ -763,7 +777,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setShowPaceTooltip(!showPaceTooltip);
+                                            if (isDesktop) {
+                                                setShowPaceTooltip(!showPaceTooltip);
+                                            } else {
+                                                setActiveSliderContent("Темповой – средняя скорость в движении должна быть выше 33 км/ч. Такая средняя необходима как условие для большого райда от 160 до 200 км. Прогулочный – оптимальная средняя от 30 до 33 км/ч. ");
+                                            }
                                         }}
                                         onMouseEnter={() => isDesktop && setShowPaceTooltip(true)}
                                         onMouseLeave={() => isDesktop && setShowPaceTooltip(false)}
@@ -905,6 +923,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 
                 {renderDetails()}
             </div>
+
+            <BottomSlider 
+                isOpen={activeSliderContent !== null}
+                onClose={() => setActiveSliderContent(null)}
+                content={activeSliderContent}
+                isDark={isDark}
+            />
         </div>
     );
 };
