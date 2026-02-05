@@ -174,7 +174,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         ctx.lineTo(getX(data[data.length - 1].dist), height - padding.bottom);
         ctx.closePath();
         
-        ctx.fillStyle = '#666666';
+        ctx.fillStyle = isDark ? '#999999' : '#666666';
         ctx.globalAlpha = 0.2;
         ctx.fill();
         ctx.globalAlpha = 1.0;
