@@ -96,30 +96,80 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         mapInstanceRef.current?.zoomOut();
     }, []);
 
-    const handleCollapse = useCallback(() => {
-        if (document.fullscreenElement) {
-            document.exitFullscreen().catch(err => {
-                console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
-            });
-        }
-    }, []);
+    const toggleFullscreen = useCallback(() => {
+        const elem = wrapperRef.current;
+        if (!elem) return;
 
-    const handleExpand = useCallback(() => {
-        wrapperRef.current?.requestFullscreen().catch(err => {
-            console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-        });
-    }, []);
+        const isNativeFullscreen = !!document.fullscreenElement;
+
+        if (isFullscreen) {
+            if (isNativeFullscreen) {
+                document.exitFullscreen().catch(console.error);
+            } else {
+                setIsFullscreen(false);
+                if (onFullscreenToggle) onFullscreenToggle(false);
+            }
+        } else {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {
+                    // Fallback for iOS/unsupported
+                    setIsFullscreen(true);
+                    if (onFullscreenToggle) onFullscreenToggle(true);
+                });
+            } else {
+                // Fallback for iOS/unsupported
+                setIsFullscreen(true);
+                if (onFullscreenToggle) onFullscreenToggle(true);
+            }
+        }
+    }, [isFullscreen, onFullscreenToggle]);
 
     useEffect(() => {
         const handleFullscreenChange = () => {
             const isFs = !!document.fullscreenElement;
-            setIsFullscreen(isFs);
-            if (onFullscreenToggle) {
-                onFullscreenToggle(isFs);
+            // Only update if native fullscreen is active or we are exiting native fullscreen
+            // This prevents interfering with pseudo-fullscreen if native event fires unexpectedly
+            if (isFs) {
+                setIsFullscreen(true);
+                if (onFullscreenToggle) onFullscreenToggle(true);
+            } else if (!isFs && document.fullscreenElement === null) {
+                // Only reset if we were in native fullscreen? 
+                // Actually, if we are in pseudo fullscreen, this event shouldn't fire.
+                // But if it does, we check if we were expecting native.
+                // Let's keep it simple: if event fires, sync state. 
+                // EXCEPT if we are in pseudo-mode, we don't want to be kicked out by a rogue event?
+                // But 'document.fullscreenElement' being null is the source of truth for NATIVE.
+                
+                // If we are using CSS fallback, we are NOT in native fullscreen.
+                // So document.fullscreenElement is null.
+                // If this event fires (it shouldn't), it would set isFullscreen(false).
+                // That's acceptable.
+                
+                setIsFullscreen(false);
+                if (onFullscreenToggle) onFullscreenToggle(false);
             }
         };
-        document.addEventListener("fullscreenchange", handleFullscreenChange);
-        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+
+        const handleNativeChange = () => {
+             const isFs = !!document.fullscreenElement;
+             // If we entered native fullscreen, we must sync
+             if (isFs) {
+                 setIsFullscreen(true);
+                 if (onFullscreenToggle) onFullscreenToggle(true);
+             } 
+             // If we exited native fullscreen
+             else {
+                 // But wait, if we are in pseudo-fullscreen, isFs is false.
+                 // Do we want to exit pseudo-fullscreen if native fullscreen exits?
+                 // Native fullscreen shouldn't "exit" if it wasn't active.
+                 // So this is safe.
+                 setIsFullscreen(false);
+                 if (onFullscreenToggle) onFullscreenToggle(false);
+             }
+        };
+        
+        document.addEventListener("fullscreenchange", handleNativeChange);
+        return () => document.removeEventListener("fullscreenchange", handleNativeChange);
     }, [onFullscreenToggle]);
 
     useEffect(() => {
@@ -641,7 +691,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [windPos, currentRouteData, pace, startTemp, endTemp, windSpeed, windDirection]);
 
     return (
-        <div ref={wrapperRef} className="relative w-full aspect-[4/3] md:aspect-[3/2] bg-slate-100 z-0 rounded-lg overflow-hidden">
+        <div 
+            ref={wrapperRef} 
+            className={`${isFullscreen ? "fixed inset-0 z-[9999] h-[100dvh] rounded-none" : "relative w-full aspect-[4/3] md:aspect-[3/2] z-0 rounded-lg"} bg-slate-100 overflow-hidden transition-all duration-300`}
+        >
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
@@ -659,7 +712,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             <div className="absolute left-4 top-4 z-20 flex flex-col items-center gap-2">
                 <button
                     className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
-                    onClick={isFullscreen ? handleCollapse : handleExpand}
+                    onClick={toggleFullscreen}
                 >
                     {isFullscreen ? (
                         <EscIcon isDark={isDark} width={28} height={28} />
