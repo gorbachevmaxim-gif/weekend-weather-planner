@@ -6,7 +6,7 @@ import ArrowUp from "./icons/ArrowUp";
 import RoutesIcon from "./icons/RoutesIcon";
 import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 
-// Helper component for smooth accordion animation
+// Helper component for smooth accordion animation !!!
 const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => (
   <div 
       className="grid transition-all duration-300 ease-in-out" 

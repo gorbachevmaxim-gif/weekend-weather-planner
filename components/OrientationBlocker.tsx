@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import GastrodinamikaLogo from './GastrodinamikaLogo';
+import GstrdnmcLogo from './icons/GstrdnmcLogo';
 
-const OrientationBlocker: React.FC = () => {
+interface OrientationBlockerProps {
+    isDark?: boolean;
+}
+
+const OrientationBlocker: React.FC<OrientationBlockerProps> = ({ isDark = false }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [percent, setPercent] = useState(0);
 
   useEffect(() => {
     const checkOrientation = () => {
@@ -28,44 +31,19 @@ const OrientationBlocker: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isVisible) {
-        setPercent(0);
-        return;
-    }
-
-    let animationFrameId: number;
-    // Speed: complete circle in approx 2 seconds
-    // 60fps -> 120 frames. 100% / 120 = 0.83% per frame.
-    const speed = 0.8; 
-
-    const animate = () => {
-      setPercent(prev => {
-        const next = prev + speed;
-        return next >= 100 ? 0 : next;
-      });
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isVisible]);
-
   if (!isVisible) return null;
 
   return (
     <div 
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6" 
-      style={{ backgroundColor: '#F5F5F5' }}
+      style={{ backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }}
     >
-        <div className="w-44 h-44 flex items-center justify-center relative">
-            <GastrodinamikaLogo 
-                percent={percent} 
-                className="w-full h-full" 
+        <div className="flex items-center justify-center">
+            <GstrdnmcLogo 
+                width="162" 
+                height="100" 
+                fill={isDark ? '#FFFFFF' : '#111111'} 
             />
-        </div>
-        <div className="mt-8 text-center text-gray-500 font-medium">
-            Эй, турист! Поверни обратно.
         </div>
     </div>
   );

@@ -259,7 +259,7 @@ const App: React.FC = () => {
     if (!isAuth) {
         return (
             <>
-                <OrientationBlocker />
+                <OrientationBlocker isDark={theme === 'dark'} />
                 <AuthScreen onLogin={() => setIsAuth(true)} />
             </>
         );
@@ -268,7 +268,7 @@ const App: React.FC = () => {
     if (showLoading) {
         return (
             <>
-                <OrientationBlocker />
+                <OrientationBlocker isDark={theme === 'dark'} />
                 <LoadingScreen state={loading} onComplete={() => setShowLoading(false)} />
             </>
         );
@@ -355,7 +355,7 @@ const App: React.FC = () => {
 
     return (
         <>
-        <OrientationBlocker />
+        <OrientationBlocker isDark={theme === 'dark'} />
         <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#1E1E1E] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
       <Analytics />
       <SpeedInsights />
