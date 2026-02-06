@@ -585,11 +585,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 href="#"
                 onClick={(e) => { 
                     e.preventDefault(); 
-                    if (!isDesktop && canShare) {
-                        handleForwardGpx();
-                    } else {
-                        handleDownloadGpx();
-                    }
+                    handleDownloadGpx();
                 }}
                 className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
             >
