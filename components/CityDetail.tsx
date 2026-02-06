@@ -53,6 +53,7 @@ interface CityDetailProps {
 interface FoundRoute {
     routeData: RouteData;
     gpxString: string;
+    url: string;
 }
 
 const getShortDayName = (fullName: string) => {
@@ -247,16 +248,16 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         const candidates = [`${baseName}.gpx`, `${baseName}_1.gpx`, `${baseName}_2.gpx`, `${baseName}_3.gpx`];
 
         Promise.all(candidates.map(url =>
-            fetch(`${url}?t=${Date.now()}`).then(r => r.ok ? r.text() : Promise.resolve(null))
+            fetch(`${url}?t=${Date.now()}`).then(r => r.ok ? r.text().then(text => ({ text, url })) : Promise.resolve(null))
         ))
-            .then(gpxStrings => {
+            .then(results => {
                 if (!isMounted) return;
-                const validRoutes: FoundRoute[] = gpxStrings
-                    .map(gpxString => {
-                        if (!gpxString) return null;
-                        const routeData = parseGpx(gpxString);
+                const validRoutes: FoundRoute[] = results
+                    .map(result => {
+                        if (!result) return null;
+                        const routeData = parseGpx(result.text);
                         if (!routeData) return null;
-                        return { routeData, gpxString };
+                        return { routeData, gpxString: result.text, url: result.url };
                     })
                     .filter((r): r is FoundRoute => r !== null);
 
@@ -311,6 +312,50 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             catch (error) {
                 console.error("Error sharing", error);
             }
+        }
+    };
+
+    const handleKomoot = () => {
+        const selectedRoute = foundRoutes[selectedRouteIdx];
+        if (!selectedRoute) return;
+
+        const gpxUrl = new URL(selectedRoute.url, window.location.href).href;
+        const komootUrl = `komoot://import?url=${encodeURIComponent(gpxUrl)}`;
+        window.location.href = komootUrl;
+    };
+
+    const getAndroidIntent = (url: string, packageId: string) => {
+        const urlObj = new URL(url);
+        const hostPath = urlObj.host + urlObj.pathname + urlObj.search;
+        const scheme = urlObj.protocol.replace(':', '');
+        return `intent://${hostPath}#Intent;scheme=${scheme};type=application/gpx+xml;package=${packageId};end`;
+    };
+
+    const handleGarmin = () => {
+        const selectedRoute = foundRoutes[selectedRouteIdx];
+        if (!selectedRoute) return;
+
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            const gpxUrl = new URL(selectedRoute.url, window.location.href).href;
+            const intent = getAndroidIntent(gpxUrl, "com.garmin.android.apps.connectmobile");
+            window.location.href = intent;
+        } else {
+            handleForwardGpx();
+        }
+    };
+
+    const handleWahoo = () => {
+        const selectedRoute = foundRoutes[selectedRouteIdx];
+        if (!selectedRoute) return;
+
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            const gpxUrl = new URL(selectedRoute.url, window.location.href).href;
+            const intent = getAndroidIntent(gpxUrl, "com.wahoofitness.boltcompanion");
+            window.location.href = intent;
+        } else {
+            handleForwardGpx();
         }
     };
 
@@ -577,6 +622,34 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <span className="underline decoration-1 underline-offset-4">Отправить</span>
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
                 </a>
+            )}
+            {!isDesktop && (
+                <>
+                    <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); handleKomoot(); }}
+                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">Komoot</span>
+                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                    </a>
+                    <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); handleGarmin(); }}
+                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">Garmin</span>
+                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                    </a>
+                    <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); handleWahoo(); }}
+                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">Wahoo</span>
+                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                    </a>
+                </>
             )}
         </div>
     );
