@@ -324,40 +324,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         window.location.href = komootUrl;
     };
 
-    const getAndroidIntent = (url: string, packageId: string) => {
-        const urlObj = new URL(url);
-        const hostPath = urlObj.host + urlObj.pathname + urlObj.search;
-        const scheme = urlObj.protocol.replace(':', '');
-        return `intent://${hostPath}#Intent;scheme=${scheme};type=application/gpx+xml;package=${packageId};end`;
-    };
-
-    const handleGarmin = () => {
-        const selectedRoute = foundRoutes[selectedRouteIdx];
-        if (!selectedRoute) return;
-
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        if (isAndroid) {
-            const gpxUrl = new URL(selectedRoute.url, window.location.href).href;
-            const intent = getAndroidIntent(gpxUrl, "com.garmin.android.apps.connectmobile");
-            window.location.href = intent;
-        } else {
-            handleForwardGpx();
-        }
-    };
-
-    const handleWahoo = () => {
-        const selectedRoute = foundRoutes[selectedRouteIdx];
-        if (!selectedRoute) return;
-
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        if (isAndroid) {
-            const gpxUrl = new URL(selectedRoute.url, window.location.href).href;
-            const intent = getAndroidIntent(gpxUrl, "com.wahoofitness.boltcompanion");
-            window.location.href = intent;
-        } else {
-            handleForwardGpx();
-        }
-    };
 
     const generateTransportLink = (fromCityName: string, toCityName: string, date: Date) => {
         const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
@@ -604,15 +570,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     );
 
     const renderDownloads = () => (
-        <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
-            <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
-                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-            >
-                <span className="underline decoration-1 underline-offset-4">Скачать</span>
-                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
-            </a>
+        <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-3' : 'grid-cols-2'}`}>
             {canShare && !isDesktop && (
                 <a
                     href="#"
@@ -623,33 +581,23 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
                 </a>
             )}
+            <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
+                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+            >
+                <span className="underline decoration-1 underline-offset-4">Скачать</span>
+                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
+            </a>
             {!isDesktop && (
-                <>
-                    <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handleKomoot(); }}
-                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Komoot</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                    </a>
-                    <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handleGarmin(); }}
-                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Garmin</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                    </a>
-                    <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handleWahoo(); }}
-                        className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Wahoo</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                    </a>
-                </>
+                <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); handleKomoot(); }}
+                    className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                >
+                    <span className="underline decoration-1 underline-offset-4">Komoot</span>
+                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                </a>
             )}
         </div>
     );
