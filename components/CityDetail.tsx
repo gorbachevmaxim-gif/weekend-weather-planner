@@ -574,7 +574,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
                     className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
                 >
-                    <span className="underline decoration-1 underline-offset-4">Переслать</span>
+                    <span className="underline decoration-1 underline-offset-4">Отправить</span>
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
                 </a>
             )}
