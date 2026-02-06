@@ -570,7 +570,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     );
 
     const renderDownloads = () => (
-        <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {canShare && !isDesktop && (
                 <a
                     href="#"
@@ -583,22 +583,19 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             )}
             <a
                 href="#"
-                onClick={(e) => { e.preventDefault(); handleDownloadGpx(); }}
+                onClick={(e) => { 
+                    e.preventDefault(); 
+                    if (!isDesktop && canShare) {
+                        handleForwardGpx();
+                    } else {
+                        handleDownloadGpx();
+                    }
+                }}
                 className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
             >
-                <span className="underline decoration-1 underline-offset-4">Скачать</span>
-                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(135deg)", position: "relative", top: "7px", left: "-2px" }} />
+                <span className="underline decoration-1 underline-offset-4">{isDesktop ? "Скачать" : "Открыть"}</span>
+                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: isDesktop ? "rotate(135deg)" : "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
             </a>
-            {!isDesktop && (
-                <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); handleKomoot(); }}
-                    className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-                >
-                    <span className="underline decoration-1 underline-offset-4">Komoot</span>
-                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                </a>
-            )}
         </div>
     );
 
