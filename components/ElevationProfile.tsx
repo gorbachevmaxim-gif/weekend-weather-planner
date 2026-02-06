@@ -306,7 +306,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             {hoverPoint && hoverPos && containerRef.current && (
                 <div 
                     className={`absolute z-30 pointer-events-none p-2 rounded shadow-md text-xs font-sans whitespace-nowrap w-max ${
-                        isDark ? 'bg-[#333]/90 text-white' : 'bg-white/90 text-black'
+                        isDark ? 'bg-[#888888] text-[#000000]' : 'bg-white/90 text-black'
                     }`}
                     style={{
                         top: '10px',

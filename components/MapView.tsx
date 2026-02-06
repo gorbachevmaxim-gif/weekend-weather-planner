@@ -720,8 +720,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         <ExpandIcon isDark={isDark} width={28} height={28} />
                     )}
                     {!isMobile && (
-                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
-                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
+                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
                             {isFullscreen ? "Свернуть" : "Развернуть"}
                         </div>
                     )}
@@ -734,8 +734,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             onClick={handleZoomIn}
                         >
                             <PlusIcon isDark={isDark} width={28} height={28} />
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
+                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
                                 Поближе
                             </div>
                         </button>
@@ -745,8 +745,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             onClick={handleZoomOut}
                         >
                             <MinusIcon isDark={isDark} width={28} height={28} />
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
+                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
                                 Подальше
                             </div>
                         </button>
@@ -759,8 +759,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 >
                     <CenterIcon isDark={isDark} width={30} height={30} />
                     {!isMobile && (
-                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#EEEEEE] text-black" : "bg-[#1E1E1E] text-white"}`}>
-                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#EEEEEE]" : "bg-[#1E1E1E]"}`}></div>
+                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
+                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
                             Центрировать
                         </div>
                     )}
@@ -830,7 +830,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         {hoverInfo && (
                             <div 
                                 className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
-                                    isDark ? "bg-[#333333]/80 text-[#EEEEEE]" : "bg-white/80 text-[#1E1E1E]"
+                                    isDark ? "bg-[#888888] text-[#000000]" : "bg-white/80 text-[#1E1E1E]"
                                 }`}
                             >
                                 {/* Pace */}
