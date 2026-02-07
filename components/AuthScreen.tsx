@@ -81,7 +81,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                     >
                         {[...Array(2)].map((_, j) => (
                             <span key={j} className={`text-[19vh] leading-none font-unbounded font-black ${colorClass} px-0]`}>
-                                RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND 
+                                RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND
                             </span>
                         ))}
                     </div>
