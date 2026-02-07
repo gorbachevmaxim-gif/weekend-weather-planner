@@ -55,9 +55,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     const renderMarqueeRows = (colorClass: string) => (
         <>
             {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex whitespace-nowrap overflow-hidden">
+                <div key={i} className="flex whitespace-nowrap overflow-hidden flex-shrink-0">
                     <div 
-                        className={`flex ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
+                        className={`flex transform-gpu ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
                         style={{ animationDuration: `${320 + i * 60}s` }}
                     >
                         {[...Array(2)].map((_, j) => (
@@ -75,19 +75,21 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
         <div 
             ref={containerRef}
             onMouseMove={handleMouseMove}
+            onTouchMove={handleTouchMove}
+            onTouchStart={handleTouchMove}
             className="min-h-screen flex items-center justify-center bg-[#111111] px-8 py-8 relative overflow-hidden"
         >
             {/* Background Animation - Base Layer */}
-            <div className="absolute inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0">
-                {renderMarqueeRows("text-[#111111]")}
+            <div className="fixed inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0">
+                {renderMarqueeRows("text-[#181818]")}
             </div>
 
             {/* Background Animation - Highlight Layer */}
             <div 
-                className="absolute inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0"
+                className="fixed inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0"
                 style={{
-                    maskImage: 'radial-gradient(circle 250px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
-                    WebkitMaskImage: 'radial-gradient(circle 250px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
+                    maskImage: 'radial-gradient(circle 350px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
+                    WebkitMaskImage: 'radial-gradient(circle 350px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
                 }}
             >
                 {renderMarqueeRows("text-[#444444]")}
