@@ -367,7 +367,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 const bounds = new maplibregl.LngLatBounds();
                 coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                 
-                const padding = isMobile ? 50 : 60;
+                const padding = (isMobile && isFullscreen) 
+                    ? { top: 100, bottom: 50, left: 50, right: 50 } 
+                    : (isMobile ? 50 : 60);
 
                 map.fitBounds(bounds, {
                     padding: padding,
@@ -583,7 +585,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             const bounds = new maplibregl.LngLatBounds();
             coordinates.forEach(coord => bounds.extend(coord as [number, number]));
             
-            const padding = isMobile ? 50 : 60;
+            const padding = (isMobile && isFullscreen) 
+                ? { top: 100, bottom: 50, left: 50, right: 50 } 
+                : (isMobile ? 50 : 60);
 
             map.fitBounds(bounds, {
                 padding: padding,
@@ -596,7 +600,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 duration: 500
             });
         }
-    }, [currentRouteData, cityCoords, isMobile]);
+    }, [currentRouteData, cityCoords, isMobile, isFullscreen]);
 
     useEffect(() => {
         if (!isMountedRef.current) {
@@ -700,7 +704,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     <ElevationProfile 
                         routeData={currentRouteData}
                         isDark={isDark}
-                        width={isMobile ? 150 : 200}
+                        width={isMobile ? 150 : 300}
                         height={isMobile ? 60 : 80}
                         showAxes={false}
                         showTooltip={false}
