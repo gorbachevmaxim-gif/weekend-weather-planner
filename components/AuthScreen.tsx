@@ -76,11 +76,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
             {[...Array(8)].map((_, i) => (
                 <div key={i} className="flex whitespace-nowrap overflow-hidden flex-shrink-0">
                     <div 
-                        className={`flex transform-gpu ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
-                        style={{ animationDuration: `${150 + i * 75}s` }}
+                        className={`flex min-w-max transform-gpu ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
+                        style={{ animationDuration: `${160 + i * 80}s` }}
                     >
-                        {[...Array(2)].map((_, j) => (
-                            <span key={j} className={`text-[19vh] leading-none font-unbounded font-black ${colorClass} px-0]`}>
+                        {[...Array(4)].map((_, j) => (
+                            <span key={j} className={`text-[19vh] leading-none font-unbounded font-black ${colorClass} px-0`}>
                                 RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND
                             </span>
                         ))}
@@ -154,7 +154,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                     </div>
 
                     {error && (
-                        <div className="text-red-500 text-[11px] text-center mt-6">
+                        <div className="text-[#CCCCCC] text-[11px] text-center mt-6">
                             {error}
                         </div>
                     )}
