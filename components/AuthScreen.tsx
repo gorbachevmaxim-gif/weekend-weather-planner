@@ -34,20 +34,20 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#1E1E1E] px-8 py-8">
-            <div className="flex flex-col items-center max-w-[540px] w-full">
+        <div className="min-h-screen flex items-center justify-center bg-[#111111] px-8 py-8">
+            <div className="flex flex-col items-center max-w-[700px] w-full">
                 <h2 className="text-[19px] md:text-[30px] font-unbounded font-medium text-white mb-2 text-center whitespace-normal md:whitespace-nowrap px-4 md:px-0 leading-tight">Rain Free. Ride Unbound.</h2>
-                <p className="text-[13px] md:text-[15px] font-sans text-neutral-400 mb-8 md:mb-12 text-center">Ищем сухие дороги для тебя</p>
+                <p className="text-[15px] md:text-[18px] font-sans text-neutral-400 mb-8 md:mb-12 text-center">Ищем сухие дороги для тебя</p>
                 
                 <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
-                    <div className="text-white font-sans text-[13px] md:text-[15px] leading-relaxed text-left opacity-80">
-                        Free – это всегда про освобождение. Дождь – это всегда тяжесть в экипировке. Rainfree – это возвращение к легкости. Это свобода ехать в джерси, чувствуя ветер кожей. Это тактильная свобода. Обычно прогноз погоды работает как тюремщик. Сегодня дождь, сидим дома. И ты становишься заложником станка или дивана. Rainfree — это план побега. Приложение дает тебе ключ
+                    <div className="text-white font-sans text-[15px] md:text-[18px] leading-relaxed text-left opacity-80">
+                        Free – это всегда про освобождение. Rainfree – это возвращение к легкости. Это свобода ехать в джерси, чувствуя ветер кожей. Это тактильная свобода. Обычно прогноз погоды работает как тюремщик. Сегодня дождь, сидим дома. И ты становишься заложником станка или дивана. Rainfree — это план побега. Приложение дает тебе ключ
                         <span className="inline-block mx-2 align-middle relative">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-[120px] md:w-[140px] pl-0 pr-7 py-0 bg-[#1E1E1E] border-none rounded-md focus:outline-none focus:ring-0 focus:ring-white text-white text-left text-[12px] md:text-[13px]"
+                                className="w-[120px] md:w-[140px] pl-0 pr-7 py-0 bg-[#111111] border-none rounded-md focus:outline-none focus:ring-0 focus:ring-white text-white text-left text-[15px] md:text-[18px]"
                                 placeholder=" "
                                 autoFocus
                             />
@@ -69,7 +69,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                                 )}
                             </button>
                         </span>
-                        Оно говорит: смотри, везде льет, а вот здесь есть окошко. Ты катаешься под солнцем, когда другие боятся нос высунуть. Это бунтарство, как и во фрирайде. Это способ обмануть систему и найти сухой асфальт там, где другие видят только тучи. Мы не просто строим маршрут по карте, мы серфим между циклонами. Если freeride – это катание вне трасс, то Rainfree – это катание сквозь погоду. Твой маршрут диктует не чей-то план, а небо. Это новый вид навигации.
+                        Оно говорит: смотри, везде льет, а вот здесь есть окошко. Ты катаешься под солнцем, когда другие боятся нос высунуть. Это бунтарство, как и во фрирайде. Это способ обмануть систему и найти сухой асфальт там, где другие видят только тучи. Если freeride – это катание вне трасс, то Rainfree – это катание сквозь погоду. Твой маршрут диктует не чей-то план, а небо. Это новый вид навигации. 
                     </div>
 
                     {error && (
@@ -81,7 +81,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="mt-8 bg-[#B8B8BA] text-[#2C2C2C] text-[13px] tracking-tighter rounded-full px-4 py-1 hover:bg-[#FFFFFF] focus:outline-none disabled:opacity-50 transition-colors"
+                        className="mt-8 bg-[#B8B8BA] text-[#2C2C2C] text-[15px] tracking-tighter rounded-full px-4 py-1 hover:bg-[#FFFFFF] focus:outline-none disabled:opacity-50 transition-colors"
                     >
                         {isLoading ? '...' : 'Поехали'}
                     </button>
