@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import PlusIcon from "./icons/PlusIcon";
 import MinusIcon from "./icons/MinusIcon";
 import CenterIcon from "./icons/CenterIcon";
@@ -6,6 +6,7 @@ import EscIcon from "./icons/EscIcon";
 import ExpandIcon from "./icons/ExpandIcon";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
+import { calculateElevationProfile, ElevationPoint } from "../utils/elevationUtils";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -31,17 +32,16 @@ interface MapViewProps {
     startTemp?: number;
     endTemp?: number;
     elevationCursor?: [number, number] | null;
+    hourlyWind?: number[];
+    hourlyWindDir?: number[];
+    isMountainRegion?: boolean;
 }
 
-interface HoverInfo {
-    pace: string;
-    distStart: string;
-    distEnd: string;
-    timeStart: string;
-    timeEnd: string;
-    temp: string;
-    wind?: { value: string; label: string };
-}
+const getWindDirectionText = (deg: number) => {
+    const directions = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
+    const index = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
+    return directions[index];
+};
 
 const getAverageWindSpeed = (range?: string) => {
     if (!range) return "";
@@ -75,13 +75,23 @@ const getPlacementClasses = (deg?: number) => {
     }
 };
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp, elevationCursor }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp, elevationCursor, hourlyWind, hourlyWindDir, isMountainRegion = false }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
     const [isMobile, setIsMobile] = useState(false);
-    const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+    const [hoverInfo, setHoverInfo] = useState<ElevationPoint | null>(null);
     
+    const elevationData = useMemo(() => {
+        if (!currentRouteData) return [];
+        return calculateElevationProfile(
+            currentRouteData.points, 
+            currentRouteData.cumulativeDistances, 
+            pace,
+            isMountainRegion
+        );
+    }, [currentRouteData, pace, isMountainRegion]);
+
     const wrapperRef = useRef<HTMLDivElement>(null);
     const windDragRef = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -600,7 +610,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     // Calculate hover info when windPos changes
     useEffect(() => {
-        if (!windPos || !currentRouteData || !mapInstanceRef.current) {
+        if (!windPos || !currentRouteData || !mapInstanceRef.current || elevationData.length === 0) {
             setHoverInfo(null);
             return;
         }
@@ -612,7 +622,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         // Find nearest point on route
         let minDistSq = Infinity;
-        let closestInfo: { distFromStart: number; index: number; t: number } | null = null;
+        let closestIdx = -1;
 
         const points = currentRouteData.points;
         const cumDists = currentRouteData.cumulativeDistances;
@@ -640,55 +650,18 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             if (distSq < minDistSq) {
                 minDistSq = distSq;
-                closestInfo = {
-                    distFromStart: cumDists[i] + t * (cumDists[i+1] - cumDists[i]),
-                    index: i,
-                    t
-                };
+                // Snap to nearest point
+                closestIdx = t < 0.5 ? i : i + 1;
             }
         }
 
-        if (closestInfo && minDistSq < threshold * threshold) {
-            const distStart = closestInfo.distFromStart;
-            const totalDist = currentRouteData.distanceKm;
-            const distEnd = totalDist - distStart;
-
-            const timeStartHours = distStart / pace;
-            const timeStartH = Math.floor(timeStartHours);
-            const timeStartM = Math.round((timeStartHours - timeStartH) * 60);
-            
-            const timeEndHours = distEnd / pace;
-            const timeEndH = Math.floor(timeEndHours);
-            const timeEndM = Math.round((timeEndHours - timeEndH) * 60);
-
-            let tempStr = "N/A";
-            if (startTemp !== undefined && endTemp !== undefined) {
-                const currentTemp = startTemp + (endTemp - startTemp) * (distStart / totalDist);
-                tempStr = `${Math.round(currentTemp)}º`;
-            }
-
-            const info: HoverInfo = {
-                pace: `${pace} км/ч`,
-                distStart: `${distStart.toFixed(0)} км`,
-                distEnd: `${distEnd.toFixed(0)} км`,
-                timeStart: `${String(timeStartH).padStart(2, '0')}:${String(timeStartM).padStart(2, '0')}`,
-                timeEnd: `${String(timeEndH).padStart(2, '0')}:${String(timeEndM).padStart(2, '0')}`,
-                temp: `${tempStr}`
-            };
-
-            if (windSpeed || windDirection) {
-                info.wind = {
-                    value: getAverageWindSpeed(windSpeed),
-                    label: `Ветер ${windDirection || ''}`.trim()
-                };
-            }
-
-            setHoverInfo(info);
+        if (closestIdx !== -1 && minDistSq < threshold * threshold) {
+            setHoverInfo(elevationData[closestIdx]);
         } else {
             setHoverInfo(null);
         }
 
-    }, [windPos, currentRouteData, pace, startTemp, endTemp, windSpeed, windDirection]);
+    }, [windPos, currentRouteData, pace, elevationData]);
 
     return (
         <div 
@@ -829,38 +802,40 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         {/* Hover Info Pill */}
                         {hoverInfo && (
                             <div 
-                                className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md grid grid-cols-[max-content_max-content_max-content] gap-x-3 gap-y-0.5 pointer-events-none ${
-                                    isDark ? "bg-[#888888] text-[#000000]" : "bg-white/80 text-[#1E1E1E]"
+                                className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md pointer-events-none ${
+                                    isDark ? "bg-[#888888] text-[#000000]" : "bg-white/90 text-black"
                                 }`}
                             >
-                                {/* Pace */}
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.pace}</span>
-                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">Средняя</span>
-                                <span />
+                                <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium text-xs font-sans whitespace-nowrap">
+                                    <span>{Math.floor(hoverInfo.time)}:{(Math.round((hoverInfo.time - Math.floor(hoverInfo.time)) * 60)).toString().padStart(2, '0')}</span>
+                                    <span>{hoverInfo.dist.toFixed(1)} км</span>
+                                    
+                                    <span>
+                                        {startTemp !== undefined && endTemp !== undefined && elevationData.length > 0
+                                            ? `${Math.round(startTemp + (endTemp - startTemp) * (hoverInfo.time / elevationData[elevationData.length-1].time))}°` 
+                                            : ''}
+                                    </span>
+                                    <span>{Math.round(hoverInfo.speed)} км/ч</span>
+                                    
+                                    <span>{Math.round(hoverInfo.originalEle)} м</span>
+                                    <span>+{Math.round(hoverInfo.realCumElevation)} м</span>
 
-                                {/* Start */}
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.distStart}</span>
-                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">От старта</span>
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.timeStart}</span>
+                                    <span>{Math.round(hoverInfo.gradient)}%</span>
+                                    <span>
+                                        {hourlyWind && hourlyWindDir && (
+                                            <>
+                                            {getWindDirectionText(hourlyWindDir[Math.min(Math.round(hoverInfo.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(hoverInfo.time + 1), hourlyWind.length - 1)] || 0)} км/ч
+                                            </>
+                                        )}
+                                    </span>
 
-                                {/* End */}
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.distEnd}</span>
-                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">До финиша</span>
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.timeEnd}</span>
-
-                                {/* Temperature */}
-                                <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.temp}</span>
-                                <span className="text-[11px] font-sans leading-tight text-left opacity-75">Температура</span>
-                                <span />
-
-                                {/* Wind */}
-                                {hoverInfo.wind && (
-                                    <>
-                                        <span className="text-[11px] font-sans leading-tight font-medium text-left">{hoverInfo.wind.value}</span>
-                                        <span className="text-[11px] font-sans leading-tight text-left opacity-75">{hoverInfo.wind.label}</span>
-                                        <span />
-                                    </>
-                                )}
+                                    <span>
+                                        -{Math.floor(Math.max(0, elevationData[elevationData.length-1].time - hoverInfo.time))}:{(Math.round((Math.max(0, elevationData[elevationData.length-1].time - hoverInfo.time) - Math.floor(Math.max(0, elevationData[elevationData.length-1].time - hoverInfo.time))) * 60)).toString().padStart(2, '0')}
+                                    </span>
+                                    <span>
+                                        {Math.max(0, currentRouteData!.distanceKm - hoverInfo.dist).toFixed(1)} км
+                                    </span>
+                                </div>
                             </div>
                         )}
                     </div>

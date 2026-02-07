@@ -543,6 +543,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 startTemp={activeStats?.startTemperature}
                 endTemp={activeStats?.endTemperature}
                 elevationCursor={elevationHoverPoint ? [elevationHoverPoint.lat, elevationHoverPoint.lon] : null}
+                hourlyWind={activeStats?.hourlyWind}
+                hourlyWindDir={activeStats?.hourlyWindDir}
+                isMountainRegion={isMountainCity}
             />
         </div>
     );
