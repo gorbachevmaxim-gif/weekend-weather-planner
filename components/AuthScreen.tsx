@@ -73,15 +73,15 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
 
     const renderMarqueeRows = (colorClass: string) => (
         <>
-            {[...Array(5)].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
                 <div key={i} className="flex whitespace-nowrap overflow-hidden flex-shrink-0">
                     <div 
                         className={`flex transform-gpu ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
-                        style={{ animationDuration: `${120 + i * 60}s` }}
+                        style={{ animationDuration: `${300 + i * 150}s` }}
                     >
                         {[...Array(2)].map((_, j) => (
-                            <span key={j} className={`text-[20vh] leading-none font-unbounded font-black ${colorClass} px-4`}>
-                                RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND
+                            <span key={j} className={`text-[19vh] leading-none font-unbounded font-black ${colorClass} px-0`}>
+                                RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND 
                             </span>
                         ))}
                     </div>
