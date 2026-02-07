@@ -77,7 +77,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
             onTouchStart={handleTouchMove}
-            className="min-h-screen flex items-center justify-center bg-[#111111] px-8 py-8 relative overflow-hidden"
+            className="min-h-screen flex items-center justify-center bg-[#111111] px-8 py-8 relative overflow-hidden md:cursor-[url('/cursor.svg'),_auto]"
         >
             {/* Background Animation - Base Layer */}
             <div className="fixed inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0">
