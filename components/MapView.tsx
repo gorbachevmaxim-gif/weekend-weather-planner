@@ -508,6 +508,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     const handleWindMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
         if (!windDragRef.current) return;
+
+        if (e.cancelable) {
+            e.preventDefault();
+        }
         
         const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
         const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
@@ -800,7 +804,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
             {/* Bottom-left controls */}
             <div 
-                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move' : ''}`}
+                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move touch-none' : ''}`}
                 style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
                 onMouseDown={handleWindMouseDown}
                 onTouchStart={handleWindMouseDown}
