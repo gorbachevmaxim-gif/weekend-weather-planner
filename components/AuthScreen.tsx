@@ -101,7 +101,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                 
                 <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
                     <div className="text-white font-sans text-[15px] md:text-[18px] leading-relaxed text-left opacity-80">
-                        Free – это всегда про освобождение. Rainfree – это возвращение к легкости. Это свобода ехать в джерси, чувствуя ветер кожей. Это тактильная свобода. Обычно прогноз погоды работает как тюремщик. Сегодня дождь, сидим дома. И ты становишься заложником станка или дивана. Rainfree — это план побега. Приложение дает тебе ключ
+                        Free – это всегда про освобождение. Rainfree – это возвращение к легкости. Это свобода ехать в джерси, чувствуя ветер кожей. Это тактильная свобода. Обычно прогноз погоды работает как тюремщик. Сегодня дождь, сидим дома. И ты становишься заложником станка или дивана. Rainfree — это план побега. Приложение дает тебе ключ
                         <span className="inline-block mx-2 align-middle relative">
                             <input
                                 type={showPassword ? "text" : "password"}
