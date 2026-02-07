@@ -183,9 +183,10 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 ctx.lineTo(x, height - padding.bottom - 5);
                 ctx.stroke();
 
-                // Label
+                // Text
                 ctx.fillStyle = isDark ? '#777' : '#999';
-                ctx.fillText(Math.round(d).toString(), x, height - padding.bottom + 5);
+                ctx.font = '10px sans-serif';
+                ctx.fillText(d.toString(), x, height - padding.bottom + 2);
             }
         }
 
@@ -200,7 +201,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.lineTo(getX(data[0].dist), height - padding.bottom);
             ctx.closePath();
             
-            ctx.fillStyle = isDark ? '#333333' : '#E5E5E5';
+            ctx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.7)' : 'rgba(229, 229, 229, 0.7)';
             ctx.fill();
         }
 
