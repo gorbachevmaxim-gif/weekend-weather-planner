@@ -81,15 +81,15 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
         >
             {/* Background Animation - Base Layer */}
             <div className="fixed inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0">
-                {renderMarqueeRows("text-[#181818]")}
+                {renderMarqueeRows("text-[#111111]")}
             </div>
 
             {/* Background Animation - Highlight Layer */}
             <div 
                 className="fixed inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0"
                 style={{
-                    maskImage: 'radial-gradient(circle 350px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
-                    WebkitMaskImage: 'radial-gradient(circle 350px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
+                    maskImage: 'radial-gradient(circle 300px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
+                    WebkitMaskImage: 'radial-gradient(circle 300px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
                 }}
             >
                 {renderMarqueeRows("text-[#444444]")}
