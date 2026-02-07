@@ -12,6 +12,12 @@ interface ElevationProfileProps {
     endTemp?: number;
     hourlyWind?: number[];
     hourlyWindDir?: number[];
+    externalHoverPoint?: ElevationPoint | null;
+    className?: string;
+    width?: number;
+    height?: number;
+    showAxes?: boolean;
+    showTooltip?: boolean;
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -29,14 +35,22 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     startTemp,
     endTemp,
     hourlyWind,
-    hourlyWindDir
+    hourlyWindDir,
+    externalHoverPoint,
+    className,
+    width: propWidth,
+    height: propHeight,
+    showAxes = true,
+    showTooltip = true
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [hoverPoint, setHoverPoint] = useState<ElevationPoint | null>(null);
+    const [internalHoverPoint, setInternalHoverPoint] = useState<ElevationPoint | null>(null);
     const [hoverPos, setHoverPos] = useState<{ x: number, y: number } | null>(null);
-    const [dimensions, setDimensions] = useState({ width: 0, height: 200 });
+    const [dimensions, setDimensions] = useState({ width: 0, height: propHeight || 200 });
     const [isMobile, setIsMobile] = useState(false);
+
+    const activeHoverPoint = internalHoverPoint || externalHoverPoint;
 
     const data = useMemo(() => {
         if (!routeData) return [];
@@ -86,10 +100,15 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             if (containerRef.current) {
                 const mobile = window.innerWidth <= 768;
                 setIsMobile(mobile);
-                setDimensions({
-                    width: containerRef.current.clientWidth,
-                    height: mobile ? 120 : 150
-                });
+                
+                if (propWidth && propHeight) {
+                     setDimensions({ width: propWidth, height: propHeight });
+                } else {
+                    setDimensions({
+                        width: containerRef.current.clientWidth,
+                        height: mobile ? 120 : 150
+                    });
+                }
             }
         };
 
@@ -97,7 +116,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         handleResize();
 
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [propWidth, propHeight]);
 
     // Draw Canvas
     useEffect(() => {
@@ -116,7 +135,10 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         canvas.style.height = `${dimensions.height}px`;
 
         const { width, height } = dimensions;
-        const padding = { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 };
+        const padding = showAxes 
+            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
+            : { top: 5, right: 5, bottom: 5, left: 5 };
+
         const graphWidth = width - padding.left - padding.right;
         const graphHeight = height - padding.top - padding.bottom;
 
@@ -126,58 +148,61 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         const getX = (dist: number) => padding.left + (dist / totalDist) * graphWidth;
         const getY = (ele: number) => padding.top + graphHeight - ((ele - minEle) / (maxEle - minEle)) * graphHeight;
 
-        // Grid lines (Y axis)
-        ctx.strokeStyle = isDark ? '#333' : '#e5e5e5';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        
-        const startYVal = Math.ceil(minEle / step) * step;
-        const endYVal = Math.floor(maxEle / step) * step;
-
-        for (let val = startYVal; val <= endYVal; val += step) {
-            const y = getY(val);
-            ctx.moveTo(padding.left, y);
-            ctx.lineTo(width - padding.right, y);
-            
-            // Text
-            ctx.fillStyle = isDark ? '#777' : '#999';
-            ctx.font = '10px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(Math.round(val).toString(), padding.left - 5, y + 3);
-        }
-        ctx.stroke();
-
-        // X axis ticks every 20km
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        for (let d = 20; d < totalDist; d += 20) {
-            const x = getX(d);
-            
-            // Tick
+        if (showAxes) {
+            // Grid lines (Y axis)
+            ctx.strokeStyle = isDark ? '#333' : '#e5e5e5';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.strokeStyle = isDark ? '#777' : '#999';
-            ctx.moveTo(x, height - padding.bottom);
-            ctx.lineTo(x, height - padding.bottom - 5);
+            
+            const startYVal = Math.ceil(minEle / step) * step;
+            const endYVal = Math.floor(maxEle / step) * step;
+
+            for (let val = startYVal; val <= endYVal; val += step) {
+                const y = getY(val);
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                
+                // Text
+                ctx.fillStyle = isDark ? '#777' : '#999';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(Math.round(val).toString(), padding.left - 5, y + 3);
+            }
             ctx.stroke();
 
-            // Label
-            ctx.fillStyle = isDark ? '#777' : '#999';
-            ctx.fillText(Math.round(d).toString(), x, height - padding.bottom + 5);
+            // X axis ticks every 20km
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let d = 20; d < totalDist; d += 20) {
+                const x = getX(d);
+                
+                // Tick
+                ctx.beginPath();
+                ctx.strokeStyle = isDark ? '#777' : '#999';
+                ctx.moveTo(x, height - padding.bottom);
+                ctx.lineTo(x, height - padding.bottom - 5);
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = isDark ? '#777' : '#999';
+                ctx.fillText(Math.round(d).toString(), x, height - padding.bottom + 5);
+            }
         }
 
-        // Draw fill
-        ctx.beginPath();
-        ctx.moveTo(getX(data[0].dist), height - padding.bottom);
-        for (let i = 0; i < data.length; i++) {
-            ctx.lineTo(getX(data[i].dist), getY(data[i].ele));
+        // Fill area under curve
+        if (showAxes) {
+            ctx.beginPath();
+            ctx.moveTo(getX(data[0].dist), getY(data[0].ele));
+            for (let i = 1; i < data.length; i++) {
+                ctx.lineTo(getX(data[i].dist), getY(data[i].ele));
+            }
+            ctx.lineTo(getX(data[data.length - 1].dist), height - padding.bottom);
+            ctx.lineTo(getX(data[0].dist), height - padding.bottom);
+            ctx.closePath();
+            
+            ctx.fillStyle = isDark ? '#333333' : '#E5E5E5';
+            ctx.fill();
         }
-        ctx.lineTo(getX(data[data.length - 1].dist), height - padding.bottom);
-        ctx.closePath();
-        
-        ctx.fillStyle = isDark ? '#999999' : '#666666';
-        ctx.globalAlpha = 0.2;
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
 
         // Draw segments
         ctx.lineWidth = 2;
@@ -197,9 +222,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         }
 
         // Draw hover line if active
-        if (hoverPoint && hoverPos) {
-            const x = getX(hoverPoint.dist);
-            const y = getY(hoverPoint.ele);
+        if (activeHoverPoint) {
+            const x = getX(activeHoverPoint.dist);
+            const y = getY(activeHoverPoint.ele);
 
             ctx.strokeStyle = isDark ? '#666666' : '#000000';
             ctx.lineWidth = 1;
@@ -207,15 +232,17 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             
             // Vertical cursor line
             ctx.beginPath();
-            ctx.moveTo(x, padding.top);
+            ctx.moveTo(x, y);
             ctx.lineTo(x, height - padding.bottom);
             ctx.stroke();
 
             // Horizontal dynamic axis (current elevation)
-            ctx.beginPath();
-            ctx.moveTo(padding.left, y);
-            ctx.lineTo(width - padding.right, y);
-            ctx.stroke();
+            if (showAxes) {
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+            }
 
             // Dot
             ctx.fillStyle = isDark ? '#fff' : '#000';
@@ -224,7 +251,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.fill();
         }
 
-    }, [data, dimensions, isDark, minEle, maxEle, totalDist, hoverPoint, hoverPos, step]);
+    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (data.length === 0) return;
@@ -244,7 +271,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         const x = clientX - rect.left;
         
         const { width } = dimensions;
-        const padding = { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 };
+        const padding = showAxes 
+            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
+            : { top: 5, right: 5, bottom: 5, left: 5 };
         const graphWidth = width - padding.left - padding.right;
 
         // Map x to distance
@@ -274,18 +303,18 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
         // Clamp to graph area
         if (x >= padding.left && x <= width - padding.right) {
-            setHoverPoint(closest);
+            setInternalHoverPoint(closest);
             setHoverPos({ x: clientX, y: rect.top }); // Global coordinates for tooltip
             if (onHover) onHover(closest);
         } else {
-            setHoverPoint(null);
+            setInternalHoverPoint(null);
             setHoverPos(null);
             if (onHover) onHover(null);
         }
     };
 
     const handleMouseLeave = () => {
-        setHoverPoint(null);
+        setInternalHoverPoint(null);
         setHoverPos(null);
         if (onHover) onHover(null);
     };
@@ -293,7 +322,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     if (!routeData || data.length === 0) return null;
 
     return (
-        <div ref={containerRef} className="w-full relative select-none">
+        <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
             <canvas
                 ref={canvasRef}
                 className="block cursor-crosshair touch-none"
@@ -303,7 +332,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 onTouchMove={handleMouseMove}
                 onTouchEnd={handleMouseLeave}
             />
-            {hoverPoint && hoverPos && containerRef.current && (
+            {internalHoverPoint && hoverPos && containerRef.current && showTooltip && (
                 <div 
                     className={`absolute z-30 pointer-events-none p-2 rounded shadow-md text-xs font-sans whitespace-nowrap w-max ${
                         isDark ? 'bg-[#888888] text-[#000000]' : 'bg-white/90 text-black'
@@ -315,32 +344,32 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                     }}
                 >
                     <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium">
-                        <span>{Math.floor(hoverPoint.time)}:{(Math.round((hoverPoint.time - Math.floor(hoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
-                        <span>{hoverPoint.dist.toFixed(1)} км</span>
+                        <span>{Math.floor(internalHoverPoint.time)}:{(Math.round((internalHoverPoint.time - Math.floor(internalHoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
+                        <span>{internalHoverPoint.dist.toFixed(1)} км</span>
                         <span>
                             {startTemp !== undefined && endTemp !== undefined && totalTime > 0 
-                                ? `${Math.round(startTemp + (endTemp - startTemp) * (hoverPoint.time / totalTime))}°` 
+                                ? `${Math.round(startTemp + (endTemp - startTemp) * (internalHoverPoint.time / totalTime))}°` 
                                 : ''}
                         </span>
-                        <span>{Math.round(hoverPoint.speed)} км/ч</span>
+                        <span>{Math.round(internalHoverPoint.speed)} км/ч</span>
                         
-                        <span>{Math.round(hoverPoint.originalEle)} м</span>
-                        <span>+{Math.round(hoverPoint.realCumElevation)} м</span>
+                        <span>{Math.round(internalHoverPoint.originalEle)} м</span>
+                        <span>+{Math.round(internalHoverPoint.realCumElevation)} м</span>
 
-                        <span>{Math.round(hoverPoint.gradient)}%</span>
+                        <span>{Math.round(internalHoverPoint.gradient)}%</span>
                         <span>
                             {hourlyWind && hourlyWindDir && (
                                 <>
-                                   {getWindDirectionText(hourlyWindDir[Math.min(Math.round(hoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(hoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
+                                   {getWindDirectionText(hourlyWindDir[Math.min(Math.round(internalHoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(internalHoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
                                 </>
                             )}
                         </span>
 
                         <span>
-                            -{Math.floor(Math.max(0, totalTime - hoverPoint.time))}:{(Math.round((Math.max(0, totalTime - hoverPoint.time) - Math.floor(Math.max(0, totalTime - hoverPoint.time))) * 60)).toString().padStart(2, '0')}
+                            -{Math.floor(Math.max(0, totalTime - internalHoverPoint.time))}:{(Math.round((Math.max(0, totalTime - internalHoverPoint.time) - Math.floor(Math.max(0, totalTime - internalHoverPoint.time))) * 60)).toString().padStart(2, '0')}
                         </span>
                         <span>
-                            {Math.max(0, totalDist - hoverPoint.dist).toFixed(1)} км
+                            {Math.max(0, totalDist - internalHoverPoint.dist).toFixed(1)} км
                         </span>
                     </div>
                 </div>

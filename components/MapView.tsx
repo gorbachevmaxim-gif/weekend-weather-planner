@@ -7,6 +7,7 @@ import ExpandIcon from "./icons/ExpandIcon";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
 import { calculateElevationProfile, ElevationPoint } from "../utils/elevationUtils";
+import ElevationProfile from "./ElevationProfile";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -81,7 +82,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [hoverInfo, setHoverInfo] = useState<ElevationPoint | null>(null);
-    
+
     const elevationData = useMemo(() => {
         if (!currentRouteData) return [];
         return calculateElevationProfile(
@@ -611,6 +612,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     // Calculate hover info when windPos changes
     useEffect(() => {
         if (!windPos || !currentRouteData || !mapInstanceRef.current || elevationData.length === 0) {
+            // If we are actively hovering the profile, we want to keep hoverInfo updated from the profile
+            // But here we depend on windPos. 
+            // If windPos is null, we shouldn't clear hoverInfo IF it's coming from profile?
+            // Actually, if windPos is null, the wind element is docked.
             setHoverInfo(null);
             return;
         }
@@ -658,10 +663,26 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         if (closestIdx !== -1 && minDistSq < threshold * threshold) {
             setHoverInfo(elevationData[closestIdx]);
         } else {
+            // If windPos is set (dragged) but far from track, we might still want to show something? 
+            // Or just nothing.
             setHoverInfo(null);
         }
 
     }, [windPos, currentRouteData, pace, elevationData]);
+
+    const handleProfileHover = useCallback((point: ElevationPoint | null) => {
+        if (point && mapInstanceRef.current) {
+            const map = mapInstanceRef.current;
+            const { x, y } = map.project([point.lon, point.lat]);
+            // wind element has padding 30px, so center is at 30+16 = 46.
+            // We want the center of the wind element to be at (x, y)
+            setWindPos({ x: x - 46, y: y - 46 });
+            
+            // Also update hoverInfo directly to ensure responsiveness?
+            // The useEffect on windPos will fire and likely find the same point.
+            // But let's let the useEffect handle it to ensure consistency.
+        }
+    }, []);
 
     return (
         <div 
@@ -670,6 +691,23 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         >
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
+            {isFullscreen && currentRouteData && (
+                <div className="absolute top-4 right-4 z-20 p-2">
+                    <ElevationProfile 
+                        routeData={currentRouteData}
+                        isDark={isDark}
+                        width={isMobile ? 150 : 200}
+                        height={isMobile ? 60 : 80}
+                        showAxes={false}
+                        showTooltip={false}
+                        externalHoverPoint={hoverInfo}
+                        onHover={handleProfileHover}
+                        targetSpeed={pace}
+                        isMountainRegion={isMountainRegion}
+                    />
+                </div>
+            )}
+
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
                     <div className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm">
