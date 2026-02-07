@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { verifyPassword, setAuthenticated } from '../utils/auth';
 import { track } from '@vercel/analytics';
 
@@ -12,6 +12,25 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const dotRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        // Position the spotlight on the "Ride Unbound." dot initially
+        const timer = setTimeout(() => {
+            if (dotRef.current && containerRef.current) {
+                const dotRect = dotRef.current.getBoundingClientRect();
+                const containerRect = containerRef.current.getBoundingClientRect();
+                
+                const x = (dotRect.left + dotRect.width / 2) - containerRect.left;
+                const y = (dotRect.top + dotRect.height / 2) - containerRect.top;
+                
+                containerRef.current.style.setProperty('--cursor-x', `${x}px`);
+                containerRef.current.style.setProperty('--cursor-y', `${y}px`);
+            }
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -96,7 +115,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
             </div>
 
             <div className="flex flex-col items-center max-w-[700px] w-full relative z-10">
-                <h2 className="text-[19px] md:text-[30px] font-unbounded font-medium text-white mb-2 text-center whitespace-normal md:whitespace-nowrap px-4 md:px-0 leading-tight">Rain Free. Ride Unbound.</h2>
+                <h2 className="text-[19px] md:text-[30px] font-unbounded font-medium text-white mb-2 text-center whitespace-normal md:whitespace-nowrap px-4 md:px-0 leading-tight">
+                    Rain Free. Ride Unbound<span ref={dotRef}>.</span>
+                </h2>
                 <p className="text-[15px] md:text-[18px] font-sans text-neutral-400 mb-8 md:mb-12 text-center">Ищем сухие дороги для тебя</p>
                 
                 <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
