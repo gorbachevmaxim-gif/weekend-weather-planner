@@ -58,7 +58,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                 <div key={i} className="flex whitespace-nowrap overflow-hidden flex-shrink-0">
                     <div 
                         className={`flex transform-gpu ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
-                        style={{ animationDuration: `${320 + i * 60}s` }}
+                        style={{ animationDuration: `${120 + i * 60}s` }}
                     >
                         {[...Array(2)].map((_, j) => (
                             <span key={j} className={`text-[20vh] leading-none font-unbounded font-black ${colorClass} px-4`}>
