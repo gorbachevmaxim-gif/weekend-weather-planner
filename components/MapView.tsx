@@ -368,7 +368,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                 
                 const padding = (isMobile && isFullscreen) 
-                    ? { top: 100, bottom: 50, left: 50, right: 50 } 
+                    ? { top: 100, bottom: 100, left: 50, right: 50 } 
                     : (isMobile ? 50 : 60);
 
                 map.fitBounds(bounds, {
@@ -704,7 +704,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     <ElevationProfile 
                         routeData={currentRouteData}
                         isDark={isDark}
-                        width={isMobile ? 150 : 300}
+                        width={isMobile ? 250 : 300}
                         height={isMobile ? 60 : 80}
                         showAxes={false}
                         showTooltip={false}
