@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { verifyPassword, setAuthenticated } from '../utils/auth';
 import { track } from '@vercel/analytics';
 
@@ -11,6 +11,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,9 +34,66 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
         }
     };
 
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        containerRef.current.style.setProperty('--cursor-x', `${x}px`);
+        containerRef.current.style.setProperty('--cursor-y', `${y}px`);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (!containerRef.current || e.touches.length === 0) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = e.touches[0].clientX - rect.left;
+        const y = e.touches[0].clientY - rect.top;
+        containerRef.current.style.setProperty('--cursor-x', `${x}px`);
+        containerRef.current.style.setProperty('--cursor-y', `${y}px`);
+    };
+
+    const renderMarqueeRows = (colorClass: string) => (
+        <>
+            {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex whitespace-nowrap overflow-hidden">
+                    <div 
+                        className={`flex ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
+                        style={{ animationDuration: `${320 + i * 60}s` }}
+                    >
+                        {[...Array(2)].map((_, j) => (
+                            <span key={j} className={`text-[20vh] leading-none font-unbounded font-black ${colorClass} px-4`}>
+                                RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </>
+    );
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#111111] px-8 py-8">
-            <div className="flex flex-col items-center max-w-[700px] w-full">
+        <div 
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            className="min-h-screen flex items-center justify-center bg-[#111111] px-8 py-8 relative overflow-hidden"
+        >
+            {/* Background Animation - Base Layer */}
+            <div className="absolute inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0">
+                {renderMarqueeRows("text-[#111111]")}
+            </div>
+
+            {/* Background Animation - Highlight Layer */}
+            <div 
+                className="absolute inset-0 flex flex-col justify-between py-10 pointer-events-none select-none z-0"
+                style={{
+                    maskImage: 'radial-gradient(circle 250px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
+                    WebkitMaskImage: 'radial-gradient(circle 250px at var(--cursor-x, -100%) var(--cursor-y, -100%), black 0%, transparent 100%)',
+                }}
+            >
+                {renderMarqueeRows("text-[#444444]")}
+            </div>
+
+            <div className="flex flex-col items-center max-w-[700px] w-full relative z-10">
                 <h2 className="text-[19px] md:text-[30px] font-unbounded font-medium text-white mb-2 text-center whitespace-normal md:whitespace-nowrap px-4 md:px-0 leading-tight">Rain Free. Ride Unbound.</h2>
                 <p className="text-[15px] md:text-[18px] font-sans text-neutral-400 mb-8 md:mb-12 text-center">Ищем сухие дороги для тебя</p>
                 
