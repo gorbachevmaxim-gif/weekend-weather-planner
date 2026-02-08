@@ -9,7 +9,7 @@ interface OverlayContentProps {
 
 const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme }) => {
     return (
-        <div className={`mt-4 px-0 text-sm leading-relaxed text-left w-full max-w-[343px] min-[1200px]:max-w-none mx-auto transition-colors duration-700 ${theme === 'dark' ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
+        <div className={`mt-4 px-0 text-base leading-relaxed text-left w-full max-w-[343px] min-[1200px]:max-w-none mx-auto transition-colors duration-700 ${theme === 'dark' ? "text-[#aaaaaa]" : "text-[#333333]"}`}>
             {activeOverlay === 'manifesto' && (
                 <>
                     <div className="mb-6">
@@ -57,7 +57,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                     </div>
                     <div className="flex flex-col gap-y-4 pb-0">
                         <div>
-                            <p className="font-bold text-base mb-2">1. Я – не пассажир, я – пилот.</p>
+                            <p className="font-bold text-lg mb-2">1. Я – не пассажир, я – пилот.</p>
                             <p>Организаторы обеспечивают логистику, маршрут и сопровождение. Но они не няньки.</p>
                             <ul className="list-disc pl-5 mt-2 space-y-1">
                                 <li><span className="font-bold">Техника.</span> Я гарантирую исправность своего велосипеда, чистоту цепи и надежность тормозов. Навык самостоятельной замены камеры (покрышки) – обязателен.</li>
@@ -73,7 +73,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         </div>
 
                         <div>
-                            <p className="font-bold text-base mb-2">2. Дисциплина – это вежливость.</p>
+                            <p className="font-bold text-lg mb-2">2. Дисциплина – это вежливость.</p>
                             <p>Семеро одного не ждут.</p>
                             <ul className="list-disc pl-5 mt-2 space-y-1">
                                 <li><span className="font-bold">Старт.</span> Если сбор назначен на 8:00, в 8:00 мы уже в движении.</li>
@@ -83,7 +83,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         </div>
 
                         <div>
-                            <p className="font-bold text-base mb-2">3. Режим и Безопасность.</p>
+                            <p className="font-bold text-lg mb-2">3. Режим и Безопасность.</p>
                             <p>Мы здесь ради спорта и эмоций, а не ради угара.</p>
                             <ul className="list-disc pl-5 mt-2 space-y-1">
                                 <li><span className="font-bold">Алкоголь.</span> Сухой закон действует с момента пробуждения и до финиша райда. Вечером – умеренное потребление, чтобы утром быть в отличной форме. Если из-за самочувствия я не могу ехать в общем темпе – см. пункт про «Опоздания».</li>
@@ -92,7 +92,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         </div>
 
                         <div>
-                            <p className="font-bold text-base mb-2">4. Кодекс.</p>
+                            <p className="font-bold text-lg mb-2">4. Кодекс.</p>
                             <ul className="list-disc pl-5 mt-2 space-y-1">
                                 <li><span className="font-bold">В группе</span> – мы уважаем темп друг друга. «Лоси» не дергают группу, «туристы» не лезут вперед. Желание ехать быстрее или медленнее – это мой выбор: я предупреждаю и еду соло, снимая ответственность с группы.</li>
                                 <li><span className="font-bold">Поддержка</span> – если райдер пробил колесо или упал, мы останавливаемся и помогаем. Но если кто-то просто не тянет темп из-за отсутствия подготовки, то садится в машину сопровождения, чтобы не задерживать пелотон (см. п.1). Своих не бросаем, но и не тащим.</li>
@@ -101,7 +101,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         </div>
 
                         <div>
-                            <p className="font-bold text-base mb-2">5. Отношение к организаторам.</p>
+                            <p className="font-bold text-lg mb-2">5. Отношение к организаторам.</p>
                             <p>Организаторы – это гиды вашего приключения, а не обслуживающий персонал.</p>
                             <ul className="list-disc pl-5 mt-2 space-y-1">
                                 <li>Мы общаемся на равных и с уважением.</li>
