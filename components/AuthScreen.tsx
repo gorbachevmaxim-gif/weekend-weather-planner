@@ -16,25 +16,23 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     const dotRef = useRef<HTMLSpanElement>(null);
 
     useEffect(() => {
-        // Force page reload once to fix layout glitches with fonts/animations
-        const hasReloaded = sessionStorage.getItem('auth_reloaded');
-        if (!hasReloaded) {
-            const timer = setTimeout(() => {
-                sessionStorage.setItem('auth_reloaded', 'true');
-                window.location.reload();
-            }, 500);
-            return () => clearTimeout(timer);
-        }
+        // Force re-render after a short delay to ensure layout is correct
+        // This replaces the forced reload which was ineffective for fixing layout glitches
+        const timer = setTimeout(() => {
+            setLayoutKey(prev => prev + 1);
+        }, 500);
 
         // Also force re-render when fonts are loaded as a fallback
         document.fonts.ready.then(() => {
             setLayoutKey(prev => prev + 1);
         });
+
+        return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
-        // Position the spotlight on the "Ride Unbound." dot initially
-        const timer = setTimeout(() => {
+        // Position the spotlight on the "Ride Unbound." dot initially and after layout updates
+        const updatePosition = () => {
             if (dotRef.current && containerRef.current) {
                 const dotRect = dotRef.current.getBoundingClientRect();
                 const containerRect = containerRef.current.getBoundingClientRect();
@@ -45,10 +43,15 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                 containerRef.current.style.setProperty('--cursor-x', `${x}px`);
                 containerRef.current.style.setProperty('--cursor-y', `${y}px`);
             }
-        }, 100);
+        };
+
+        updatePosition();
+        
+        // Retry to ensure layout is stable
+        const timer = setTimeout(updatePosition, 100);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [layoutKey]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -110,6 +113,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
 
     return (
         <div 
+            key={layoutKey}
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
