@@ -11,8 +11,26 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [layoutKey, setLayoutKey] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
     const dotRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        // Force page reload once to fix layout glitches with fonts/animations
+        const hasReloaded = sessionStorage.getItem('auth_reloaded');
+        if (!hasReloaded) {
+            const timer = setTimeout(() => {
+                sessionStorage.setItem('auth_reloaded', 'true');
+                window.location.reload();
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+
+        // Also force re-render when fonts are loaded as a fallback
+        document.fonts.ready.then(() => {
+            setLayoutKey(prev => prev + 1);
+        });
+    }, []);
 
     useEffect(() => {
         // Position the spotlight on the "Ride Unbound." dot initially
@@ -73,14 +91,14 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
 
     const renderMarqueeRows = (colorClass: string) => (
         <>
-            {[...Array(8)].map((_, i) => (
+            {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex whitespace-nowrap overflow-hidden flex-shrink-0">
                     <div 
                         className={`flex min-w-max transform-gpu ${i % 2 === 0 ? 'animate-marquee' : 'animate-marquee-reverse'}`} 
                         style={{ animationDuration: `${160 + i * 80}s` }}
                     >
-                        {[...Array(4)].map((_, j) => (
-                            <span key={j} className={`text-[19vh] leading-none font-unbounded font-black ${colorClass} px-0`}>
+                        {[...Array(8)].map((_, j) => (
+                            <span key={j} className={`leading-none font-unbounded font-black ${colorClass} px-0`} style={{ fontSize: '19vh' }}>
                                 RAIN FREE RIDE UNBOUND RAIN FREE RIDE UNBOUND
                             </span>
                         ))}
