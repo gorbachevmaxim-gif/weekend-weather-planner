@@ -20,7 +20,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
         // This replaces the forced reload which was ineffective for fixing layout glitches
         const timer = setTimeout(() => {
             setLayoutKey(prev => prev + 1);
-        }, 500);
+        }, 100);
 
         // Also force re-render when fonts are loaded as a fallback
         document.fonts.ready.then(() => {
