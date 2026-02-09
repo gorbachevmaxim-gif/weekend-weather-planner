@@ -214,7 +214,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             cooperativeGestures: true
         });
 
-        map.addControl(new maplibregl.AttributionControl({ compact: false }), 'top-right');
+        map.addControl(new maplibregl.AttributionControl({ compact: false }), 'bottom-right');
 
         map.on('rotate', () => {
             setRotation(map.getBearing());
