@@ -214,7 +214,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             cooperativeGestures: true
         });
 
-        map.addControl(new maplibregl.AttributionControl({ compact: false }), 'bottom-right');
+        map.addControl(new maplibregl.AttributionControl({ compact: false }), 'top-right');
 
         map.on('rotate', () => {
             setRotation(map.getBearing());
@@ -366,8 +366,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 
                 if (isFullscreen) {
                     padding = {
-                        top: 100,
-                        bottom: isMobile ? 120 : 150,
+                        top: isMobile ? 60 : 100,
+                        bottom: isMobile ? 180 : 150,
                         left: 50,
                         right: 50
                     };
@@ -702,11 +702,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {isFullscreen && currentRouteData && (
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+                <div className={`absolute left-1/2 -translate-x-1/2 z-20 ${isMobile ? "bottom-[52px]" : "bottom-8"}`}>
                     <ElevationProfile 
                         routeData={currentRouteData}
                         isDark={isDark}
-                        width={windowWidth * 0.45}
+                        width={isMobile ? windowWidth * 0.8 : windowWidth * 0.45}
                         height={isMobile ? 60 : 80}
                         showAxes={false}
                         showTooltip={true}
