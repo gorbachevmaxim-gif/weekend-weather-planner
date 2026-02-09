@@ -81,7 +81,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [hoverInfo, setHoverInfo] = useState<ElevationPoint | null>(null);
+    const [internalCursor, setInternalCursor] = useState<[number, number] | null>(null);
+
+    const activeCursor = elevationCursor || internalCursor;
 
     const elevationData = useMemo(() => {
         if (!currentRouteData) return [];
@@ -184,12 +188,13 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [onFullscreenToggle]);
 
     useEffect(() => {
-        const checkIsMobile = () => {
+        const handleResize = () => {
             setIsMobile(window.innerWidth <= 768);
+            setWindowWidth(window.innerWidth);
         };
-        checkIsMobile();
-        window.addEventListener('resize', checkIsMobile);
-        return () => window.removeEventListener('resize', checkIsMobile);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     // Initialize Map
@@ -205,21 +210,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             style: styleUrl,
             center: [cityCoords.lon, cityCoords.lat],
             zoom: 11,
-            attributionControl: {
-                compact: false
-            },
+            attributionControl: false,
             cooperativeGestures: true
         });
 
-        const hideAttrib = () => {
-            const attrib = mapContainerRef.current?.querySelector('.maplibregl-ctrl-attrib') as HTMLElement;
-            if (attrib) {
-                attrib.style.opacity = '0';
-                attrib.style.pointerEvents = 'none';
-            }
-        };
-
-        map.on('dragstart', hideAttrib);
+        map.addControl(new maplibregl.AttributionControl({ compact: false }), 'top-right');
 
         map.on('rotate', () => {
             setRotation(map.getBearing());
@@ -367,9 +362,16 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 const bounds = new maplibregl.LngLatBounds();
                 coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                 
-                const padding = (isMobile && isFullscreen) 
-                    ? { top: 100, bottom: 100, left: 50, right: 50 } 
-                    : (isMobile ? 50 : 60);
+                let padding: any = (isMobile ? 50 : 60);
+                
+                if (isFullscreen) {
+                    padding = {
+                        top: 100,
+                        bottom: isMobile ? 120 : 150,
+                        left: 50,
+                        right: 50
+                    };
+                }
 
                 map.fitBounds(bounds, {
                     padding: padding,
@@ -399,7 +401,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         const size = isMobile ? '14px' : '12px';
 
-        if (elevationCursor) {
+        if (activeCursor) {
             let markerElement = cursorRef.current ? cursorRef.current.getElement() : null;
 
             if (!markerElement) {
@@ -410,10 +412,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 markerElement.style.justifyContent = 'center';
                 
                 cursorRef.current = new maplibregl.Marker({ element: markerElement })
-                    .setLngLat([elevationCursor[1], elevationCursor[0]])
+                    .setLngLat([activeCursor[1], activeCursor[0]])
                     .addTo(map);
             } else if (cursorRef.current) {
-                cursorRef.current.setLngLat([elevationCursor[1], elevationCursor[0]]);
+                cursorRef.current.setLngLat([activeCursor[1], activeCursor[0]]);
             }
 
             // Ensure container size
@@ -473,7 +475,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 cursorRef.current = null;
             }
         }
-    }, [elevationCursor, isDark, isMobile, windDeg, rotation]);
+    }, [activeCursor, isDark, isMobile, windDeg, rotation]);
 
     // Handle Custom Markers
     useEffect(() => {
@@ -585,9 +587,16 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             const bounds = new maplibregl.LngLatBounds();
             coordinates.forEach(coord => bounds.extend(coord as [number, number]));
             
-            const padding = (isMobile && isFullscreen) 
-                ? { top: 100, bottom: 50, left: 50, right: 50 } 
-                : (isMobile ? 50 : 60);
+            let padding: any = (isMobile ? 50 : 60);
+            
+            if (isFullscreen) {
+                padding = {
+                    top: 100,
+                    bottom: isMobile ? 120 : 150,
+                    left: 50,
+                    right: 50
+                };
+            }
 
             map.fitBounds(bounds, {
                 padding: padding,
@@ -620,11 +629,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     // Calculate hover info when windPos changes
     useEffect(() => {
         if (!windPos || !currentRouteData || !mapInstanceRef.current || elevationData.length === 0) {
-            // If we are actively hovering the profile, we want to keep hoverInfo updated from the profile
-            // But here we depend on windPos. 
-            // If windPos is null, we shouldn't clear hoverInfo IF it's coming from profile?
-            // Actually, if windPos is null, the wind element is docked.
-            setHoverInfo(null);
             return;
         }
 
@@ -679,16 +683,14 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [windPos, currentRouteData, pace, elevationData]);
 
     const handleProfileHover = useCallback((point: ElevationPoint | null) => {
-        if (point && mapInstanceRef.current) {
-            const map = mapInstanceRef.current;
-            const { x, y } = map.project([point.lon, point.lat]);
-            // wind element has padding 30px, so center is at 30+16 = 46.
-            // We want the center of the wind element to be at (x, y)
-            setWindPos({ x: x - 46, y: y - 46 });
-            
-            // Also update hoverInfo directly to ensure responsiveness?
-            // The useEffect on windPos will fire and likely find the same point.
-            // But let's let the useEffect handle it to ensure consistency.
+        if (point) {
+            setInternalCursor([point.lat, point.lon]);
+            setHoverInfo(point);
+            setWindPos(null);
+        } else {
+            setInternalCursor(null);
+            setHoverInfo(null);
+            setWindPos(null);
         }
     }, []);
 
@@ -700,18 +702,23 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {isFullscreen && currentRouteData && (
-                <div className="absolute top-4 right-4 z-20 p-2">
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
                     <ElevationProfile 
                         routeData={currentRouteData}
                         isDark={isDark}
-                        width={isMobile ? 250 : 300}
+                        width={windowWidth * 0.45}
                         height={isMobile ? 60 : 80}
                         showAxes={false}
-                        showTooltip={false}
+                        showTooltip={true}
                         externalHoverPoint={hoverInfo}
                         onHover={handleProfileHover}
                         targetSpeed={pace}
                         isMountainRegion={isMountainRegion}
+                        startTemp={startTemp}
+                        endTemp={endTemp}
+                        hourlyWind={hourlyWind}
+                        hourlyWindDir={hourlyWindDir}
+                        tooltipOffset={2}
                     />
                 </div>
             )}
@@ -806,15 +813,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 )}
             </div>
 
-            {/* Bottom-left controls */}
-            <div 
-                className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'} ${isFullscreen ? 'cursor-move touch-none' : ''}`}
-                style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
-                onMouseDown={handleWindMouseDown}
-                onTouchStart={handleWindMouseDown}
-                title={isFullscreen ? "Перемещай вдоль трека, вращай карту" : undefined}
-            >
-                {windDeg !== undefined && (
+            {/* Bottom-left controls - Hide in Fullscreen */}
+            {!isFullscreen && (
+                <div 
+                    className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'}`}
+                    style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
+                    onMouseDown={handleWindMouseDown}
+                    onTouchStart={handleWindMouseDown}
+                >
+                    {windDeg !== undefined && (
                     <div className="relative flex flex-col items-center w-8">
                         <div 
                             className="w-8 h-8 rounded-full flex items-center justify-center"
@@ -887,6 +894,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     </div>
                 )}
             </div>
+            )}
         </div>
     );
 };

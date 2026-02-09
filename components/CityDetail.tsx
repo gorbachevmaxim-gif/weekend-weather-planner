@@ -547,6 +547,25 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 hourlyWindDir={activeStats?.hourlyWindDir}
                 isMountainRegion={isMountainCity}
             />
+            {isMapFullscreen && currentRouteData && (
+                <div 
+                    className={`absolute bottom-0 left-0 right-0 z-[60] p-4 pb-8 ${isDark ? "bg-[#1E1E1E]/90" : "bg-white/90"}`}
+                >
+                     <ElevationProfile 
+                        routeData={currentRouteData}
+                        isDark={isDark}
+                        targetSpeed={speed}
+                        isMountainRegion={isMountainCity}
+                        onHover={setElevationHoverPoint}
+                        startTemp={activeStats?.startTemperature}
+                        endTemp={activeStats?.endTemperature}
+                        hourlyWind={activeStats?.hourlyWind}
+                        hourlyWindDir={activeStats?.hourlyWindDir}
+                        height={150}
+                        variant="default"
+                     />
+                </div>
+            )}
         </div>
     );
 
@@ -567,6 +586,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     endTemp={activeStats?.endTemperature}
                     hourlyWind={activeStats?.hourlyWind}
                     hourlyWindDir={activeStats?.hourlyWindDir}
+                    variant="inline"
                 />
             </div>
         )

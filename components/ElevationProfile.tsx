@@ -18,6 +18,8 @@ interface ElevationProfileProps {
     height?: number;
     showAxes?: boolean;
     showTooltip?: boolean;
+    tooltipOffset?: number;
+    variant?: 'default' | 'inline';
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -41,12 +43,13 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     width: propWidth,
     height: propHeight,
     showAxes = true,
-    showTooltip = true
+    showTooltip = true,
+    tooltipOffset = -10,
+    variant = 'default'
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [internalHoverPoint, setInternalHoverPoint] = useState<ElevationPoint | null>(null);
-    const [hoverPos, setHoverPos] = useState<{ x: number, y: number } | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: propHeight || 200 });
     const [isMobile, setIsMobile] = useState(false);
 
@@ -234,7 +237,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             // Vertical cursor line
             ctx.beginPath();
             ctx.moveTo(x, y);
-            ctx.lineTo(x, height - padding.bottom);
+            if (variant === 'inline') {
+                ctx.lineTo(x, height - padding.bottom);
+            } else {
+                ctx.lineTo(x, 0);
+            }
             ctx.stroke();
 
             // Horizontal dynamic axis (current elevation)
@@ -252,7 +259,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.fill();
         }
 
-    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes]);
+    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes, variant]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (data.length === 0) return;
@@ -305,22 +312,52 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         // Clamp to graph area
         if (x >= padding.left && x <= width - padding.right) {
             setInternalHoverPoint(closest);
-            setHoverPos({ x: clientX, y: rect.top }); // Global coordinates for tooltip
             if (onHover) onHover(closest);
         } else {
             setInternalHoverPoint(null);
-            setHoverPos(null);
             if (onHover) onHover(null);
         }
     };
 
     const handleMouseLeave = () => {
         setInternalHoverPoint(null);
-        setHoverPos(null);
         if (onHover) onHover(null);
     };
 
+    // Calculate tooltip position
+    const tooltipX = useMemo(() => {
+        if (!activeHoverPoint || !containerRef.current || dimensions.width === 0 || totalDist === 0) return null;
+        
+        const { width } = dimensions;
+        const padding = showAxes 
+            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
+            : { top: 5, right: 5, bottom: 5, left: 5 };
+        const graphWidth = width - padding.left - padding.right;
+        
+        return padding.left + (activeHoverPoint.dist / totalDist) * graphWidth;
+    }, [activeHoverPoint, dimensions, showAxes, isMobile, totalDist]);
+
     if (!routeData || data.length === 0) return null;
+
+    const borderColor = isDark ? '#666666' : '#000000';
+
+    const tooltipStyle: React.CSSProperties = variant === 'inline' 
+        ? {
+            top: 8,
+            left: tooltipX !== null ? tooltipX : 0,
+            transform: (activeHoverPoint && (activeHoverPoint.dist / totalDist) < 0.5) 
+                ? `translateX(25px)` 
+                : `translateX(calc(-100% - 25px))`,
+            border: `1px solid ${borderColor}`,
+            boxShadow: 'none'
+        }
+        : {
+            bottom: '100%',
+            left: tooltipX !== null ? tooltipX : 0,
+            transform: `translateX(-50%) translateY(${tooltipOffset}px)`,
+            border: `1px solid ${borderColor}`,
+            boxShadow: 'none'
+        };
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
@@ -333,44 +370,40 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 onTouchMove={handleMouseMove}
                 onTouchEnd={handleMouseLeave}
             />
-            {internalHoverPoint && hoverPos && containerRef.current && showTooltip && (
+            {activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null && (
                 <div 
-                    className={`absolute z-30 pointer-events-none p-2 rounded shadow-md text-xs font-sans whitespace-nowrap w-max ${
+                    className={`absolute z-30 pointer-events-none p-2 rounded text-xs font-sans whitespace-nowrap w-max backdrop-blur ${
                         isDark ? 'bg-[#888888] text-[#000000]' : 'bg-white/90 text-black'
                     }`}
-                    style={{
-                        top: '10px',
-                        left: (hoverPos.x - containerRef.current.getBoundingClientRect().left) + ((hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? -(isMobile ? 30 : 25) : (isMobile ? 30 : 25)),
-                        transform: (hoverPos.x - containerRef.current.getBoundingClientRect().left) > dimensions.width / 2 ? 'translateX(-100%)' : 'none'
-                    }}
+                    style={tooltipStyle}
                 >
                     <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium">
-                        <span>{Math.floor(internalHoverPoint.time)}:{(Math.round((internalHoverPoint.time - Math.floor(internalHoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
-                        <span>{internalHoverPoint.dist.toFixed(1)} км</span>
+                        <span>{Math.floor(activeHoverPoint.time)}:{(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
+                        <span>{activeHoverPoint.dist.toFixed(1)} км</span>
                         <span>
                             {startTemp !== undefined && endTemp !== undefined && totalTime > 0 
-                                ? `${Math.round(startTemp + (endTemp - startTemp) * (internalHoverPoint.time / totalTime))}°` 
+                                ? `${Math.round(startTemp + (endTemp - startTemp) * (activeHoverPoint.time / totalTime))}°` 
                                 : ''}
                         </span>
-                        <span>{Math.round(internalHoverPoint.speed)} км/ч</span>
+                        <span>{Math.round(activeHoverPoint.speed)} км/ч</span>
                         
-                        <span>{Math.round(internalHoverPoint.originalEle)} м</span>
-                        <span>+{Math.round(internalHoverPoint.realCumElevation)} м</span>
+                        <span>{Math.round(activeHoverPoint.originalEle)} м</span>
+                        <span>+{Math.round(activeHoverPoint.realCumElevation)} м</span>
 
-                        <span>{Math.round(internalHoverPoint.gradient)}%</span>
+                        <span>{Math.round(activeHoverPoint.gradient)}%</span>
                         <span>
                             {hourlyWind && hourlyWindDir && (
                                 <>
-                                   {getWindDirectionText(hourlyWindDir[Math.min(Math.round(internalHoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(internalHoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
+                                   {getWindDirectionText(hourlyWindDir[Math.min(Math.round(activeHoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(activeHoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
                                 </>
                             )}
                         </span>
 
                         <span>
-                            -{Math.floor(Math.max(0, totalTime - internalHoverPoint.time))}:{(Math.round((Math.max(0, totalTime - internalHoverPoint.time) - Math.floor(Math.max(0, totalTime - internalHoverPoint.time))) * 60)).toString().padStart(2, '0')}
+                            -{Math.floor(Math.max(0, totalTime - activeHoverPoint.time))}:{(Math.round((Math.max(0, totalTime - activeHoverPoint.time) - Math.floor(Math.max(0, totalTime - activeHoverPoint.time))) * 60)).toString().padStart(2, '0')}
                         </span>
                         <span>
-                            {Math.max(0, totalDist - internalHoverPoint.dist).toFixed(1)} км
+                            {Math.max(0, totalDist - activeHoverPoint.dist).toFixed(1)} км
                         </span>
                     </div>
                 </div>
