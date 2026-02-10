@@ -19,7 +19,7 @@ interface ElevationProfileProps {
     showAxes?: boolean;
     showTooltip?: boolean;
     tooltipOffset?: number;
-    variant?: 'default' | 'inline';
+    variant?: 'default' | 'inline' | 'overlay';
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -138,9 +138,13 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         canvas.style.height = `${dimensions.height}px`;
 
         const { width, height } = dimensions;
-        const padding = showAxes 
+        let padding = showAxes 
             ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
             : { top: 5, right: 5, bottom: 5, left: 5 };
+
+        if (variant === 'overlay' && !showAxes) {
+             padding = { top: 10, right: 10, bottom: 20, left: 10 };
+        }
 
         const graphWidth = width - padding.left - padding.right;
         const graphHeight = height - padding.top - padding.bottom;
@@ -194,7 +198,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         }
 
         // Fill area under curve
-        if (showAxes) {
+        if (showAxes || variant === 'overlay') {
             ctx.beginPath();
             ctx.moveTo(getX(data[0].dist), getY(data[0].ele));
             for (let i = 1; i < data.length; i++) {
@@ -204,8 +208,38 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.lineTo(getX(data[0].dist), height - padding.bottom);
             ctx.closePath();
             
-            ctx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.7)' : 'rgba(229, 229, 229, 0.7)';
+            if (variant === 'overlay') {
+                const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+                const color = isDark ? '150, 150, 150' : '100, 100, 100'; // Gray base
+                gradient.addColorStop(0, `rgba(${color}, 0.2)`);
+                gradient.addColorStop(1, `rgba(${color}, 0.0)`);
+                ctx.fillStyle = gradient;
+            } else if (variant === 'inline') {
+                const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+                const color = isDark ? '51, 51, 51' : '229, 229, 229';
+                gradient.addColorStop(0, `rgba(${color}, 1.0)`);
+                gradient.addColorStop(1, `rgba(${color}, 0.2)`);
+                ctx.fillStyle = gradient;
+            } else {
+                ctx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.9)' : 'rgba(229, 229, 229, 0.9)';
+            }
             ctx.fill();
+        }
+
+        // Overlay Axis (Labels only)
+        if (variant === 'overlay') {
+            const axisY = height - padding.bottom;
+            const axisColor = isDark ? '#CCCCCC' : '#444444'; // Match route color approx
+
+            // Labels
+            ctx.fillStyle = axisColor;
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('0', padding.left, axisY + 4);
+
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(totalDist).toString(), width - padding.right, axisY + 4);
         }
 
         // Draw segments
