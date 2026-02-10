@@ -339,6 +339,7 @@ const App: React.FC = () => {
                 <div className="w-full max-w-[1440px] mx-auto pt-6 px-[3.5%] relative z-10 box-border">
                     {selectedData && (
                         <CityDetail 
+                            key={selectedCity}
                             data={selectedData} 
                             initialTab={initialTab}
                             initialDay={initialDay}
@@ -412,6 +413,7 @@ const App: React.FC = () => {
         ) : (
             selectedData && (
                 <CityDetail 
+                    key={selectedCity}
                     data={selectedData} 
                     initialTab={initialTab}
                     initialDay={initialDay}

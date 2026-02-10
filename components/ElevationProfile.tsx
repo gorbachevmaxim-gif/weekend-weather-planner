@@ -233,9 +233,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else if (variant === 'inline') {
-                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.9)' : 'rgba(220, 220, 220, 0.9)';
+                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.6)' : 'rgba(220, 220, 220, 0.6)';
             } else {
-                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.9)' : 'rgba(220, 220, 220, 0.9)';
+                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.6)' : 'rgba(220, 220, 220, 0.6)';
             }
             drawCtx.fill();
         }

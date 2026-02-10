@@ -1,0 +1,4 @@
+- [x] Analyze `App.tsx` to check `CityDetail` usage
+- [x] Add `key={selectedCity}` to `CityDetail` in `App.tsx` to force remount on city change
+- [x] Verify if this explains the "previous track" issue (it does: stale state + reused component)
+- [x] Verify if this fixes "track not appearing" (fresh component = fresh lifecycle)
