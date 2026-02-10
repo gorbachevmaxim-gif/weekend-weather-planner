@@ -228,15 +228,15 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             
             if (variant === 'overlay') {
                 const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '150, 150, 150' : '18, 13, 8'; // Gray base
-                gradient.addColorStop(0, `rgba(${color}, 0.2)`);
+                const color = isDark ? '18, 13, 8' : '200, 200, 200'; // Gray base
+                gradient.addColorStop(0, `rgba(${color}, 1.0)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else if (variant === 'inline') {
                 const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '51, 51, 51' : '229, 229, 229';
+                const color = isDark ? '21, 21, 21' : '229, 229, 229';
                 gradient.addColorStop(0, `rgba(${color}, 1.0)`);
-                gradient.addColorStop(1, `rgba(${color}, 0.2)`);
+                gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else {
                 drawCtx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.9)' : 'rgba(229, 229, 229, 0.9)';
@@ -426,7 +426,6 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={handleMouseMove}
                 onTouchMove={handleMouseMove}
-                onTouchEnd={handleMouseLeave}
             />
             {activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null && (
                 <div 

@@ -706,8 +706,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     <ElevationProfile 
                         routeData={currentRouteData}
                         isDark={isDark}
-                        width={isMobile ? windowWidth * 0.75 : windowWidth * 0.45}
-                        height={isMobile ? 60 : 80}
+                        width={isMobile ? windowWidth * 0.70 : windowWidth * 0.45}
+                        height={isMobile ? 70 : 80}
                         showAxes={false}
                         variant="overlay"
                         showTooltip={true}
