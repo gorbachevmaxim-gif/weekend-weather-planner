@@ -102,6 +102,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
     const isMountedRef = useRef(false);
+    const handleCenterMapRef = useRef<(() => void) | null>(null);
 
     const handleZoomIn = useCallback(() => {
         mapInstanceRef.current?.zoomIn();
@@ -197,6 +198,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+
     // Initialize Map
     useEffect(() => {
         if (!mapContainerRef.current) return;
@@ -222,7 +224,19 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         mapInstanceRef.current = map;
 
+        let debounceTimer: ReturnType<typeof setTimeout>;
+        const resizeObserver = new ResizeObserver(() => {
+            map.resize();
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                 handleCenterMapRef.current?.();
+            }, 100);
+        });
+        resizeObserver.observe(mapContainerRef.current);
+
         return () => {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            resizeObserver.disconnect();
             map.remove();
         };
     }, [isDark]); // Re-initialize on theme change
@@ -246,161 +260,172 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         const map = mapInstanceRef.current;
         if (!map) return;
 
-        const setupRoute = () => {
-            // Wait for style to be ready
+        const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
+        const coordinates = hasData 
+            ? currentRouteData!.points.map(([lat, lon]) => [lon, lat]) 
+            : [];
+
+        // 1. Route Line GeoJSON
+        const geoJson = {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+            }
+        };
+
+        // 2. Endpoints (A/B) GeoJSON
+        const endpointsFeatures: any[] = [];
+        if (hasData) {
+                endpointsFeatures.push({
+                    type: 'Feature',
+                    properties: { label: 'A' },
+                    geometry: { type: 'Point', coordinates: [currentRouteData!.points[0][1], currentRouteData!.points[0][0]] }
+                });
+                endpointsFeatures.push({
+                    type: 'Feature',
+                    properties: { label: 'B' },
+                    geometry: { type: 'Point', coordinates: [currentRouteData!.points[currentRouteData!.points.length-1][1], currentRouteData!.points[currentRouteData!.points.length-1][0]] }
+                });
+        }
+        const endpointsGeoJson = { type: 'FeatureCollection', features: endpointsFeatures };
+
+        // Function to restore/add layers (called on style load/change)
+        // Optimized to NOT update data if source exists
+        const ensureLayers = () => {
             if (!map.getStyle() || !map.isStyleLoaded()) return;
 
-            const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
-            const coordinates = hasData 
-                ? currentRouteData!.points.map(([lat, lon]) => [lon, lat]) 
-                : [];
+            let layersAdded = false;
 
-            // 1. Route Line
-            const geoJson = {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'LineString',
-                    coordinates: coordinates
-                }
-            };
-
-            const source = map.getSource('route') as maplibregl.GeoJSONSource;
-
-            if (source) {
-                source.setData(geoJson as any);
-            } else {
+            // Route Source & Layer
+            if (!map.getSource('route')) {
                 if (hasData) {
-                    map.addSource('route', {
-                        type: 'geojson',
-                        data: geoJson as any
+                    map.addSource('route', { type: 'geojson', data: geoJson as any });
+                }
+            }
+            if (hasData && map.getSource('route') && !map.getLayer('route')) {
+                map.addLayer({
+                    id: 'route',
+                    type: 'line',
+                    source: 'route',
+                    layout: { 
+                        'line-join': 'round', 
+                        'line-cap': 'round',
+                        'visibility': 'visible'
+                    },
+                    paint: { 
+                        'line-color': isDark ? '#CCCCCC' : '#444444', 
+                        'line-width': 3,
+                        'line-opacity': 1
+                    }
+                });
+                layersAdded = true;
+            }
+
+            // Endpoints Source & Layers
+            if (!map.getSource('endpoints')) {
+                if (hasData) {
+                    map.addSource('endpoints', { type: 'geojson', data: endpointsGeoJson as any });
+                }
+            }
+            if (hasData && map.getSource('endpoints')) {
+                if (!map.getLayer('endpoints-bg')) {
+                    map.addLayer({
+                        id: 'endpoints-bg',
+                        type: 'circle',
+                        source: 'endpoints',
+                        paint: {
+                            'circle-radius': 10,
+                            'circle-color': isDark ? '#CCCCCC' : '#444444',
+                            'circle-stroke-width': 1,
+                            'circle-stroke-color': isDark ? '#333333' : '#ffffff'
+                        }
                     });
+                    layersAdded = true;
+                }
+                if (!map.getLayer('endpoints-label')) {
+                    map.addLayer({
+                        id: 'endpoints-label',
+                        type: 'symbol',
+                        source: 'endpoints',
+                        layout: {
+                            'text-field': ['get', 'label'],
+                            'text-size': 10,
+                            'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular', 'Open Sans Regular'],
+                            'text-justify': 'center',
+                            'text-anchor': 'center'
+                        },
+                        paint: { 'text-color': isDark ? '#333333' : '#ffffff' }
+                    });
+                    layersAdded = true;
                 }
             }
 
-            if (hasData) {
-                if (!map.getLayer('route')) {
-                    if (map.getSource('route')) {
-                        map.addLayer({
-                            id: 'route',
-                            type: 'line',
-                            source: 'route',
-                            layout: {
-                                'line-join': 'round',
-                                'line-cap': 'round'
-                            },
-                            paint: {
-                                'line-color': isDark ? '#CCCCCC' : '#444444',
-                                'line-width': 3
-                            }
-                        });
+            if (layersAdded) {
+                // Ensure visibility after adding layers
+                setTimeout(() => {
+                    map.resize();
+                    map.triggerRepaint();
+                }, 50);
+            }
+        };
+
+        // Function to update data (called when currentRouteData changes)
+        const updateData = () => {
+             const source = map.getSource('route') as maplibregl.GeoJSONSource;
+             if (source) source.setData(geoJson as any);
+             
+             const epSource = map.getSource('endpoints') as maplibregl.GeoJSONSource;
+             if (epSource) epSource.setData(endpointsGeoJson as any);
+        };
+
+        // Initial Logic
+        if (map.isStyleLoaded()) {
+             // If source exists, we update data. If not, we ensure layers (which adds source with data).
+             if (map.getSource('route')) {
+                 updateData();
+                 ensureLayers(); // Just in case layers are missing but source exists
+             } else {
+                 ensureLayers();
+             }
+
+             // Fit bounds logic - Only on data update/change
+             // CRITICAL: Only fit bounds if map has valid dimensions. 
+             // If dimensions are 0 (e.g. hidden/initializing container), fitBounds can break the view state.
+             // We rely on ResizeObserver to call handleCenterMap (which calls fitBounds) when dimensions become available.
+             if (hasData) {
+                const canvas = map.getCanvas();
+                if (canvas && canvas.width > 0 && canvas.height > 0) {
+                    const bounds = new maplibregl.LngLatBounds();
+                    coordinates.forEach(coord => bounds.extend(coord as [number, number]));
+                    
+                    let padding: any = (isMobile ? 50 : 60);
+                    if (isFullscreen) {
+                        padding = {
+                            top: isMobile ? 60 : 100,
+                            bottom: isMobile ? 180 : 150,
+                            left: 60,
+                            right: 50
+                        };
+                    }
+
+                    try {
+                        map.fitBounds(bounds, { padding: padding, duration: 500 });
+                    } catch (e) {
+                        console.warn("fitBounds failed", e);
                     }
                 }
-            }
+             }
+        }
 
-            // 2. Endpoints (A/B) using Layers
-            const endpointsFeatures: any[] = [];
-            if (hasData) {
-                 endpointsFeatures.push({
-                     type: 'Feature',
-                     properties: { label: 'A' },
-                     geometry: { type: 'Point', coordinates: [currentRouteData!.points[0][1], currentRouteData!.points[0][0]] }
-                 });
-                 endpointsFeatures.push({
-                     type: 'Feature',
-                     properties: { label: 'B' },
-                     geometry: { type: 'Point', coordinates: [currentRouteData!.points[currentRouteData!.points.length-1][1], currentRouteData!.points[currentRouteData!.points.length-1][0]] }
-                 });
-            }
-            const endpointsGeoJson = { type: 'FeatureCollection', features: endpointsFeatures };
-            
-            const endpointsSource = map.getSource('endpoints') as maplibregl.GeoJSONSource;
-            if (endpointsSource) {
-                endpointsSource.setData(endpointsGeoJson as any);
-            } else {
-                if (hasData) {
-                     map.addSource('endpoints', { type: 'geojson', data: endpointsGeoJson as any });
-                }
-            }
-
-            if (hasData) {
-                // Background Circle
-                if (!map.getLayer('endpoints-bg')) {
-                     if (map.getSource('endpoints')) {
-                        map.addLayer({
-                            id: 'endpoints-bg',
-                            type: 'circle',
-                            source: 'endpoints',
-                            paint: {
-                                'circle-radius': 10,
-                                'circle-color': isDark ? '#CCCCCC' : '#444444',
-                                'circle-stroke-width': 1,
-                                'circle-stroke-color': isDark ? '#333333' : '#ffffff'
-                            }
-                        });
-                     }
-                }
-                // Label
-                if (!map.getLayer('endpoints-label')) {
-                     if (map.getSource('endpoints')) {
-                        map.addLayer({
-                            id: 'endpoints-label',
-                            type: 'symbol',
-                            source: 'endpoints',
-                            layout: {
-                                'text-field': ['get', 'label'],
-                                'text-size': 10,
-                                'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular', 'Open Sans Regular'],
-                                'text-justify': 'center',
-                                'text-anchor': 'center'
-                            },
-                            paint: {
-                                'text-color': isDark ? '#333333' : '#ffffff'
-                            }
-                        });
-                     }
-                }
-
-                // Fit bounds
-                // Only fit bounds if we haven't already or if explicitly requested (e.g. data change)
-                // Since this runs on styledata too, we might want to be careful.
-                // However, styledata usually implies a reset or load.
-                const bounds = new maplibregl.LngLatBounds();
-                coordinates.forEach(coord => bounds.extend(coord as [number, number]));
-                
-                let padding: any = (isMobile ? 50 : 60);
-                
-                if (isFullscreen) {
-                    padding = {
-                        top: isMobile ? 60 : 100,
-                        bottom: isMobile ? 180 : 150,
-                        left: 50,
-                        right: 50
-                    };
-                }
-
-                // Try/catch for fitBounds as it might fail if container is not sized correctly yet
-                try {
-                    map.fitBounds(bounds, {
-                        padding: padding,
-                        duration: 500
-                    });
-                } catch (e) {
-                    console.warn("fitBounds failed", e);
-                }
-            }
-        };
-
-        // Try immediately
-        setupRoute();
-        
-        // Listen for style updates (loading or changing) to re-apply layers
-        map.on('styledata', setupRoute);
+        // Listen for style updates
+        map.on('styledata', ensureLayers);
 
         return () => {
-            map.off('styledata', setupRoute);
+            map.off('styledata', ensureLayers);
         };
-    }, [currentRouteData, isDark, isMobile]);
+    }, [currentRouteData, isDark, isMobile, isFullscreen]);
 
     const markersRef = useRef<{ custom: maplibregl.Marker[] }>({ custom: [] });
     const cursorRef = useRef<maplibregl.Marker | null>(null);
@@ -598,12 +623,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             const bounds = new maplibregl.LngLatBounds();
             coordinates.forEach(coord => bounds.extend(coord as [number, number]));
             
-            let padding: any = (isMobile ? 50 : 60);
+            let padding: any = (isMobile ? 50 : 80);
             
             if (isFullscreen) {
                 padding = {
                     top: 100,
-                    bottom: isMobile ? 120 : 150,
+                    bottom: isMobile ? 200 : 250,
                     left: 50,
                     right: 50
                 };
@@ -621,6 +646,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             });
         }
     }, [currentRouteData, cityCoords, isMobile, isFullscreen]);
+
+    useEffect(() => {
+        handleCenterMapRef.current = handleCenterMap;
+    }, [handleCenterMap]);
 
     useEffect(() => {
         if (!isMountedRef.current) {
@@ -710,7 +739,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             ref={wrapperRef} 
             className={`${isFullscreen ? "fixed inset-0 z-[9999] h-[100dvh] rounded-none" : "relative w-full aspect-[4/3] md:aspect-[3/2] z-0 rounded-lg"} bg-slate-100 overflow-hidden transition-all duration-300`}
         >
-            <div ref={mapContainerRef} style={{ width: "100%", height: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
+            <div ref={mapContainerRef} style={{ width: "100%", height: "100%", minHeight: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
             {isFullscreen && currentRouteData && (
                 <div className={`absolute left-1/2 -translate-x-1/2 z-20 ${isMobile ? "bottom-[52px]" : "bottom-8"}`}>
