@@ -228,7 +228,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             
             if (variant === 'overlay') {
                 const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '18, 13, 8' : '200, 200, 200'; // Gray base
+                const color = isDark ? '18, 13, 8' : '220, 220, 220'; // Gray base
                 gradient.addColorStop(0, `rgba(${color}, 1.0)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
