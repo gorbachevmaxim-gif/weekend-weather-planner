@@ -233,11 +233,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else if (variant === 'inline') {
-                const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '50, 50, 50' : '220, 220, 220';
-                gradient.addColorStop(0, `rgba(${color}, 1.0)`);
-                gradient.addColorStop(1, `rgba(${color}, 0.0)`);
-                drawCtx.fillStyle = gradient;
+                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.9)' : 'rgba(220, 220, 220, 0.9)';
             } else {
                 drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.9)' : 'rgba(220, 220, 220, 0.9)';
             }
@@ -468,7 +464,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             />
             {activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null && (
                 <div 
-                    className={`absolute z-30 pointer-events-none p-2 rounded text-xs font-sans whitespace-nowrap w-max backdrop-blur ${
+                    className={`absolute z-30 pointer-events-none p-2 rounded text-xs font-sans whitespace-nowrap w-max ${variant !== 'inline' ? 'backdrop-blur' : ''} ${
                         isDark ? 'bg-[#888888] text-[#000000]' : 'bg-white/90 text-black'
                     }`}
                     style={tooltipStyle}

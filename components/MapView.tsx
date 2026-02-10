@@ -247,6 +247,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         if (!map) return;
 
         const setupRoute = () => {
+            // Wait for style to be ready
+            if (!map.getStyle() || !map.isStyleLoaded()) return;
+
             const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
             const coordinates = hasData 
                 ? currentRouteData!.points.map(([lat, lon]) => [lon, lat]) 
@@ -359,6 +362,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 }
 
                 // Fit bounds
+                // Only fit bounds if we haven't already or if explicitly requested (e.g. data change)
+                // Since this runs on styledata too, we might want to be careful.
+                // However, styledata usually implies a reset or load.
                 const bounds = new maplibregl.LngLatBounds();
                 coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                 
@@ -373,21 +379,26 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     };
                 }
 
-                map.fitBounds(bounds, {
-                    padding: padding,
-                    duration: 500
-                });
+                // Try/catch for fitBounds as it might fail if container is not sized correctly yet
+                try {
+                    map.fitBounds(bounds, {
+                        padding: padding,
+                        duration: 500
+                    });
+                } catch (e) {
+                    console.warn("fitBounds failed", e);
+                }
             }
         };
 
-        if (map.loaded()) {
-            setupRoute();
-        } else {
-            map.on('load', setupRoute);
-        }
+        // Try immediately
+        setupRoute();
+        
+        // Listen for style updates (loading or changing) to re-apply layers
+        map.on('styledata', setupRoute);
 
         return () => {
-            map.off('load', setupRoute);
+            map.off('styledata', setupRoute);
         };
     }, [currentRouteData, isDark, isMobile]);
 
