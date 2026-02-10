@@ -49,6 +49,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const bgCanvasRef = useRef<HTMLCanvasElement>(null);
     const [internalHoverPoint, setInternalHoverPoint] = useState<ElevationPoint | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: propHeight || 200 });
     const [isMobile, setIsMobile] = useState(false);
@@ -124,10 +125,16 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     // Draw Canvas
     useEffect(() => {
         const canvas = canvasRef.current;
+        const bgCanvas = bgCanvasRef.current;
         if (!canvas || data.length === 0 || dimensions.width === 0) return;
 
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
+
+        let bgCtx: CanvasRenderingContext2D | null = null;
+        if (variant === 'overlay' && bgCanvas) {
+            bgCtx = bgCanvas.getContext('2d');
+        }
 
         // Handle high DPI
         const dpr = window.devicePixelRatio || 1;
@@ -136,6 +143,15 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         ctx.scale(dpr, dpr);
         canvas.style.width = `${dimensions.width}px`;
         canvas.style.height = `${dimensions.height}px`;
+
+        if (bgCtx && bgCanvas) {
+            bgCanvas.width = dimensions.width * dpr;
+            bgCanvas.height = dimensions.height * dpr;
+            bgCtx.scale(dpr, dpr);
+            bgCanvas.style.width = `${dimensions.width}px`;
+            bgCanvas.style.height = `${dimensions.height}px`;
+            bgCtx.clearRect(0, 0, dimensions.width, dimensions.height);
+        }
 
         const { width, height } = dimensions;
         let padding = showAxes 
@@ -199,31 +215,33 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
         // Fill area under curve
         if (showAxes || variant === 'overlay') {
-            ctx.beginPath();
-            ctx.moveTo(getX(data[0].dist), getY(data[0].ele));
+            const drawCtx = (variant === 'overlay' && bgCtx) ? bgCtx : ctx;
+
+            drawCtx.beginPath();
+            drawCtx.moveTo(getX(data[0].dist), getY(data[0].ele));
             for (let i = 1; i < data.length; i++) {
-                ctx.lineTo(getX(data[i].dist), getY(data[i].ele));
+                drawCtx.lineTo(getX(data[i].dist), getY(data[i].ele));
             }
-            ctx.lineTo(getX(data[data.length - 1].dist), height - padding.bottom);
-            ctx.lineTo(getX(data[0].dist), height - padding.bottom);
-            ctx.closePath();
+            drawCtx.lineTo(getX(data[data.length - 1].dist), height - padding.bottom);
+            drawCtx.lineTo(getX(data[0].dist), height - padding.bottom);
+            drawCtx.closePath();
             
             if (variant === 'overlay') {
-                const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '150, 150, 150' : '100, 100, 100'; // Gray base
+                const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+                const color = isDark ? '150, 150, 150' : '18, 13, 8'; // Gray base
                 gradient.addColorStop(0, `rgba(${color}, 0.2)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
-                ctx.fillStyle = gradient;
+                drawCtx.fillStyle = gradient;
             } else if (variant === 'inline') {
-                const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+                const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
                 const color = isDark ? '51, 51, 51' : '229, 229, 229';
                 gradient.addColorStop(0, `rgba(${color}, 1.0)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.2)`);
-                ctx.fillStyle = gradient;
+                drawCtx.fillStyle = gradient;
             } else {
-                ctx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.9)' : 'rgba(229, 229, 229, 0.9)';
+                drawCtx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.9)' : 'rgba(229, 229, 229, 0.9)';
             }
-            ctx.fill();
+            drawCtx.fill();
         }
 
         // Overlay Axis (Labels only)
@@ -395,9 +413,15 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
+            {variant === 'overlay' && (
+                <canvas
+                    ref={bgCanvasRef}
+                    className="absolute top-0 left-0 w-full h-full pointer-events-none mix-blend-overlay"
+                />
+            )}
             <canvas
                 ref={canvasRef}
-                className="block cursor-crosshair touch-none"
+                className="block cursor-crosshair touch-none relative z-10"
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={handleMouseMove}
