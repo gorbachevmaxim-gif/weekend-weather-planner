@@ -228,18 +228,18 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             
             if (variant === 'overlay') {
                 const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '18, 13, 8' : '220, 220, 220'; // Gray base
-                gradient.addColorStop(0, `rgba(${color}, 1.0)`);
+                const color = isDark ? '50, 50, 50' : '220, 220, 220'; // Gray base
+                gradient.addColorStop(0, `rgba(${color}, 7.0)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else if (variant === 'inline') {
                 const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '21, 21, 21' : '229, 229, 229';
+                const color = isDark ? '50, 50, 50' : '220, 220, 220';
                 gradient.addColorStop(0, `rgba(${color}, 1.0)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else {
-                drawCtx.fillStyle = isDark ? 'rgba(51, 51, 51, 0.9)' : 'rgba(229, 229, 229, 0.9)';
+                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.9)' : 'rgba(220, 220, 220, 0.9)';
             }
             drawCtx.fill();
         }
@@ -389,6 +389,35 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         return padding.left + (activeHoverPoint.dist / totalDist) * graphWidth;
     }, [activeHoverPoint, dimensions, showAxes, isMobile, totalDist]);
 
+    const clipPath = useMemo(() => {
+        if (variant !== 'overlay' || data.length === 0 || dimensions.width === 0) return null;
+
+        const { width, height } = dimensions;
+        let padding = showAxes 
+            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
+            : { top: 5, right: 5, bottom: 5, left: 5 };
+
+        if (variant === 'overlay' && !showAxes) {
+             padding = { top: 10, right: 10, bottom: 20, left: 10 };
+        }
+
+        const graphWidth = width - padding.left - padding.right;
+        const graphHeight = height - padding.top - padding.bottom;
+
+        const getX = (dist: number) => padding.left + (dist / totalDist) * graphWidth;
+        const getY = (ele: number) => padding.top + graphHeight - ((ele - minEle) / (maxEle - minEle)) * graphHeight;
+
+        let d = `M ${getX(data[0].dist)} ${getY(data[0].ele)}`;
+        for (let i = 1; i < data.length; i++) {
+            d += ` L ${getX(data[i].dist)} ${getY(data[i].ele)}`;
+        }
+        d += ` L ${getX(data[data.length - 1].dist)} ${height - padding.bottom}`;
+        d += ` L ${getX(data[0].dist)} ${height - padding.bottom}`;
+        d += ' Z';
+
+        return d;
+    }, [data, dimensions, showAxes, isMobile, totalDist, minEle, maxEle, variant]);
+
     if (!routeData || data.length === 0) return null;
 
     const borderColor = isDark ? '#666666' : '#000000';
@@ -413,6 +442,16 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
+            {variant === 'overlay' && clipPath && (
+                <div 
+                    className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                    style={{
+                        backdropFilter: 'blur(2px)',
+                        WebkitBackdropFilter: 'blur(2px)',
+                        clipPath: `path('${clipPath}')`
+                    }}
+                />
+            )}
             {variant === 'overlay' && (
                 <canvas
                     ref={bgCanvasRef}
