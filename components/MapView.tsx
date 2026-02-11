@@ -407,7 +407,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     const bounds = new maplibregl.LngLatBounds();
                     coordinates.forEach(coord => bounds.extend(coord as [number, number]));
                     
-                    let padding: any = (isMobile ? 50 : 60);
+                    let padding: any = isMobile 
+                        ? { top: 50, bottom: 50, left: 55, right: 50 }
+                        : 60;
                     if (isFullscreen) {
                         padding = {
                             top: isMobile ? 60 : 100,
@@ -436,7 +438,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                      if (canvas && canvas.width > 0 && canvas.height > 0) {
                         const bounds = new maplibregl.LngLatBounds();
                         coordinates.forEach(coord => bounds.extend(coord as [number, number]));
-                        let padding: any = (isMobile ? 50 : 60);
+                        let padding: any = isMobile 
+                            ? { top: 50, bottom: 50, left: 55, right: 50 }
+                            : 60;
                         if (isFullscreen) {
                             padding = { top: isMobile ? 60 : 100, bottom: isMobile ? 180 : 150, left: 60, right: 50 };
                         }
@@ -650,7 +654,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             const bounds = new maplibregl.LngLatBounds();
             coordinates.forEach(coord => bounds.extend(coord as [number, number]));
             
-            let padding: any = (isMobile ? 50 : 80);
+            let padding: any = isMobile 
+                ? { top: 50, bottom: 50, left: 55, right: 50 }
+                : 80;
             
             if (isFullscreen) {
                 padding = {
