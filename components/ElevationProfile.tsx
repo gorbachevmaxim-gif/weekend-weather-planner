@@ -430,7 +430,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                     className="absolute top-0 left-0 w-full h-full pointer-events-none"
                     style={{
                         backdropFilter: 'blur(2px)',
-                        WebkitBackdropFilter: 'blur(2px)'
+                        WebkitBackdropFilter: 'blur(2px)',
+                        maskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)'
                     }}
                 />
             )}
