@@ -100,7 +100,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     // Handle Resize
     useEffect(() => {
-        const handleResize = () => {
+        const updateDimensions = () => {
             if (containerRef.current) {
                 const mobile = window.innerWidth <= 768;
                 setIsMobile(mobile);
@@ -108,18 +108,33 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 if (propWidth && propHeight) {
                      setDimensions({ width: propWidth, height: propHeight });
                 } else {
-                    setDimensions({
-                        width: containerRef.current.clientWidth,
-                        height: mobile ? 120 : 150
-                    });
+                    const width = containerRef.current.clientWidth;
+                    if (width > 0) {
+                        setDimensions({
+                            width,
+                            height: mobile ? 120 : 150
+                        });
+                    }
                 }
             }
         };
 
-        window.addEventListener('resize', handleResize);
-        handleResize();
+        updateDimensions();
 
-        return () => window.removeEventListener('resize', handleResize);
+        let resizeObserver: ResizeObserver | null = null;
+        if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+            resizeObserver = new ResizeObserver(() => {
+                window.requestAnimationFrame(() => updateDimensions());
+            });
+            resizeObserver.observe(containerRef.current);
+        }
+
+        window.addEventListener('resize', updateDimensions);
+
+        return () => {
+            if (resizeObserver) resizeObserver.disconnect();
+            window.removeEventListener('resize', updateDimensions);
+        };
     }, [propWidth, propHeight]);
 
     // Draw Canvas
@@ -385,34 +400,6 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         return padding.left + (activeHoverPoint.dist / totalDist) * graphWidth;
     }, [activeHoverPoint, dimensions, showAxes, isMobile, totalDist]);
 
-    const clipPath = useMemo(() => {
-        if (variant !== 'overlay' || data.length === 0 || dimensions.width === 0) return null;
-
-        const { width, height } = dimensions;
-        let padding = showAxes 
-            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
-            : { top: 5, right: 5, bottom: 5, left: 5 };
-
-        if (variant === 'overlay' && !showAxes) {
-             padding = { top: 10, right: 10, bottom: 20, left: 10 };
-        }
-
-        const graphWidth = width - padding.left - padding.right;
-        const graphHeight = height - padding.top - padding.bottom;
-
-        const getX = (dist: number) => padding.left + (dist / totalDist) * graphWidth;
-        const getY = (ele: number) => padding.top + graphHeight - ((ele - minEle) / (maxEle - minEle)) * graphHeight;
-
-        let d = `M ${getX(data[0].dist)} ${getY(data[0].ele)}`;
-        for (let i = 1; i < data.length; i++) {
-            d += ` L ${getX(data[i].dist)} ${getY(data[i].ele)}`;
-        }
-        d += ` L ${getX(data[data.length - 1].dist)} ${height - padding.bottom}`;
-        d += ` L ${getX(data[0].dist)} ${height - padding.bottom}`;
-        d += ' Z';
-
-        return d;
-    }, [data, dimensions, showAxes, isMobile, totalDist, minEle, maxEle, variant]);
 
     if (!routeData || data.length === 0) return null;
 
@@ -438,13 +425,12 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
-            {variant === 'overlay' && clipPath && (
+            {variant === 'overlay' && (
                 <div 
                     className="absolute top-0 left-0 w-full h-full pointer-events-none"
                     style={{
                         backdropFilter: 'blur(2px)',
-                        WebkitBackdropFilter: 'blur(2px)',
-                        clipPath: `path('${clipPath}')`
+                        WebkitBackdropFilter: 'blur(2px)'
                     }}
                 />
             )}
