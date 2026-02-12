@@ -84,7 +84,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [hoverInfo, setHoverInfo] = useState<ElevationPoint | null>(null);
     const [internalCursor, setInternalCursor] = useState<[number, number] | null>(null);
-    const [showAttribution, setShowAttribution] = useState(true);
 
     const activeCursor = elevationCursor || internalCursor;
 
@@ -219,10 +218,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         map.on('rotate', () => {
             setRotation(map.getBearing());
-        });
-
-        map.once('movestart', () => {
-            setShowAttribution(false);
         });
 
         mapInstanceRef.current = map;
@@ -777,15 +772,13 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         >
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", minHeight: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
-            {showAttribution && (
-                <div className="absolute top-0 right-0 z-10 px-1 text-black/80 text-[10px] pointer-events-auto font-sans">
-                    <a href="https://versatiles.org" target="_blank" rel="noreferrer" className="hover:underline">VersaTiles</a>
-                    <span> | </span>
-                    <a href="https://maplibre.org" target="_blank" rel="noreferrer" className="hover:underline">MapLibre</a>
-                    <span> | </span>
-                    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="hover:underline">OpenStreetMap</a>
-                </div>
-            )}
+            <div className="absolute top-0 right-0 z-10 px-1 text-black/50 text-[10px] pointer-events-auto font-sans">
+                <a href="https://versatiles.org" target="_blank" rel="noreferrer" className="hover:underline">VersaTiles</a>
+                <span> | </span>
+                <a href="https://maplibre.org" target="_blank" rel="noreferrer" className="hover:underline">MapLibre</a>
+                <span> | </span>
+                <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="hover:underline">OpenStreetMap</a>
+            </div>
 
             {isFullscreen && currentRouteData && (
                 <div className={`absolute left-1/2 -translate-x-1/2 z-20 ${isMobile ? "bottom-[52px]" : "bottom-8"}`}>
