@@ -243,14 +243,14 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             
             if (variant === 'overlay') {
                 const gradient = drawCtx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-                const color = isDark ? '50, 50, 50' : '220, 220, 220'; // Gray base
-                gradient.addColorStop(0, `rgba(${color}, 7.0)`);
+                const color = isDark ? '00, 00, 00' : '200, 200, 200'; // Gray base
+                gradient.addColorStop(0, `rgba(${color}, 0.5)`);
                 gradient.addColorStop(1, `rgba(${color}, 0.0)`);
                 drawCtx.fillStyle = gradient;
             } else if (variant === 'inline') {
                 drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.6)' : 'rgba(220, 220, 220, 0.6)';
             } else {
-                drawCtx.fillStyle = isDark ? 'rgba(50, 50, 50, 0.6)' : 'rgba(220, 220, 220, 0.6)';
+                drawCtx.fillStyle = isDark ? 'rgba(20, 20, 20, 0.6)' : 'rgba(220, 220, 220, 0.6)';
             }
             drawCtx.fill();
         }
@@ -425,17 +425,6 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
-            {variant === 'overlay' && (
-                <div 
-                    className="absolute top-0 left-0 w-full h-full pointer-events-none"
-                    style={{
-                        backdropFilter: 'blur(2px)',
-                        WebkitBackdropFilter: 'blur(2px)',
-                        maskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)',
-                        WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)'
-                    }}
-                />
-            )}
             {variant === 'overlay' && (
                 <canvas
                     ref={bgCanvasRef}
