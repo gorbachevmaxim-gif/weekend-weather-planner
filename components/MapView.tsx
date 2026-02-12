@@ -205,7 +205,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
         const styleUrl = isDark 
             ? '/styles/style-dark.json'
-            : 'https://tiles.versatiles.org/assets/styles/graybeard/style.json';
+            : '/styles/style-light.json';
 
         const map = new maplibregl.Map({
             container: mapContainerRef.current,
