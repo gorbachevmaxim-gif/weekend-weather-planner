@@ -181,9 +181,9 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
           
           let textColorClass = "";
           if (isDark) {
-            if (isActive) textColorClass = "text-white md:hover:text-[#777777]";
+            if (isActive) textColorClass = "text-[#D9D9D9] md:hover:text-[#777777]";
             else if (isInactive) textColorClass = "text-[#383838] hover:text-[#777777]";
-            else textColorClass = "text-white hover:text-[#777777]";
+            else textColorClass = "text-[#D9D9D9] hover:text-[#777777]";
           } else {
             if (isActive) textColorClass = "text-[#333333] md:hover:text-[#777777]";
             else if (isInactive) textColorClass = "text-[#B2B2B2] hover:text-[#777777]";
@@ -214,7 +214,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                         return (
                           <button
                             key={city.cityName}
-                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                             onClick={() => onCityClick(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                           >
                             {city.cityName}{score !== undefined && <span className="text-[9px] relative -top-[3px] ml-1">{score}</span>}
@@ -225,13 +225,13 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                   )}
                   {section.w2Cities.length > 0 ? (
                     <div className="flex flex-wrap gap-0">
-                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
+                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#222222] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
                       {section.w2Cities.map((city: CityAnalysisResult) => {
                         const score = getCityScore(city, section, true);
                         return (
                           <button
                             key={city.cityName}
-                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#333333] text-white hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                             onClick={() => onCityClickW2(city.cityName, section.isStandard ? section.key : (section as any).dateStr)}
                           >
                             {city.cityName}{score !== undefined && <span className="text-[9px] relative -top-[3px] ml-1">{score}</span>}
@@ -241,8 +241,8 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                     </div>
                   ) : section.key === 'saturday' ? (
                     <div className="flex flex-wrap gap-0">
-                      <div className={`${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
-                      <div className={`text-black text-[13px] tracking-tighter rounded-full px-4 py-2 ${isDark ? "bg-[#777777]" : "bg-white"}`}>Везде осадки</div>
+                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#222222] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
+                      <div className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"}`}>Везде осадки</div>
                     </div>
                   ) : null}
                 </div>
@@ -259,8 +259,8 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
           <button
             className={`w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 ${
                 isDark 
-                ? (openSections.includes("cities") ? "text-white md:hover:text-[#777777]" : (openSections.length === 0 ? "text-white hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
-                : (openSections.includes("cities") ? "text-[#333333] md:hover:text-[#777777]" : (openSections.length === 0 ? "text-[#333333] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
+                ? (openSections.includes("cities") ? "text-[#D9D9D9] md:hover:text-[#777777]" : (openSections.length === 0 ? "text-[#D9D9D9] hover:text-[#777777]" : "text-[#383838] hover:text-[#777777]"))
+                : (openSections.includes("cities") ? "text-[#222222] md:hover:text-[#777777]" : (openSections.length === 0 ? "text-[#222222] hover:text-[#777777]" : "text-[#B2B2B2] hover:text-[#777777]"))
             }`}
             onClick={() => toggleSection("cities")}
           >
@@ -271,7 +271,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                   {sortedCities.map((city: string) => (
                 <button
                   key={city}
-                  className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#333333] text-white hover:bg-[#555555]" : "bg-white text-black hover:bg-pill-hover"}`}
+                  className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
                   onClick={() => onCityClick(city, "saturday")}
                 >
                   {city}
@@ -292,7 +292,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             rel="noopener noreferrer"
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
               isDark
-              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-[#D9D9D9]')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
             }`}            
           >
@@ -309,7 +309,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             onClick={onCommunityClick}
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
               isDark
-              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-[#D9D9D9]')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
             }`}            
           >
@@ -326,7 +326,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             onClick={onRulesClick}
             className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
               isDark
-              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-white')
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-[#D9D9D9]')
               : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
             }`}            
           >

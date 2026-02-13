@@ -276,14 +276,14 @@ const App: React.FC = () => {
 
     if (isDesktop) {
         return (
-            <div className={`min-h-screen ${theme === 'dark' ? "bg-[#111111] text-white" : "bg-[#F5F5F5] text-black"} relative transition-colors duration-700`}>
+            <div className={`min-h-screen ${theme === 'dark' ? "bg-[#111111] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"} relative transition-colors duration-700`}>
                 <Analytics />
                 <SpeedInsights />
                 {/* Slider */}
                 <div 
                     className={`fixed top-0 left-0 h-full w-[500px] z-50 ${theme === 'dark' ? "bg-[#111111]" : "bg-[#F5F5F5]"} shadow-2xl transform transition-transform duration-500 ease-in-out transition-colors duration-500 ${isSliderOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 >
-                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#111111] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
+                    <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#111111] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
                         <div className="w-full px-16">
                             <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-700 ${theme === 'dark' ? "bg-[#111111]" : "bg-[#F5F5F5]"}`}>
                                 <button
@@ -301,7 +301,7 @@ const App: React.FC = () => {
                     </div>
 
                     <div className={`flex justify-between items-center pt-[25px] pb-4 pr-[200px] pl-[53px]`}>
-                        <button onClick={() => setIsSliderOpen(false)} className={`p-2 ${theme === 'dark' ? "text-white hover:text-gray-300" : "text-black hover:text-gray-500"}`}>
+                        <button onClick={() => setIsSliderOpen(false)} className={`p-2 ${theme === 'dark' ? "text-[#D9D9D9] hover:text-gray-300" : "text-black hover:text-gray-500"}`}>
                             <svg className="translate-x-[4px]" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -310,7 +310,7 @@ const App: React.FC = () => {
                         <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                             <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
                         </button>
-                        <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                        <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-[#D9D9D9]" : "text-black"}`}>
                             <SquareLockIcon />
                         </button>
                     </div>
@@ -357,12 +357,12 @@ const App: React.FC = () => {
     return (
         <>
         <OrientationBlocker isDark={theme === 'dark'} />
-        <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#111111] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
+        <div className={`min-h-dvh pb-10 flex flex-col app-mobile-width ${theme === 'dark' ? "bg-[#111111] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
       <Analytics />
       <SpeedInsights />
       
       <div 
-        className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#111111] text-white" : "bg-[#F5F5F5] text-black"} transition-colors duration-700 ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-0 z-50 overflow-y-auto transition-transform duration-500 ease-in-out ${theme === 'dark' ? "bg-[#111111] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"} transition-colors duration-700 ${activeOverlay ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {(activeOverlay || lastActiveOverlayRef.current) && (
             <div className="w-full px-4">
@@ -395,7 +395,7 @@ const App: React.FC = () => {
                     <button className="flex items-center mt-[3px]" onClick={toggleTheme}>
                         <ThemeToggleIcon isDark={theme === 'dark'} width={60} height={31} />
                     </button>
-                    <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-white" : "text-black"}`}>
+                    <button onClick={handleLogout} className={`opacity-50 hover:opacity-100 ${theme === 'dark' ? "text-[#D9D9D9]" : "text-black"}`}>
                         <SquareLockIcon />
                     </button>
                 </div>

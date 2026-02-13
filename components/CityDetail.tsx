@@ -700,7 +700,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     {activeStats.clothingHints.map((hint: string) => (
                                         <span
                                             key={hint}
-                                            className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
+                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
                                         >
                                             {hint}
                                         </span>
@@ -730,7 +730,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <div className="mt-0 flex flex-wrap pl-0 gap-0">
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -757,7 +757,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 </div>
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -784,7 +784,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 </div>
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -811,7 +811,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 </div>
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
