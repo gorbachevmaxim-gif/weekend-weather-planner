@@ -12,7 +12,7 @@ interface RouteInfoProps {
 const renderWeatherValue = (value: string, unit: string) => (
     <p className="text-base font-unbounded font-bold text-black">
         {value.replace("-", "–")}
-        <span className="text-base font-unbounded font-bold" style={{ color: "#1E1E1E" }}>{unit.replace("-", "–")}</span>
+        <span className="text-base font-unbounded font-bold" style={{ color: "#111111" }}>{unit.replace("-", "–")}</span>
     </p>
 );
 
@@ -43,7 +43,7 @@ export const RouteInfo: React.FC<RouteInfoProps> = ({ currentRouteData, activeSt
                 {activeStats?.rideDuration && (
                     <div className="flex flex-col">
                         <p className="font-sans text-xs text-neutral-400">В СЕДЛЕ</p>
-                        <p className="text-base font-unbounded font-bold text-[#1E1E1E]">
+                        <p className="text-base font-unbounded font-bold text-[#111111]">
                             {activeStats.rideDuration}
                         </p>
                     </div>

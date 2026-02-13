@@ -8,7 +8,7 @@ export default {
   ],
   theme: {
     colors: {
-      "black": "#1E1E1E",
+      "black": "#111111",
       "white": "#FFFFFF",
       "transparent": "transparent",
       "custom-gray": "#777777",

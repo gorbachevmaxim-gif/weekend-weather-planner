@@ -13,7 +13,7 @@ const GastrodinamikaLogo: React.FC<LogoProps> = ({ percent = 0, className = "" }
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 842">
   <title>gastrodinamika_ronde_novo</title>
   <style>
-    .s0 { fill: none;stroke: #1E1E1E;stroke-linecap: round;stroke-linejoin: round;stroke-width: 20 }
+    .s0 { fill: none;stroke: #111111;stroke-linecap: round;stroke-linejoin: round;stroke-width: 20 }
   </style>
   <g id="Graphics 2 copy 2">
     <path id="Г" fill-rule="evenodd" class="s0" d="m137 200.9c0 0-8.9 10.7-21.3 30.5-12.5 19.7-18.9 32.6-18.9 32.6l250.9 124.3"/>
@@ -67,8 +67,8 @@ const GastrodinamikaLogo: React.FC<LogoProps> = ({ percent = 0, className = "" }
 
   // Wrapper divs: background (faded) + active (masked with conic-gradient)
   const maskStyle: React.CSSProperties = {
-    maskImage: `conic-gradient(from ${startAngle}deg, #1E1E1E ${percent}%, transparent ${percent}%)`,
-    WebkitMaskImage: `conic-gradient(from ${startAngle}deg, #1E1E1E ${percent}%, transparent ${percent}%)`
+    maskImage: `conic-gradient(from ${startAngle}deg, #111111 ${percent}%, transparent ${percent}%)`,
+    WebkitMaskImage: `conic-gradient(from ${startAngle}deg, #111111 ${percent}%, transparent ${percent}%)`
   };
 
   return (

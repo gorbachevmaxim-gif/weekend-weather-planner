@@ -366,7 +366,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const renderWeatherValue = (value: string, unit: string) => (
         <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
             {value.replace("-", "–")}
-            <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#1E1E1E" }}>{unit.replace("-", "–")}</span>
+            <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#111111" }}>{unit.replace("-", "–")}</span>
         </p>
     );
 
@@ -376,7 +376,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             {title === "ОСАДКИ" ? (
                 <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
                     {value}
-                    <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#1E1E1E" }}>{unit}</span>
+                    <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#111111" }}>{unit}</span>
                 </p>
             ) : (
                 renderWeatherValue(value, unit)
@@ -448,8 +448,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 className="group relative focus:outline-none"
                             >
                                 <ShareIcon width="24" height="24" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
-                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
-                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Отправить
                                 </div>
                             </button>
@@ -459,8 +459,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 className="group relative focus:outline-none"
                             >
                                 <GpxIcon width="24" height="24" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
-                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
-                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Скачать
                                 </div>
                             </button>
@@ -511,7 +511,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
                 <div className="flex flex-col">
                     <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                    <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-[#1E1E1E]"}`}>
+                    <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-[#111111]"}`}>
                         {calculateDuration(currentRouteData.distanceKm, speed)}
                     </p>
                 </div>
@@ -549,7 +549,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             />
             {isMapFullscreen && currentRouteData && (
                 <div 
-                    className={`absolute bottom-0 left-0 right-0 z-[60] p-4 pb-8 ${isDark ? "bg-[#1E1E1E]/90" : "bg-white/90"}`}
+                    className={`absolute bottom-0 left-0 right-0 z-[60] p-4 pb-8 ${isDark ? "bg-[#111111]/90" : "bg-white/90"}`}
                 >
                      <ElevationProfile 
                         routeData={currentRouteData}
@@ -627,7 +627,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const renderDetails = () => {
         const hasOpenSection = Object.values(openSections).some(Boolean);
         const inactiveColor = isDark ? 'text-[#777777]' : 'text-[#B2B2B2]';
-        const activeColor = isDark ? 'text-[#EEEEEE]' : 'text-[#1E1E1E]';
+        const activeColor = isDark ? 'text-[#EEEEEE]' : 'text-[#111111]';
         const linkClass = (baseClass: string) => 
             `${baseClass} ${!isDesktop && hasOpenSection ? inactiveColor : activeColor} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`;
 
@@ -747,11 +747,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     
                                     {showProfileTooltip && (
                                         <div 
-                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое в конце. (Формула ProCyclingStats)
-                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                         </div>
                                     )}
                                 </div>
@@ -774,11 +774,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     
                                     {showDifficultyTooltip && (
                                         <div 
-                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Бодрый – от 12 до 20. Легкий – менее 12.
-                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                         </div>
                                     )}
                                 </div>
@@ -801,11 +801,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     
                                     {showDistanceTooltip && (
                                         <div 
-                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.
-                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                         </div>
                                     )}
                                 </div>
@@ -828,11 +828,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     
                                     {showPaceTooltip && (
                                         <div 
-                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}
+                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             Темповой – средняя скорость в движении должна быть выше 33 км/ч. Такая средняя необходима как условие для большого райда от 160 до 200 км. Прогулочный – оптимальная средняя от 30 до 33 км/ч. 
-                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                         </div>
                                     )}
                                 </div>
@@ -907,8 +907,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     }
 
     return (
-        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-white" : "text-black"} transition-colors duration-700`} style={{ backgroundColor: isDark ? "#1E1E1E" : "#F5F5F5" }}>
-            <div className={`sticky top-0 z-10 pt-2 pb-2 border-b ${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-[#F5F5F5] border-[#D9D9D9]"} transition-colors duration-700`}>
+        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-white" : "text-black"} transition-colors duration-700`} style={{ backgroundColor: isDark ? "#111111" : "#F5F5F5" }}>
+            <div className={`sticky top-0 z-10 pt-2 pb-2 border-b ${isDark ? "bg-[#111111] border-[#333333]" : "bg-[#F5F5F5] border-[#D9D9D9]"} transition-colors duration-700`}>
                 <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
                     {allAvailableDays.map((dayItem: any) => {
                         const isSelected = dayItem.date.getTime().toString() === routeDay;

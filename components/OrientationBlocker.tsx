@@ -36,7 +36,7 @@ const OrientationBlocker: React.FC<OrientationBlockerProps> = ({ isDark = false 
   return (
     <div 
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6" 
-      style={{ backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }}
+      style={{ backgroundColor: isDark ? '#111111' : '#FFFFFF' }}
     >
         <div className="flex items-center justify-center">
             <GstrdnmcLogo 

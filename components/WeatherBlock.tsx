@@ -11,7 +11,7 @@ interface WeatherBlockProps {
 const renderWeatherValue = (value: string, unit: string) => (
     <p className="text-base font-unbounded font-bold text-black">
         {value.replace("-", "–")}
-        <span className="text-base font-unbounded font-bold" style={{ color: "#1E1E1E" }}>{unit.replace("-", "–")}</span>
+        <span className="text-base font-unbounded font-bold" style={{ color: "#111111" }}>{unit.replace("-", "–")}</span>
     </p>
 );
 
@@ -21,7 +21,7 @@ const renderWeatherBlock = (title: string, value: string, unit: string, subValue
         {title === "ОСАДКИ" ? (
             <p className="text-base font-unbounded font-bold text-black">
                 {value}
-                <span className="text-base font-unbounded font-bold" style={{ color: "#1E1E1E" }}>{unit}</span>
+                <span className="text-base font-unbounded font-bold" style={{ color: "#111111" }}>{unit}</span>
             </p>
         ) : (
             renderWeatherValue(value, unit)

@@ -502,7 +502,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     markerElement.appendChild(arrowWrapper);
                 }
 
-            const color = isDark ? "#FFFFFF" : "#1E1E1E";
+            const color = isDark ? "#FFFFFF" : "#111111";
             const outlineColor = isDark ? "rgb(19, 13, 8)" : "rgb(243, 242, 242)";
             const outlinePath = `<path d="M12 19V5M5 12l7-7 7 7" stroke="${outlineColor}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />`;
             const arrowHtml = `<div style="position: absolute; top: -33px; left: 50%; transform: translateX(-50%) rotate(180deg);"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${outlinePath}<path d="M12 19V5M5 12l7-7 7 7" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`;
@@ -806,7 +806,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             {!currentRouteData && routeStatus && routeStatus !== "Поиск..." && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
                     <div className="bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm">
-                        <p className="text-xs font-bold text-center text-[#1E1E1E]">
+                        <p className="text-xs font-bold text-center text-[#111111]">
                             {routeStatus}
                         </p>
                     </div>
@@ -826,8 +826,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         <ExpandIcon isDark={isDark} width={28} height={28} />
                     )}
                     {!isMobile && (
-                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
-                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                             {isFullscreen ? "Свернуть" : "Развернуть"}
                         </div>
                     )}
@@ -840,8 +840,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             onClick={handleZoomIn}
                         >
                             <PlusIcon isDark={isDark} width={28} height={28} />
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                 Поближе
                             </div>
                         </button>
@@ -851,8 +851,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             onClick={handleZoomOut}
                         >
                             <MinusIcon isDark={isDark} width={28} height={28} />
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                 Подальше
                             </div>
                         </button>
@@ -865,8 +865,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 >
                     <CenterIcon isDark={isDark} width={30} height={30} />
                     {!isMobile && (
-                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#1E1E1E] text-white"}`}>
-                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#1E1E1E]"}`}></div>
+                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                             Центрировать
                         </div>
                     )}
@@ -879,10 +879,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 key={idx}
                                 className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors font-unbounded text-xs font-medium ${
                                     selectedRouteIdx === idx
-                                        ? (isDark ? "bg-white text-[#1E1E1E]" : "bg-[#1E1E1E] text-white")
+                                        ? (isDark ? "bg-white text-[#111111]" : "bg-[#111111] text-white")
                                         : (isDark 
                                             ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
-                                            : "bg-white/90 text-[#1E1E1E] hover:bg-white active:bg-gray-100")
+                                            : "bg-white/90 text-[#111111] hover:bg-white active:bg-gray-100")
                                 }`}
                                 onClick={() => onRouteSelect(idx)}
                             >
@@ -915,7 +915,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                 style={{ transform: `rotate(${windDeg + 180 - rotation}deg)` }}
                             >
                                 <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "rgb(19, 13, 8)" : "rgb(243, 242, 242)"} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "#FFFFFF" : "#1E1E1E"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "#FFFFFF" : "#111111"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </div>
                         {(windSpeed || windDirection) && !windPos && (
