@@ -867,7 +867,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             return (
                                 <button
                                     key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
-                                    className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-700 ${
+                                    className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-200 ${
                                         isSelected 
                                             ? (isDark ? "text-[#D9D9D9]" : "text-[#111111]") 
                                             : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")
@@ -918,7 +918,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <button
                                 key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
                                 ref={isSelected ? activeDayRef : null}
-                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-700 ${
+                                className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-200 ${
                                     isSelected 
                                         ? (isDark ? "text-[#D9D9D9]" : "text-[#111111]") 
                                         : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")
