@@ -881,7 +881,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                                     selectedRouteIdx === idx
                                         ? (isDark ? "bg-white text-[#111111]" : "bg-[#111111] text-white")
                                         : (isDark 
-                                            ? "bg-[#333333]/90 text-white hover:bg-[#444444] active:bg-[#222222]" 
+                                            ? "bg-[#333333]/90 text-[#D9D9D9] hover:bg-[#444444] active:bg-[#222222]" 
                                             : "bg-white/90 text-[#111111] hover:bg-white active:bg-gray-100")
                                 }`}
                                 onClick={() => onRouteSelect(idx)}
@@ -921,12 +921,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         {(windSpeed || windDirection) && !windPos && (
                             <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 flex flex-col items-center w-max pointer-events-none">
                                 {windSpeed && (
-                                    <span className={`text-[13px] font-sans leading-none mb-0.5 ${isDark ? "text-[#EEEEEE]" : "text-[#444444]"}`}>
+                                    <span className={`text-[13px] font-sans leading-none mb-0.5 ${isDark ? "text-[#D9D9D9]" : "text-[#444444]"}`}>
                                         {getAverageWindSpeed(windSpeed)}
                                     </span>
                                 )}
                                 {windDirection && (
-                                    <span className={`text-[11px] uppercase font-sans leading-none ${isDark ? "text-[#EEEEEE]" : "text-[#444444]"}`}>
+                                    <span className={`text-[11px] uppercase font-sans leading-none ${isDark ? "text-[#D9D9D9]" : "text-[#444444]"}`}>
                                         {windDirection}
                                     </span>
                                 )}

@@ -364,9 +364,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const renderWeatherValue = (value: string, unit: string) => (
-        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
+        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
             {value.replace("-", "–")}
-            <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#111111" }}>{unit.replace("-", "–")}</span>
+            <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#D9D9D9" : "#111111" }}>{unit.replace("-", "–")}</span>
         </p>
     );
 
@@ -374,9 +374,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         <div className="flex flex-col">
             <p className="text-xs text-neutral-400">{title}</p>
             {title === "ОСАДКИ" ? (
-                <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
+                <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
                     {value}
-                    <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#EEEEEE" : "#111111" }}>{unit}</span>
+                    <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#D9D9D9" : "#111111" }}>{unit}</span>
                 </p>
             ) : (
                 renderWeatherValue(value, unit)
@@ -438,7 +438,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <div className="grid grid-cols-4 gap-4">
                         <div className="col-span-3 py-6">
                             <p className="text-xs text-neutral-400">МАРШРУТ</p>
-                            <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
+                            <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
                                 {routeStartCity}—{routeEndCity}
                             </p>
                         </div>
@@ -447,7 +447,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 onClick={handleForwardGpx}
                                 className="group relative focus:outline-none"
                             >
-                                <ShareIcon width="24" height="24" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <ShareIcon width="24" height="24" className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Отправить
@@ -458,7 +458,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 onClick={handleDownloadGpx}
                                 className="group relative focus:outline-none"
                             >
-                                <GpxIcon width="24" height="24" className={`${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <GpxIcon width="24" height="24" className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Скачать
@@ -469,7 +469,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 ) : (
                     <div>
                         <p className="text-xs text-neutral-400">МАРШРУТ</p>
-                        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-black"}`}>
+                        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
                             {routeStartCity}—{routeEndCity}
                         </p>
                     </div>
@@ -495,13 +495,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <div className="flex items-center gap-1.5">
                             <button 
                                 onClick={() => setSpeed(s => Math.max(23, s - 1))} 
-                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-0.5 text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
+                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-0.5 text-neutral-400 ${isDark ? "hover:text-[#D9D9D9] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
                             >
                                 −
                             </button>
                             <button 
                                 onClick={() => setSpeed(s => Math.min(38, s + 1))} 
-                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-1 text-neutral-400 ${isDark ? "hover:text-[#EEEEEE] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
+                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-1 text-neutral-400 ${isDark ? "hover:text-[#D9D9D9] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
                             >
                                 +
                             </button>
@@ -511,7 +511,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
                 <div className="flex flex-col">
                     <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                    <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#EEEEEE]" : "text-[#111111]"}`}>
+                    <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-[#111111]"}`}>
                         {calculateDuration(currentRouteData.distanceKm, speed)}
                     </p>
                 </div>
@@ -598,7 +598,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 <a
                     href="#"
                     onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
-                    className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                    className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
                 >
                     <span className="underline decoration-1 underline-offset-4">Отправить</span>
                     <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
@@ -610,7 +610,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     e.preventDefault(); 
                     handleDownloadGpx();
                 }}
-                className={`text-sm ${isDark ? "text-white" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
             >
                 <span className="underline decoration-1 underline-offset-4">{isDesktop ? "Скачать" : "Открыть"}</span>
                 <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: isDesktop ? "rotate(135deg)" : "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
@@ -627,7 +627,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const renderDetails = () => {
         const hasOpenSection = Object.values(openSections).some(Boolean);
         const inactiveColor = isDark ? 'text-[#777777]' : 'text-[#B2B2B2]';
-        const activeColor = isDark ? 'text-[#EEEEEE]' : 'text-[#111111]';
+        const activeColor = isDark ? 'text-[#D9D9D9]' : 'text-[#111111]';
         const linkClass = (baseClass: string) => 
             `${baseClass} ${!isDesktop && hasOpenSection ? inactiveColor : activeColor} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`;
 
@@ -700,14 +700,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     {activeStats.clothingHints.map((hint: string) => (
                                         <span
                                             key={hint}
-                                            className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
+                                            className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2`}
                                         >
                                             {hint}
                                         </span>
                                     ))}
                                 </div>
                             ) : (
-                                <div className={`mt-0 pl-0 ${isDark ? "text-[#EEEEEE]" : "text-[#222222]"} text-sm`}>
+                                <div className={`mt-0 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
                                     Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
                                 </div>
                             )}
@@ -730,7 +730,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <div className="mt-0 flex flex-wrap pl-0 gap-0">
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -757,7 +757,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 </div>
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -784,7 +784,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 </div>
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -811,7 +811,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 </div>
                                 <div className="relative inline-block">
                                     <button 
-                                        className={`${isDark ? "bg-[#333333] text-[#EEEEEE]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
+                                        className={`${isDark ? "bg-[#333333] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (isDesktop) {
@@ -847,11 +847,11 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     if (isDesktop) {
         return (
-            <div className={`w-full ${isDark ? "text-white" : "text-black"} transition-colors duration-700`}>
+            <div className={`w-full ${isDark ? "text-[#D9D9D9]" : "text-black"} transition-colors duration-700`}>
                 {/* Header: Burger + Days */}
                 <div className="w-full mb-6 flex items-center gap-4">
                     {onToggleSlider && (
-                        <button onClick={onToggleSlider} className={`p-2 ml-[7px] ${isDark ? "text-white" : "text-black"}`}>
+                        <button onClick={onToggleSlider} className={`p-2 ml-[7px] ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -869,7 +869,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     key={`${dayItem.weekend || ''}-${dayItem.id}-${dayItem.date.getTime()}`}
                                     className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-700 ${
                                         isSelected 
-                                            ? (isDark ? "text-[#EEEEEE]" : "text-[#111111]") 
+                                            ? (isDark ? "text-[#D9D9D9]" : "text-[#111111]") 
                                             : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")
                                     }`}
                                     onClick={() => setRouteDay(dayItem.date.getTime().toString())}
@@ -907,7 +907,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     }
 
     return (
-        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-white" : "text-black"} transition-colors duration-700`} style={{ backgroundColor: isDark ? "#111111" : "#F5F5F5" }}>
+        <div className={`mx-auto flex-grow flex flex-col w-full ${isDark ? "text-[#D9D9D9]" : "text-black"} transition-colors duration-700`} style={{ backgroundColor: isDark ? "#111111" : "#F5F5F5" }}>
             <div className={`sticky top-0 z-10 pt-2 pb-2 border-b ${isDark ? "bg-[#111111] border-[#333333]" : "bg-[#F5F5F5] border-[#D9D9D9]"} transition-colors duration-700`}>
                 <div className="flex items-center px-4 overflow-x-auto no-scrollbar whitespace-nowrap gap-4">
                     {allAvailableDays.map((dayItem: any) => {
@@ -920,7 +920,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 ref={isSelected ? activeDayRef : null}
                                 className={`text-[26px] font-unbounded font-medium shrink-0 transition-colors duration-700 ${
                                     isSelected 
-                                        ? (isDark ? "text-[#EEEEEE]" : "text-[#111111]") 
+                                        ? (isDark ? "text-[#D9D9D9]" : "text-[#111111]") 
                                         : (isDark ? "text-[#777777] hover:text-[#aaaaaa]" : "text-[#B2B2B2] hover:text-[#777777]")
                                 }`}
                                 onClick={() => {
