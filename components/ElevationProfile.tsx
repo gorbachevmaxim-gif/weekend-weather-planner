@@ -276,6 +276,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
 
+        // For overlay variant, use solid color based on theme
+        const lineColor = variant === 'overlay' 
+            ? (isDark ? '#888888' : '#646464') 
+            : null;
+
         for (let i = 0; i < data.length - 1; i++) {
             const p1 = data[i];
             const p2 = data[i+1];
@@ -283,8 +288,8 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.beginPath();
             ctx.moveTo(getX(p1.dist), getY(p1.ele));
             ctx.lineTo(getX(p2.dist), getY(p2.ele));
-            // Use color of the segment (approx by p2 gradient or average)
-            ctx.strokeStyle = getGradientColor(p2.gradient);
+            // Use solid color for overlay variant, gradient color otherwise
+            ctx.strokeStyle = lineColor || getGradientColor(p2.gradient);
             ctx.stroke();
         }
 
