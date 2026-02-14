@@ -937,7 +937,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             {!isMobile && (
                                 <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Инфотрекер профиля
+                                    Листать инфотрекер
                                 </div>
                             )}
                         </button>
@@ -953,7 +953,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             {!isMobile && (
                                 <div className={`absolute left-full top-0 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute left-[-2px] top-2.5 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Средняя скорость
+                                    Менять темп
                                 </div>
                             )}
                         </button>
