@@ -858,15 +858,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
 
             {/* Top-left controls */}
-            <div className="absolute left-4 top-4 z-20 flex flex-col items-center gap-2">
+            <div className="absolute left-4 top-4 z-20 flex flex-col items-start gap-2">
                 <button
                     className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
                     onClick={toggleFullscreen}
                 >
                     {isFullscreen ? (
-                        <EscIcon isDark={isDark} width={28} height={28} />
+                        <EscIcon isDark={isDark} width={40} height={40} />
                     ) : (
-                        <ExpandIcon isDark={isDark} width={28} height={28} />
+                        <ExpandIcon isDark={isDark} width={40} height={40} />
                     )}
                     {!isMobile && (
                         <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
@@ -882,7 +882,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
                             onClick={handleZoomIn}
                         >
-                            <PlusIcon isDark={isDark} width={28} height={28} />
+                            <PlusIcon isDark={isDark} width={40} height={40} />
                             <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                 <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                 Поближе
@@ -893,7 +893,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                             className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
                             onClick={handleZoomOut}
                         >
-                            <MinusIcon isDark={isDark} width={28} height={28} />
+                            <MinusIcon isDark={isDark} width={40} height={40} />
                             <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                 <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                 Подальше
@@ -918,33 +918,33 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {isFullscreen && (
                     <>
                         <button
-                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            className="w-12 h-12 rounded-md flex items-center justify-center transition-colors relative group"
                             onClick={() => {
                                 // Dispatch custom event for option button
                                 window.dispatchEvent(new CustomEvent('option-click'));
                             }}
                         >
-                            <OptionIcon isDark={isDark} width={28} height={28} />
+                            <OptionIcon isDark={isDark} width={44} height={24} />
                             {!isMobile && (
                                 <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Опция
+                                    Инфотрекер профиля
                                 </div>
                             )}
                         </button>
 
                         <button
-                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            className="w-12 h-12 rounded-md flex items-left justify-center transition-colors relative group"
                             onClick={() => {
                                 // Dispatch custom event for shift button
                                 window.dispatchEvent(new CustomEvent('shift-click'));
                             }}
                         >
-                            <ShiftIcon isDark={isDark} width={28} height={28} />
+                            <ShiftIcon isDark={isDark} width={42} height={24} />
                             {!isMobile && (
                                 <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Скорость
+                                    Средняя скорость
                                 </div>
                             )}
                         </button>
