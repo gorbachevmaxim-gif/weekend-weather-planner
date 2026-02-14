@@ -818,7 +818,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         >
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", minHeight: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             
-            <div className="absolute top-0 right-0 z-10 px-1 text-black/50 text-[10px] pointer-events-auto font-sans">
+            <div className={`absolute top-0 right-0 z-10 px-1 text-[10px] pointer-events-auto font-sans ${isDark ? "text-[#333333]" : "text-black/50"}`}>
                 <a href="https://versatiles.org" target="_blank" rel="noreferrer" className="hover:underline">VersaTiles</a>
                 <span> | </span>
                 <a href="https://maplibre.org" target="_blank" rel="noreferrer" className="hover:underline">MapLibre</a>
@@ -884,32 +884,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         </div>
                     )}
                 </button>
-
-                {!isMobile && !isFullscreen && (
-                    <>
-                        <button
-                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
-                            onClick={handleZoomIn}
-                        >
-                            <PlusIcon isDark={isDark} width={40} height={40} />
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                Поближе
-                            </div>
-                        </button>
-
-                        <button
-                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
-                            onClick={handleZoomOut}
-                        >
-                            <MinusIcon isDark={isDark} width={40} height={40} />
-                            <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                Подальше
-                            </div>
-                        </button>
-                    </>
-                )}
 
                 <button
                     className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"

@@ -652,7 +652,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const showNewInfotracker = variant === 'overlay' && activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null;
 
     // Fixed width for infotracker to prevent resizing
-    const infotrackerWidth = 250;
+    const infotrackerWidth = 110;
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
