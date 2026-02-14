@@ -569,13 +569,14 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             },
             // Mode B: Время до финиша, дистанция до финиша
             modeB: {
-                timeToFinish: `${Math.floor(timeToFinish)}:${(Math.round((timeToFinish - Math.floor(timeToFinish)) * 60)).toString().padStart(2, '0')}`,
+                timeToFinish: `${Math.floor(totalDist / targetSpeed)}:${(Math.round(((totalDist / targetSpeed) - Math.floor(totalDist / targetSpeed)) * 60)).toString().padStart(2, '0')}`,
                 distToFinish: `${Math.round(distToFinish)} км`,
                 label: 'ДО ФИНИША'
             },
             // Mode C: Время в седле, текущая скорость, темп
+            // Calculate as ratio of total distance to selected average speed (TEMPO)
             modeC: {
-                timeInSaddle: `${Math.floor(timeToFinish)}:${(Math.round((timeToFinish - Math.floor(timeToFinish)) * 60)).toString().padStart(2, '0')} в седле`,
+                timeInSaddle: `${Math.floor(totalDist / targetSpeed)}:${(Math.round(((totalDist / targetSpeed) - Math.floor(totalDist / targetSpeed)) * 60)).toString().padStart(2, '0')} в седле`,
                 currentSpeed: `${Math.round(activeHoverPoint.speed)} км/ч`,
                 pace: targetSpeed,
                 label: `ТЕМП ${Math.round(targetSpeed)} км/ч`
