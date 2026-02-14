@@ -109,3 +109,9 @@ body {
   0% { transform: translateX(-25%); }
   100% { transform: translateX(0); }
 }
+
+/* Fix canvas blur issues */
+canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
