@@ -159,7 +159,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                     if (width > 0) {
                         setDimensions({
                             width,
-                            height: mobile ? 120 : 150
+                            height: mobile ? 150 : 150
                         });
                     }
                 }
