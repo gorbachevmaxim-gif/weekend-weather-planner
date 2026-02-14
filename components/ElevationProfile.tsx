@@ -439,6 +439,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             <canvas
                 ref={canvasRef}
                 className="block cursor-crosshair touch-none relative z-10"
+                style={{ imageRendering: 'auto' }}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={handleMouseMove}
