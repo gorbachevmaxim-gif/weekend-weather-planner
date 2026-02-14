@@ -918,13 +918,13 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 {isFullscreen && (
                     <>
                         <button
-                            className="w-12 h-12 rounded-md flex items-center justify-center transition-colors relative group"
+                            className="w-12 h-12 rounded-md flex items-center justify-center transition-colors relative group mt-[-8px]"
                             onClick={() => {
                                 // Dispatch custom event for option button
                                 window.dispatchEvent(new CustomEvent('option-click'));
                             }}
                         >
-                            <OptionIcon isDark={isDark} width={44} height={24} />
+                            <OptionIcon isDark={isDark} width={53} height={29} />
                             {!isMobile && (
                                 <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
@@ -934,16 +934,16 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         </button>
 
                         <button
-                            className="w-12 h-12 rounded-md flex items-left justify-center transition-colors relative group"
+                            className="w-13 h-12 rounded-md flex items-left justify-center transition-colors relative group mt-[-4px]"
                             onClick={() => {
                                 // Dispatch custom event for shift button
                                 window.dispatchEvent(new CustomEvent('shift-click'));
                             }}
                         >
-                            <ShiftIcon isDark={isDark} width={42} height={24} />
+                            <ShiftIcon isDark={isDark} width={47} height={27} />
                             {!isMobile && (
-                                <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                <div className={`absolute left-full top-0 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute left-[-2px] top-2.5 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Средняя скорость
                                 </div>
                             )}
