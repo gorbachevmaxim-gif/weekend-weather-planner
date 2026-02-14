@@ -36,6 +36,7 @@ interface MapViewProps {
     startTemp?: number;
     endTemp?: number;
     elevationCursor?: [number, number] | null;
+    onElevationHover?: (point: ElevationPoint | null) => void;
     hourlyWind?: number[];
     hourlyWindDir?: number[];
     isMountainRegion?: boolean;
@@ -81,7 +82,7 @@ const getPlacementClasses = (deg?: number) => {
     }
 };
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace: initialPace = 25, onTargetSpeedChange, startTemp, endTemp, elevationCursor, hourlyWind, hourlyWindDir, isMountainRegion = false, startCityName, endCityName }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace: initialPace = 25, onTargetSpeedChange, startTemp, endTemp, elevationCursor, onElevationHover, hourlyWind, hourlyWindDir, isMountainRegion = false, startCityName, endCityName }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
@@ -796,12 +797,19 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             setInternalCursor([point.lat, point.lon]);
             setHoverInfo(point);
             setWindPos(null);
+            // Sync with external state (for CityDetail's elevationHoverPoint)
+            if (onElevationHover) {
+                onElevationHover(point);
+            }
         } else {
             setInternalCursor(null);
             setHoverInfo(null);
             setWindPos(null);
+            if (onElevationHover) {
+                onElevationHover(null);
+            }
         }
-    }, []);
+    }, [onElevationHover]);
 
     return (
         <div 
