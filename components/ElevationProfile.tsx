@@ -517,7 +517,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             },
             // Mode D: Оставшийся набор высоты, текущий набор со старта
             modeD: {
-                remainingElevation: `-${Math.round(remainingElevationGain)} м`,
+                remainingElevation: `+${Math.round(remainingElevationGain)} м`,
                 currentElevationGain: `${Math.round(activeHoverPoint.realCumElevation)} м`,
                 label: 'НАБОР'
             },
@@ -587,7 +587,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const showNewInfotracker = variant === 'overlay' && activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null;
 
     // Fixed width for infotracker to prevent resizing
-    const infotrackerWidth = 120;
+    const infotrackerWidth = 250;
 
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
@@ -615,7 +615,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                         width: infotrackerWidth,
                     }}
                 >
-                    <div className={`flex flex-col items-center justify-center py-2 px-3 w-full ${
+                    <div className={`flex flex-col items-center justify-center py-2 px-3 w-full whitespace-nowrap ${
                         isDark ? 'text-white' : 'text-black'
                     }`}>
                         {renderInfotrackerContent()}
