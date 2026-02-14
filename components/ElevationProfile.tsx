@@ -575,7 +575,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             },
             // Mode C: Время в седле, текущая скорость, темп
             modeC: {
-                timeInSaddle: `${Math.floor(activeHoverPoint.time)}:${(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')} в седле`,
+                timeInSaddle: `${Math.floor(timeToFinish)}:${(Math.round((timeToFinish - Math.floor(timeToFinish)) * 60)).toString().padStart(2, '0')} в седле`,
                 currentSpeed: `${Math.round(activeHoverPoint.speed)} км/ч`,
                 pace: targetSpeed,
                 label: `ТЕМП ${Math.round(targetSpeed)} км/ч`
