@@ -836,6 +836,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         showAxes={false}
                         variant="overlay"
                         showTooltip={true}
+                        showTooltipOnLoad={true}
                         externalHoverPoint={hoverInfo}
                         onHover={handleProfileHover}
                         targetSpeed={pace}

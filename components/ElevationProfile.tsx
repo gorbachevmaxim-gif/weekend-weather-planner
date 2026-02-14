@@ -29,6 +29,8 @@ interface ElevationProfileProps {
     endCityName?: string;
     onOptionClick?: () => void;
     onShiftClick?: () => void;
+    showTooltipOnLoad?: boolean;
+    initialHoverPoint?: ElevationPoint | null;
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -63,7 +65,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     startCityName,
     endCityName,
     onOptionClick,
-    onShiftClick
+    onShiftClick,
+    showTooltipOnLoad = false,
+    initialHoverPoint: propInitialHoverPoint
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -142,6 +146,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         }
     }, [variant, activeHoverPoint, handleKeyDown]);
 
+    // Handle initial hover point - show tooltip at start point on load
     const data = useMemo(() => {
         if (!routeData) return [];
         return calculateElevationProfile(
@@ -151,6 +156,18 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             isMountainRegion
         );
     }, [routeData, targetSpeed, isMountainRegion]);
+
+    useEffect(() => {
+        // If overlay mode and showTooltipOnLoad is true, set initial hover to first point (start)
+        if (variant === 'overlay' && showTooltipOnLoad && data.length > 0 && !internalHoverPoint && !externalHoverPoint) {
+            // Use initialHoverPoint prop if provided, otherwise use first data point
+            const startPoint = propInitialHoverPoint || data[0];
+            setInternalHoverPoint(startPoint);
+            if (onHover) {
+                onHover(startPoint);
+            }
+        }
+    }, [variant, showTooltipOnLoad, data, internalHoverPoint, externalHoverPoint, propInitialHoverPoint, onHover]);
 
     const { minEle, maxEle, totalDist, totalTime, step } = useMemo(() => {
         if (data.length === 0) return { minEle: 0, maxEle: 0, totalDist: 0, totalTime: 0, step: 10 };
