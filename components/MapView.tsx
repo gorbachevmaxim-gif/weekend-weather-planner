@@ -89,6 +89,11 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     const activeCursor = elevationCursor || internalCursor;
 
+    // Sync internal pace state when initialPace prop changes (e.g., when speed is updated in CityDetail)
+    useEffect(() => {
+        setPace(initialPace);
+    }, [initialPace]);
+
     // Handle speed change from ElevationProfile
     const handleTargetSpeedChange = useCallback((newSpeed: number) => {
         setPace(newSpeed);

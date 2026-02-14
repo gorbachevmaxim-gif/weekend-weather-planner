@@ -540,6 +540,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 selectedRouteIdx={selectedRouteIdx}
                 onRouteSelect={setSelectedRouteIdx}
                 pace={speed}
+                onTargetSpeedChange={setSpeed}
                 startTemp={activeStats?.startTemperature}
                 endTemp={activeStats?.endTemperature}
                 elevationCursor={elevationHoverPoint ? [elevationHoverPoint.lat, elevationHoverPoint.lon] : null}
