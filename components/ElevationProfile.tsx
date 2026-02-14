@@ -431,8 +431,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     };
 
     const handleMouseLeave = () => {
-        setInternalHoverPoint(null);
-        if (onHover) onHover(null);
+        // In overlay mode, keep the tooltip visible even when cursor leaves the chart area
+        if (variant !== 'overlay') {
+            setInternalHoverPoint(null);
+            if (onHover) onHover(null);
+        }
     };
 
     // Calculate tooltip position
