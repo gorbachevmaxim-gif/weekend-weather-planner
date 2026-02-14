@@ -4,6 +4,8 @@ import MinusIcon from "./icons/MinusIcon";
 import CenterIcon from "./icons/CenterIcon";
 import EscIcon from "./icons/EscIcon";
 import ExpandIcon from "./icons/ExpandIcon";
+import OptionIcon from "./icons/OptionIcon";
+import ShiftIcon from "./icons/ShiftIcon";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
 import { calculateElevationProfile, ElevationPoint } from "../utils/elevationUtils";
@@ -874,7 +876,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                     )}
                 </button>
 
-                {!isMobile && (
+                {!isMobile && !isFullscreen && (
                     <>
                         <button
                             className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
@@ -912,6 +914,42 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         </div>
                     )}
                 </button>
+
+                {isFullscreen && (
+                    <>
+                        <button
+                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            onClick={() => {
+                                // Dispatch custom event for option button
+                                window.dispatchEvent(new CustomEvent('option-click'));
+                            }}
+                        >
+                            <OptionIcon isDark={isDark} width={28} height={28} />
+                            {!isMobile && (
+                                <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                    Опция
+                                </div>
+                            )}
+                        </button>
+
+                        <button
+                            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
+                            onClick={() => {
+                                // Dispatch custom event for shift button
+                                window.dispatchEvent(new CustomEvent('shift-click'));
+                            }}
+                        >
+                            <ShiftIcon isDark={isDark} width={28} height={28} />
+                            {!isMobile && (
+                                <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                    Скорость
+                                </div>
+                            )}
+                        </button>
+                    </>
+                )}
 
                 {routeCount > 1 && onRouteSelect && (
                     <>

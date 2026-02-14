@@ -27,6 +27,8 @@ interface ElevationProfileProps {
     totalElevationGain?: number;
     startCityName?: string;
     endCityName?: string;
+    onOptionClick?: () => void;
+    onShiftClick?: () => void;
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -59,7 +61,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     routeDistanceKm,
     totalElevationGain,
     startCityName,
-    endCityName
+    endCityName,
+    onOptionClick,
+    onShiftClick
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -70,6 +74,41 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const [infotrackerMode, setInfotrackerMode] = useState<InfotrackerMode>('B');
 
     const activeHoverPoint = internalHoverPoint || externalHoverPoint;
+
+    // Handle Option button click - cycles through info blocks
+    const handleOptionClick = useCallback(() => {
+        if (variant !== 'overlay' || !activeHoverPoint) return;
+        setInfotrackerMode(prev => {
+            const modes: InfotrackerMode[] = ['B', 'A', 'C', 'D', 'E'];
+            const currentIndex = modes.indexOf(prev);
+            return modes[(currentIndex + 1) % modes.length];
+        });
+    }, [variant, activeHoverPoint]);
+
+    // Handle Shift button click - cycles through speed values
+    const handleShiftClick = useCallback(() => {
+        if (variant !== 'overlay' || !activeHoverPoint) return;
+        const currentIndex = SPEED_VALUES.indexOf(targetSpeed);
+        const nextIndex = (currentIndex + 1) % SPEED_VALUES.length;
+        const newSpeed = SPEED_VALUES[nextIndex];
+        if (onTargetSpeedChange) {
+            onTargetSpeedChange(newSpeed);
+        }
+    }, [variant, activeHoverPoint, targetSpeed, onTargetSpeedChange]);
+
+    // Listen for custom events from MapView buttons
+    useEffect(() => {
+        const handleOptionEvent = () => handleOptionClick();
+        const handleShiftEvent = () => handleShiftClick();
+
+        window.addEventListener('option-click', handleOptionEvent);
+        window.addEventListener('shift-click', handleShiftEvent);
+
+        return () => {
+            window.removeEventListener('option-click', handleOptionEvent);
+            window.removeEventListener('shift-click', handleShiftEvent);
+        };
+    }, [handleOptionClick, handleShiftClick]);
 
     // Keyboard navigation for infotracker modes
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
