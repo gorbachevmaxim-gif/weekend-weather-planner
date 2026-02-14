@@ -114,14 +114,19 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         );
     }, [currentRouteData, pace, isMountainRegion]);
 
-    // Set cursor to start of route when entering fullscreen mode
-    // Only trigger on isFullscreen change, not when elevationData changes (e.g. when speed changes)
+    // Update hoverInfo when elevationData changes (e.g. when speed changes) to recalculate time/speed values
+    // while keeping the cursor at the same geographic position
     useEffect(() => {
-        if (isFullscreen && elevationData.length > 0) {
-            setHoverInfo(elevationData[0]);
-            setInternalCursor([elevationData[0].lat, elevationData[0].lon]);
+        if (hoverInfo && elevationData.length > 0) {
+            // Find the point in new elevationData that has the same lat/lon as current hoverInfo
+            const matchingPoint = elevationData.find(
+                p => Math.abs(p.lat - hoverInfo.lat) < 0.0001 && Math.abs(p.lon - hoverInfo.lon) < 0.0001
+            );
+            if (matchingPoint) {
+                setHoverInfo(matchingPoint);
+            }
         }
-    }, [isFullscreen]);
+    }, [elevationData]);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const windDragRef = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
