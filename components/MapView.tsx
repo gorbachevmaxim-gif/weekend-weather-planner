@@ -30,6 +30,7 @@ interface MapViewProps {
     selectedRouteIdx?: number;
     onRouteSelect?: (idx: number) => void;
     pace?: number;
+    onTargetSpeedChange?: (speed: number) => void;
     startTemp?: number;
     endTemp?: number;
     elevationCursor?: [number, number] | null;
@@ -76,7 +77,7 @@ const getPlacementClasses = (deg?: number) => {
     }
 };
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace = 25, startTemp, endTemp, elevationCursor, hourlyWind, hourlyWindDir, isMountainRegion = false }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace: initialPace = 25, onTargetSpeedChange, startTemp, endTemp, elevationCursor, hourlyWind, hourlyWindDir, isMountainRegion = false }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
@@ -84,8 +85,17 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [hoverInfo, setHoverInfo] = useState<ElevationPoint | null>(null);
     const [internalCursor, setInternalCursor] = useState<[number, number] | null>(null);
+    const [pace, setPace] = useState(initialPace);
 
     const activeCursor = elevationCursor || internalCursor;
+
+    // Handle speed change from ElevationProfile
+    const handleTargetSpeedChange = useCallback((newSpeed: number) => {
+        setPace(newSpeed);
+        if (onTargetSpeedChange) {
+            onTargetSpeedChange(newSpeed);
+        }
+    }, [onTargetSpeedChange]);
 
     const elevationData = useMemo(() => {
         if (!currentRouteData) return [];
@@ -793,12 +803,15 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         externalHoverPoint={hoverInfo}
                         onHover={handleProfileHover}
                         targetSpeed={pace}
+                        onTargetSpeedChange={handleTargetSpeedChange}
                         isMountainRegion={isMountainRegion}
                         startTemp={startTemp}
                         endTemp={endTemp}
                         hourlyWind={hourlyWind}
                         hourlyWindDir={hourlyWindDir}
                         tooltipOffset={2}
+                        routeDistanceKm={currentRouteData?.distanceKm}
+                        totalElevationGain={currentRouteData?.elevationM}
                     />
                 </div>
             )}

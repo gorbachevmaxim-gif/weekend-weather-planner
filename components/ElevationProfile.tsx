@@ -1,11 +1,14 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import { RouteData } from '../services/gpxUtils';
 import { calculateElevationProfile, getGradientColor, ElevationPoint } from '../utils/elevationUtils';
+
+type InfotrackerMode = 'A' | 'B' | 'C' | 'D' | 'E';
 
 interface ElevationProfileProps {
     routeData: RouteData | null;
     isDark?: boolean;
     targetSpeed?: number;
+    onTargetSpeedChange?: (speed: number) => void;
     isMountainRegion?: boolean;
     onHover?: (point: ElevationPoint | null) => void;
     startTemp?: number;
@@ -20,6 +23,8 @@ interface ElevationProfileProps {
     showTooltip?: boolean;
     tooltipOffset?: number;
     variant?: 'default' | 'inline' | 'overlay';
+    routeDistanceKm?: number;
+    totalElevationGain?: number;
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -28,10 +33,13 @@ const getWindDirectionText = (deg: number) => {
     return directions[index];
 };
 
+const SPEED_VALUES = [30, 31, 32, 33, 34, 35, 36, 37, 38, 23];
+
 const ElevationProfile: React.FC<ElevationProfileProps> = ({ 
     routeData, 
     isDark = false, 
     targetSpeed = 30.0,
+    onTargetSpeedChange,
     isMountainRegion = false,
     onHover,
     startTemp,
@@ -45,7 +53,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     showAxes = true,
     showTooltip = true,
     tooltipOffset = -10,
-    variant = 'default'
+    variant = 'default',
+    routeDistanceKm,
+    totalElevationGain
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,8 +63,41 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const [internalHoverPoint, setInternalHoverPoint] = useState<ElevationPoint | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: propHeight || 200 });
     const [isMobile, setIsMobile] = useState(false);
+    const [infotrackerMode, setInfotrackerMode] = useState<InfotrackerMode>('A');
 
     const activeHoverPoint = internalHoverPoint || externalHoverPoint;
+
+    // Keyboard navigation for infotracker modes
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+        if (variant !== 'overlay' || !activeHoverPoint) return;
+        
+        // Option (Alt on Windows) key cycles through info blocks
+        if (e.altKey) {
+            e.preventDefault();
+            setInfotrackerMode(prev => {
+                const modes: InfotrackerMode[] = ['A', 'B', 'C', 'D', 'E'];
+                const currentIndex = modes.indexOf(prev);
+                return modes[(currentIndex + 1) % modes.length];
+            });
+        }
+        // Shift key cycles through speed values
+        else if (e.shiftKey) {
+            e.preventDefault();
+            const currentIndex = SPEED_VALUES.indexOf(targetSpeed);
+            const nextIndex = (currentIndex + 1) % SPEED_VALUES.length;
+            const newSpeed = SPEED_VALUES[nextIndex];
+            if (onTargetSpeedChange) {
+                onTargetSpeedChange(newSpeed);
+            }
+        }
+    }, [variant, activeHoverPoint, targetSpeed, onTargetSpeedChange]);
+
+    useEffect(() => {
+        if (variant === 'overlay' && activeHoverPoint) {
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [variant, activeHoverPoint, handleKeyDown]);
 
     const data = useMemo(() => {
         if (!routeData) return [];
@@ -428,6 +471,124 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             boxShadow: 'none'
         };
 
+    // Calculate data for infotracker modes
+    const infotrackerData = useMemo(() => {
+        if (!activeHoverPoint) return null;
+
+        const timeToFinish = Math.max(0, totalTime - activeHoverPoint.time);
+        const distToFinish = Math.max(0, totalDist - activeHoverPoint.dist);
+        
+        // Calculate remaining elevation gain (from current point to end)
+        // Using the route's total elevation gain minus what we've gained so far
+        const remainingElevationGain = totalElevationGain 
+            ? Math.max(0, totalElevationGain - Math.round(activeHoverPoint.realCumElevation))
+            : 0;
+
+        // Current temperature at cursor position
+        const currentTemp = (startTemp !== undefined && endTemp !== undefined && totalTime > 0)
+            ? Math.round(startTemp + (endTemp - startTemp) * (activeHoverPoint.time / totalTime))
+            : null;
+
+        // Wind data at cursor position
+        const windTimeIdx = Math.min(Math.round(activeHoverPoint.time + 1), (hourlyWind?.length || 1) - 1);
+        const currentWindSpeed = hourlyWind?.[windTimeIdx] ? Math.round(hourlyWind[windTimeIdx]) : null;
+        const currentWindDir = hourlyWindDir?.[windTimeIdx];
+        const windDirText = currentWindDir !== undefined ? getWindDirectionText(currentWindDir) : null;
+
+        return {
+            // Mode A: Время от старта, дистанция от старта
+            modeA: {
+                timeFromStart: `${Math.floor(activeHoverPoint.time)}:${(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')}`,
+                distFromStart: `${Math.round(activeHoverPoint.dist)} км`,
+                label: 'ОТ СТАРТА'
+            },
+            // Mode B: Время до финиша, дистанция до финиша
+            modeB: {
+                timeToFinish: `${Math.floor(timeToFinish)}:${(Math.round((timeToFinish - Math.floor(timeToFinish)) * 60)).toString().padStart(2, '0')}`,
+                distToFinish: `${Math.round(distToFinish)} км`,
+                label: 'ДО ФИНИША'
+            },
+            // Mode C: Время в седле, текущая скорость, темп
+            modeC: {
+                timeInSaddle: `${Math.floor(activeHoverPoint.time)}:${(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')} в седле`,
+                currentSpeed: `${Math.round(activeHoverPoint.speed)} км/ч`,
+                pace: targetSpeed,
+                label: `ТЕМП ${Math.round(targetSpeed)} км/ч`
+            },
+            // Mode D: Оставшийся набор высоты, текущий набор со старта
+            modeD: {
+                remainingElevation: `-${Math.round(remainingElevationGain)} м`,
+                currentElevationGain: `${Math.round(activeHoverPoint.realCumElevation)} м`,
+                label: 'НАБОР'
+            },
+            // Mode E: Ветер, температура, высота
+            modeE: {
+                wind: windDirText && currentWindSpeed 
+                    ? `${windDirText} ${currentWindSpeed} км/ч` 
+                    : windDirText || (currentWindSpeed ? `${currentWindSpeed} км/ч` : '-'),
+                temperature: currentTemp !== null ? `${currentTemp}°` : '-',
+                elevation: `${Math.round(activeHoverPoint.originalEle)} м`,
+                label: ''
+            }
+        };
+    }, [activeHoverPoint, totalTime, totalDist, targetSpeed, startTemp, endTemp, hourlyWind, hourlyWindDir, totalElevationGain]);
+
+    // Render infotracker content based on mode
+    const renderInfotrackerContent = () => {
+        if (!infotrackerData) return null;
+
+        switch (infotrackerMode) {
+            case 'A':
+                return (
+                    <>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeA.timeFromStart}</div>
+                        <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeA.distFromStart}</div>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeA.label}</div>
+                    </>
+                );
+            case 'B':
+                return (
+                    <>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeB.timeToFinish}</div>
+                        <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeB.distToFinish}</div>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeB.label}</div>
+                    </>
+                );
+            case 'C':
+                return (
+                    <>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeC.timeInSaddle}</div>
+                        <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeC.currentSpeed}</div>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeC.label}</div>
+                    </>
+                );
+            case 'D':
+                return (
+                    <>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeD.remainingElevation}</div>
+                        <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeD.currentElevationGain}</div>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeD.label}</div>
+                    </>
+                );
+            case 'E':
+                return (
+                    <>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeE.wind}</div>
+                        <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeE.temperature}</div>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeE.elevation} {infotrackerData.modeE.label}</div>
+                    </>
+                );
+            default:
+                return null;
+        }
+    };
+
+    // Determine if we should show the new infotracker (overlay variant) or old tooltip
+    const showNewInfotracker = variant === 'overlay' && activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null;
+
+    // Fixed width for infotracker to prevent resizing
+    const infotrackerWidth = 120;
+
     return (
         <div ref={containerRef} className={`w-full relative select-none ${className || ''}`}>
             {variant === 'overlay' && (
@@ -444,43 +605,62 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 onTouchStart={handleMouseMove}
                 onTouchMove={handleMouseMove}
             />
-            {activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null && (
+            {showNewInfotracker ? (
                 <div 
-                    className={`absolute z-30 pointer-events-none p-2 rounded text-xs font-sans whitespace-nowrap w-max ${variant !== 'inline' ? 'backdrop-blur' : ''} ${
-                        isDark ? 'bg-[#888888] text-[#000000]' : 'bg-white/90 text-black'
-                    }`}
-                    style={tooltipStyle}
+                    className="absolute z-30 pointer-events-none"
+                    style={{
+                        bottom: '100%',
+                        left: tooltipX,
+                        transform: `translateX(-50%) translateY(${tooltipOffset}px)`,
+                        width: infotrackerWidth,
+                    }}
                 >
-                    <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium">
-                        <span>{Math.floor(activeHoverPoint.time)}:{(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
-                        <span>{activeHoverPoint.dist.toFixed(1)} км</span>
-                        <span>
-                            {startTemp !== undefined && endTemp !== undefined && totalTime > 0 
-                                ? `${Math.round(startTemp + (endTemp - startTemp) * (activeHoverPoint.time / totalTime))}°` 
-                                : ''}
-                        </span>
-                        <span>{Math.round(activeHoverPoint.speed)} км/ч</span>
-                        
-                        <span>{Math.round(activeHoverPoint.originalEle)} м</span>
-                        <span>+{Math.round(activeHoverPoint.realCumElevation)} м</span>
-
-                        <span>{Math.round(activeHoverPoint.gradient)}%</span>
-                        <span>
-                            {hourlyWind && hourlyWindDir && (
-                                <>
-                                   {getWindDirectionText(hourlyWindDir[Math.min(Math.round(activeHoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(activeHoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
-                                </>
-                            )}
-                        </span>
-
-                        <span>
-                            -{Math.floor(Math.max(0, totalTime - activeHoverPoint.time))}:{(Math.round((Math.max(0, totalTime - activeHoverPoint.time) - Math.floor(Math.max(0, totalTime - activeHoverPoint.time))) * 60)).toString().padStart(2, '0')}
-                        </span>
-                        <span>
-                            {Math.max(0, totalDist - activeHoverPoint.dist).toFixed(1)} км
-                        </span>
+                    <div className={`flex flex-col items-center justify-center py-2 px-3 w-full ${
+                        isDark ? 'text-white' : 'text-black'
+                    }`}>
+                        {renderInfotrackerContent()}
                     </div>
                 </div>
+            ) : (
+                // Default/legacy tooltip for non-overlay variants
+                activeHoverPoint && containerRef.current && showTooltip && tooltipX !== null && variant !== 'overlay' && (
+                    <div 
+                        className={`absolute z-30 pointer-events-none p-2 rounded text-xs font-sans whitespace-nowrap w-max ${variant !== 'inline' ? 'backdrop-blur' : ''} ${
+                            isDark ? 'bg-[#888888] text-[#000000]' : 'bg-white/90 text-black'
+                        }`}
+                        style={tooltipStyle}
+                    >
+                        <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium">
+                            <span>{Math.floor(activeHoverPoint.time)}:{(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')}</span>
+                            <span>{activeHoverPoint.dist.toFixed(1)} км</span>
+                            <span>
+                                {startTemp !== undefined && endTemp !== undefined && totalTime > 0 
+                                    ? `${Math.round(startTemp + (endTemp - startTemp) * (activeHoverPoint.time / totalTime))}°` 
+                                    : ''}
+                            </span>
+                            <span>{Math.round(activeHoverPoint.speed)} км/ч</span>
+                            
+                            <span>{Math.round(activeHoverPoint.originalEle)} м</span>
+                            <span>+{Math.round(activeHoverPoint.realCumElevation)} м</span>
+
+                            <span>{Math.round(activeHoverPoint.gradient)}%</span>
+                            <span>
+                                {hourlyWind && hourlyWindDir && (
+                                    <>
+                                       {getWindDirectionText(hourlyWindDir[Math.min(Math.round(activeHoverPoint.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(activeHoverPoint.time + 1), hourlyWind.length - 1)] || 0)} км/ч
+                                    </>
+                                )}
+                            </span>
+
+                            <span>
+                                -{Math.floor(Math.max(0, totalTime - activeHoverPoint.time))}:{(Math.round((Math.max(0, totalTime - activeHoverPoint.time) - Math.floor(Math.max(0, totalTime - activeHoverPoint.time))) * 60)).toString().padStart(2, '0')}
+                            </span>
+                            <span>
+                                {Math.max(0, totalDist - activeHoverPoint.dist).toFixed(1)} км
+                            </span>
+                        </div>
+                    </div>
+                )
             )}
         </div>
     );
