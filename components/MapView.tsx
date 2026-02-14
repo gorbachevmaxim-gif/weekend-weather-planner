@@ -37,6 +37,8 @@ interface MapViewProps {
     hourlyWind?: number[];
     hourlyWindDir?: number[];
     isMountainRegion?: boolean;
+    startCityName?: string;
+    endCityName?: string;
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -77,7 +79,7 @@ const getPlacementClasses = (deg?: number) => {
     }
 };
 
-export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace: initialPace = 25, onTargetSpeedChange, startTemp, endTemp, elevationCursor, hourlyWind, hourlyWindDir, isMountainRegion = false }) => {
+export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace: initialPace = 25, onTargetSpeedChange, startTemp, endTemp, elevationCursor, hourlyWind, hourlyWindDir, isMountainRegion = false, startCityName, endCityName }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [windPos, setWindPos] = useState<{ x: number; y: number } | null>(null);
@@ -138,6 +140,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 document.exitFullscreen().catch(console.error);
             } else {
                 setIsFullscreen(false);
+                setInternalCursor(null);
+                setHoverInfo(null);
                 if (onFullscreenToggle) onFullscreenToggle(false);
             }
         } else {
@@ -195,6 +199,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                  // Native fullscreen shouldn't "exit" if it wasn't active.
                  // So this is safe.
                  setIsFullscreen(false);
+                 setInternalCursor(null);
+                 setHoverInfo(null);
                  if (onFullscreenToggle) onFullscreenToggle(false);
              }
         };
@@ -657,6 +663,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const handleCenterMap = useCallback(() => {
         setWindPos(null);
         setHoverInfo(null);
+        setInternalCursor(null);
         const map = mapInstanceRef.current;
         if (!map) return;
         
@@ -817,6 +824,8 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                         tooltipOffset={2}
                         routeDistanceKm={currentRouteData?.distanceKm}
                         totalElevationGain={currentRouteData?.elevationM}
+                        startCityName={startCityName}
+                        endCityName={endCityName}
                     />
                 </div>
             )}

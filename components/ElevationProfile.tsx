@@ -25,6 +25,8 @@ interface ElevationProfileProps {
     variant?: 'default' | 'inline' | 'overlay';
     routeDistanceKm?: number;
     totalElevationGain?: number;
+    startCityName?: string;
+    endCityName?: string;
 }
 
 const getWindDirectionText = (deg: number) => {
@@ -55,7 +57,9 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     tooltipOffset = -10,
     variant = 'default',
     routeDistanceKm,
-    totalElevationGain
+    totalElevationGain,
+    startCityName,
+    endCityName
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -303,15 +307,17 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             const axisY = height - padding.bottom;
             const axisColor = isDark ? '#CCCCCC' : '#444444'; // Match route color approx
 
-            // Labels
+            // Labels - show city names instead of km values
             ctx.fillStyle = axisColor;
             ctx.font = '10px sans-serif';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
-            ctx.fillText('0', padding.left, axisY + 4);
+            // Use start city name at the beginning (0 km)
+            ctx.fillText(startCityName || '0', padding.left, axisY + 4);
 
             ctx.textAlign = 'right';
-            ctx.fillText(Math.round(totalDist).toString(), width - padding.right, axisY + 4);
+            // Use end city name at the end (totalDist km)
+            ctx.fillText(endCityName || Math.round(totalDist).toString(), width - padding.right, axisY + 4);
         }
 
         // Draw segments
@@ -370,7 +376,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.fill();
         }
 
-    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes, variant]);
+    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes, variant, startCityName, endCityName]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (data.length === 0) return;

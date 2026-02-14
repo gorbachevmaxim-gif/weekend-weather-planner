@@ -547,6 +547,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 hourlyWind={activeStats?.hourlyWind}
                 hourlyWindDir={activeStats?.hourlyWindDir}
                 isMountainRegion={isMountainCity}
+                startCityName={routeStartCity}
+                endCityName={routeEndCity}
             />
             {isMapFullscreen && currentRouteData && (
                 <div 
