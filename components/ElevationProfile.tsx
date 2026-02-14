@@ -63,7 +63,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const [internalHoverPoint, setInternalHoverPoint] = useState<ElevationPoint | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: propHeight || 200 });
     const [isMobile, setIsMobile] = useState(false);
-    const [infotrackerMode, setInfotrackerMode] = useState<InfotrackerMode>('A');
+    const [infotrackerMode, setInfotrackerMode] = useState<InfotrackerMode>('B');
 
     const activeHoverPoint = internalHoverPoint || externalHoverPoint;
 
@@ -75,7 +75,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         if (e.altKey) {
             e.preventDefault();
             setInfotrackerMode(prev => {
-                const modes: InfotrackerMode[] = ['A', 'B', 'C', 'D', 'E'];
+                const modes: InfotrackerMode[] = ['B', 'A', 'C', 'D', 'E'];
                 const currentIndex = modes.indexOf(prev);
                 return modes[(currentIndex + 1) % modes.length];
             });
