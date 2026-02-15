@@ -554,7 +554,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             },
             // Mode B: Время до финиша, дистанция до финиша
             modeB: {
-                timeToFinish: `${Math.floor(totalDist / targetSpeed)}:${(Math.round(((totalDist / targetSpeed) - Math.floor(totalDist / targetSpeed)) * 60)).toString().padStart(2, '0')}`,
+                timeToFinish: `${Math.floor(timeToFinish)}:${(Math.round((timeToFinish - Math.floor(timeToFinish)) * 60)).toString().padStart(2, '0')}`,
                 distToFinish: `${Math.round(distToFinish)} км`,
                 label: 'ДО ФИНИША'
             },
