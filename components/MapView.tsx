@@ -549,8 +549,18 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                      arrowWrapper.innerHTML = arrowHtml;
                 }
 
+                // Calculate wind direction based on hover time if available
+                let currentWindDeg = windDeg;
+                if (hoverInfo && hourlyWindDir && hourlyWindDir.length > 0) {
+                    const hourIndex = Math.min(Math.round(hoverInfo.time + 1), hourlyWindDir.length - 1);
+                    const timeBasedWindDir = hourlyWindDir[hourIndex];
+                    if (timeBasedWindDir !== undefined) {
+                        currentWindDeg = timeBasedWindDir;
+                    }
+                }
+
                 // Update transform
-                arrowWrapper.style.transform = `rotate(${windDeg - rotation}deg)`;
+                arrowWrapper.style.transform = `rotate(${currentWindDeg - rotation}deg)`;
 
             } else {
                 if (arrowWrapper) {
@@ -578,7 +588,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 cursorRef.current = null;
             }
         }
-    }, [activeCursor, isDark, isMobile, windDeg, rotation]);
+    }, [activeCursor, isDark, isMobile, windDeg, rotation, hoverInfo, hourlyWindDir]);
 
     // Handle Custom Markers
     useEffect(() => {
