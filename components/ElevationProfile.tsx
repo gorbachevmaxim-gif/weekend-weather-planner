@@ -358,23 +358,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             drawCtx.fill();
         }
 
-        // Overlay Axis (Labels only)
-        if (variant === 'overlay') {
-            const axisY = height - padding.bottom;
-            const axisColor = isDark ? '#CCCCCC' : '#444444'; // Match route color approx
-
-            // Labels - show city names instead of km values
-            ctx.fillStyle = axisColor;
-            ctx.font = '10px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            // Use start city name at the beginning (0 km)
-            ctx.fillText(startCityName || '0', padding.left, axisY + 4);
-
-            ctx.textAlign = 'right';
-            // Use end city name at the end (totalDist km)
-            ctx.fillText(endCityName || Math.round(totalDist).toString(), width - padding.right, axisY + 4);
-        }
+        // City name labels are now rendered as HTML pills below the canvas
 
         // Draw segments
         ctx.lineWidth = 2;
@@ -671,6 +655,37 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 onTouchStart={handleMouseMove}
                 onTouchMove={handleMouseMove}
             />
+            {/* City name pills for overlay variant */}
+            {variant === 'overlay' && (
+                <div className="absolute bottom-[-8px] left-[-16px] right-[-16px] flex justify-between items-end px-2 pointer-events-none" style={{ height: '26px' }}>
+                    {startCityName && (
+                        <div 
+                            className="flex items-center justify-center px-4 text-xs font-sans"
+                            style={{ 
+                                backgroundColor: isDark ? '#222222' : '#DDDDDD', 
+                                height: '22px',
+                                borderRadius: '28px',
+                                color: isDark ? '#CCCCCC' : '#000000'
+                            }}
+                        >
+                            {startCityName}
+                        </div>
+                    )}
+                    {endCityName && (
+                        <div 
+                            className="flex items-center justify-center px-4 text-xs font-sans"
+                            style={{ 
+                                backgroundColor: isDark ? '#222222' : '#DDDDDD', 
+                                height: '22px',
+                                borderRadius: '28px',
+                                color: isDark ? '#CCCCCC' : '#000000'
+                            }}
+                        >
+                            {endCityName}
+                        </div>
+                    )}
+                </div>
+            )}
             {showNewInfotracker ? (
                 <div 
                     className="absolute z-30 pointer-events-none"
