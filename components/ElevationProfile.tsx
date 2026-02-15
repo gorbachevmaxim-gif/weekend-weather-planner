@@ -3,7 +3,7 @@ import { RouteData } from '../services/gpxUtils';
 import { calculateElevationProfile, getGradientColor, ElevationPoint } from '../utils/elevationUtils';
 import ArrowUp from './icons/ArrowUp';
 
-type InfotrackerMode = 'A' | 'B' | 'C' | 'D' | 'E';
+type InfotrackerMode = 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
 
 interface ElevationProfileProps {
     routeData: RouteData | null;
@@ -84,7 +84,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const handleOptionClick = useCallback(() => {
         if (variant !== 'overlay' || !activeHoverPoint) return;
         setInfotrackerMode(prev => {
-            const modes: InfotrackerMode[] = ['B', 'A', 'C', 'D', 'E'];
+            const modes: InfotrackerMode[] = ['B', 'A', 'C', 'D', 'E', 'F'];
             const currentIndex = modes.indexOf(prev);
             return modes[(currentIndex + 1) % modes.length];
         });
@@ -123,7 +123,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         if (e.altKey) {
             e.preventDefault();
             setInfotrackerMode(prev => {
-                const modes: InfotrackerMode[] = ['B', 'A', 'C', 'D', 'E'];
+                const modes: InfotrackerMode[] = ['B', 'A', 'C', 'D', 'E', 'F'];
                 const currentIndex = modes.indexOf(prev);
                 return modes[(currentIndex + 1) % modes.length];
             });
@@ -581,6 +581,13 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 temperature: currentTemp !== null ? `${currentTemp}°` : '—',
                 elevation: `${Math.round(activeHoverPoint.originalEle)} м`,
                 label: ''
+            },
+            // Mode F: Питание - bidons and gels/bars remaining from current position to finish
+            // 1 bidon per 1 hour 20 minutes (80 minutes), 1 gel/bar per 40 minutes
+            modeF: {
+                bidons: Math.ceil(timeToFinish / (80 / 60)), // Based on remaining time
+                gelsBars: Math.ceil(timeToFinish / (40 / 60)), // Based on remaining time
+                label: 'GEL/BAR'
             }
         };
     }, [activeHoverPoint, totalTime, totalDist, targetSpeed, startTemp, endTemp, hourlyWind, hourlyWindDir, totalElevationGain]);
@@ -642,6 +649,14 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                         </div>
                         <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeE.temperature}</div>
                         <div className="text-center text-[12px] font-sans">{infotrackerData.modeE.elevation} {infotrackerData.modeE.label}</div>
+                    </>
+                );
+            case 'F':
+                return (
+                    <>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeF.bidons} bidons</div>
+                        <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeF.gelsBars}</div>
+                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeF.label}</div>
                     </>
                 );
             default:
