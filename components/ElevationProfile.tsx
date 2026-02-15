@@ -241,6 +241,17 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         };
     }, [propWidth, propHeight]);
 
+    // Helper function to calculate padding consistently
+    const getPadding = useCallback(() => {
+        if (variant === 'overlay' && !showAxes) {
+            return { top: 10, right: 10, bottom: 20, left: 10 };
+        }
+        if (showAxes) {
+            return { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 };
+        }
+        return { top: 5, right: 5, bottom: 5, left: 5 };
+    }, [variant, showAxes, isMobile]);
+
     // Draw Canvas
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -273,13 +284,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         }
 
         const { width, height } = dimensions;
-        let padding = showAxes 
-            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
-            : { top: 5, right: 5, bottom: 5, left: 5 };
-
-        if (variant === 'overlay' && !showAxes) {
-             padding = { top: 10, right: 10, bottom: 20, left: 10 };
-        }
+        const padding = getPadding();
 
         const graphWidth = width - padding.left - padding.right;
         const graphHeight = height - padding.top - padding.bottom;
@@ -417,7 +422,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             ctx.fill();
         }
 
-    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes, variant, startCityName, endCityName]);
+    }, [data, dimensions, isDark, minEle, maxEle, totalDist, activeHoverPoint, step, showAxes, variant, isMobile, startCityName, endCityName]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (data.length === 0) return;
@@ -437,9 +442,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         const x = clientX - rect.left;
         
         const { width } = dimensions;
-        const padding = showAxes 
-            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
-            : { top: 5, right: 5, bottom: 5, left: 5 };
+        const padding = getPadding();
         const graphWidth = width - padding.left - padding.right;
 
         // Map x to distance
@@ -490,13 +493,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         if (!activeHoverPoint || !containerRef.current || dimensions.width === 0 || totalDist === 0) return null;
         
         const { width } = dimensions;
-        const padding = showAxes 
-            ? { top: isMobile ? 10 : 20, right: 10, bottom: 20, left: 40 }
-            : { top: 5, right: 5, bottom: 5, left: 5 };
+        const padding = getPadding();
         const graphWidth = width - padding.left - padding.right;
         
         return padding.left + (activeHoverPoint.dist / totalDist) * graphWidth;
-    }, [activeHoverPoint, dimensions, showAxes, isMobile, totalDist]);
+    }, [activeHoverPoint, dimensions, totalDist, getPadding]);
 
 
     if (!routeData || data.length === 0) return null;
