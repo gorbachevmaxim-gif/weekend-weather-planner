@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import { RouteData } from '../services/gpxUtils';
 import { calculateElevationProfile, getGradientColor, ElevationPoint } from '../utils/elevationUtils';
+import ArrowUp from './icons/ArrowUp';
 
 type InfotrackerMode = 'A' | 'B' | 'C' | 'D' | 'E';
 
@@ -576,6 +577,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                 wind: windDirText && currentWindSpeed 
                     ? `${windDirText} ${currentWindSpeed} км/ч` 
                     : windDirText || (currentWindSpeed ? `${currentWindSpeed} км/ч` : '-'),
+                windDirDegrees: currentWindDir,
                 temperature: currentTemp !== null ? `${currentTemp}°` : '—',
                 elevation: `${Math.round(activeHoverPoint.originalEle)} м`,
                 label: ''
@@ -623,7 +625,21 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             case 'E':
                 return (
                     <>
-                        <div className="text-center text-[12px] font-sans">{infotrackerData.modeE.wind}</div>
+                        <div className="flex items-center justify-center gap-1 text-[12px] font-sans">
+                            {infotrackerData.modeE.windDirDegrees !== undefined && (
+                                <>
+                                    <span>{infotrackerData.modeE.wind.split(' ')[0]}</span>
+                                    <ArrowUp 
+                                        className="w-4 h-4" 
+                                        style={{ transform: `rotate(${infotrackerData.modeE.windDirDegrees + 180}deg)` }}
+                                    />
+                                    <span>{infotrackerData.modeE.wind.split(' ').slice(1).join(' ')}</span>
+                                </>
+                            )}
+                            {infotrackerData.modeE.windDirDegrees === undefined && (
+                                <span>{infotrackerData.modeE.wind}</span>
+                            )}
+                        </div>
                         <div className="text-center text-[22px] font-unbounded font-medium">{infotrackerData.modeE.temperature}</div>
                         <div className="text-center text-[12px] font-sans">{infotrackerData.modeE.elevation} {infotrackerData.modeE.label}</div>
                     </>
