@@ -682,7 +682,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <AccordionContent isOpen={!!openSections["еда"]}>
                                 <div className="mt-2 flex flex-wrap gap-0">
                                     <a
-                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeStartCity)}`}
+                                        href={routeStartCity === "Завидово" ? "https://yandex.ru/maps/?ll=36.530439%2C56.587207&z=14" : `https://yandex.ru/maps/?text=${encodeURIComponent(routeStartCity)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
@@ -690,7 +690,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         На старте
                                     </a>
                                     <a
-                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeEndCity)}`}
+                                        href={routeEndCity === "Завидово" ? "https://yandex.ru/maps/?ll=36.530439%2C56.587207&z=14" : `https://yandex.ru/maps/?text=${encodeURIComponent(routeEndCity)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
@@ -920,7 +920,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <AccordionContent isOpen={!!openSections["еда"]}>
                                 <div className="mt-2 flex flex-wrap gap-0">
                                     <a
-                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeStartCity)}`}
+                                        href={routeStartCity === "Завидово" ? "https://yandex.ru/maps/?ll=36.530439%2C56.587207&z=14" : `https://yandex.ru/maps/?text=${encodeURIComponent(routeStartCity)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
@@ -928,7 +928,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         На старте
                                     </a>
                                     <a
-                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeEndCity)}`}
+                                        href={routeEndCity === "Завидово" ? "https://yandex.ru/maps/?ll=36.530439%2C56.587207&z=14" : `https://yandex.ru/maps/?text=${encodeURIComponent(routeEndCity)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
