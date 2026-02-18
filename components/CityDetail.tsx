@@ -84,7 +84,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
-    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(isDesktop ? { "одежда": true, "детали": true } : {});
+    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(isDesktop ? { "одежда": true, "детали": true, "еда": true } : {});
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
@@ -666,59 +666,119 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </a>
                     )}
 
-                    <a
-                        href={`https://yandex.ru/maps?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&ll=${cityCoords.lon},${cityCoords.lat}&z=12`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={linkClass(`flex-1 min-w-full md:min-w-[45%] self-start flex items-center text-xl font-unbounded font-medium text-left py-px`)}
-                    >
-                        <div className="flex flex-col">
-                            <span className="flex items-center">Вкусные места<RoutesIcon width="22" height="22" /></span>
-                            <span className="text-sm text-[#666666] station-name">{data.cityName}</span>
+                    {/* Где поесть - mobile only - in first group */}
+                    {!isDesktop && (
+                        <div className="flex flex-col flex-1 min-w-full md:min-w-[45%]">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["еда"]
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("еда")}
+                            >
+                                <span className="flex items-center">Где поесть<ArrowDown isOpen={!!openSections["еда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["еда"]}>
+                                <div className="mt-2 flex flex-wrap gap-0">
+                                    <a
+                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeStartCity)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                                    >
+                                        На старте
+                                    </a>
+                                    <a
+                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeEndCity)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                                    >
+                                        На финише
+                                    </a>
+                                </div>
+                            </AccordionContent>
                         </div>
-                    </a>
+                    )}
+
+                    {/* Separator - Desktop only - inside the group */}
+                    {isDesktop && (
+                        <div className={`w-full border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}></div>
+                    )}
                 </div>
 
-                {/* Separator - Desktop only */}
-                {isDesktop && (
-                    <div className={`w-full border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}></div>
-                )}
-
-                {/* Info Group: Wear & Profile */}
+                {/* Info Group: Wear, Food & Profile */}
                 <div className={`grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4 w-full`}>
-                    {/* What to wear */}
-                    <div className="flex flex-col">
-                        <button
-                            className={`text-xl font-unbounded font-medium text-left py-px ${
-                                openSections["одежда"]
-                                    ? activeColor 
-                                    : inactiveColor
-                            } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                            onClick={() => toggleSection("одежда")}
-                        >
-                            <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                        </button>
-                        <AccordionContent isOpen={!!openSections["одежда"]}>
-                            {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
-                                <div className="mt-0 flex flex-wrap pl-0">
-                                    {activeStats.clothingHints.map((hint: string) => (
-                                        <span
-                                            key={hint}
-                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                        >
-                                            {hint}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className={`mt-0 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
-                                    Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
-                                </div>
-                            )}
-                        </AccordionContent>
-                    </div>
+                    {/* What to wear - for mobile only in second position */}
+                    {!isDesktop && (
+                        <div className="flex flex-col">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["одежда"]
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("одежда")}
+                            >
+                                <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["одежда"]}>
+                                {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                                    <div className="mt-0 flex flex-wrap pl-0">
+                                        {activeStats.clothingHints.map((hint: string) => (
+                                            <span
+                                                key={hint}
+                                                className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                            >
+                                                {hint}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={`mt-0 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
+                                        Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
+                                    </div>
+                                )}
+                            </AccordionContent>
+                        </div>
+                    )}
 
-                    {/* Profile */}
+                    {/* What to wear - for desktop - first position */}
+                    {isDesktop && (
+                        <div className="flex flex-col">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["одежда"]
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("одежда")}
+                            >
+                                <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["одежда"]}>
+                                {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
+                                    <div className="mt-0 flex flex-wrap pl-0">
+                                        {activeStats.clothingHints.map((hint: string) => (
+                                            <span
+                                                key={hint}
+                                                className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                            >
+                                                {hint}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={`mt-0 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
+                                        Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
+                                    </div>
+                                )}
+                            </AccordionContent>
+                        </div>
+                    )}
+
+                    {/* Profile - second position for desktop */}
                     <div className="flex flex-col">
                         <button
                             className={`text-xl font-unbounded font-medium text-left py-px ${
@@ -843,6 +903,42 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </div>
                         </AccordionContent>
                     </div>
+
+                    {/* Где поесть - third for desktop */}
+                    {isDesktop && (
+                        <div className="flex flex-col">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["еда"]
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("еда")}
+                            >
+                                <span className="flex items-center">Где поесть<ArrowDown isOpen={!!openSections["еда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["еда"]}>
+                                <div className="mt-2 flex flex-wrap gap-0">
+                                    <a
+                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeStartCity)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                                    >
+                                        На старте
+                                    </a>
+                                    <a
+                                        href={`https://yandex.ru/maps/?text=${encodeURIComponent(routeEndCity)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
+                                    >
+                                        На финише
+                                    </a>
+                                </div>
+                            </AccordionContent>
+                        </div>
+                    )}
                 </div>
 
             </div>
