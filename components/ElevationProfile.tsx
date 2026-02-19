@@ -579,7 +579,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                     ? `${windDirText} ${currentWindSpeed} км/ч` 
                     : windDirText || (currentWindSpeed ? `${currentWindSpeed} км/ч` : '-'),
                 windDirDegrees: currentWindDir,
-                temperature: currentTemp !== null ? `${currentTemp}°` : '—',
+                temperature: currentTemp !== null ? `${currentTemp}°` : '-',
                 elevation: `${Math.round(activeHoverPoint.originalEle)} м`,
                 label: ''
             },

@@ -381,7 +381,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             ) : (
                 renderWeatherValue(value, unit)
             )}
-            <p className="text-xs text-neutral-400">{subValue.replace("-", "–")}</p>
+            <p className="text-xs text-neutral-400">{subValue.replace("-", "-")}</p>
         </div>
     );
 

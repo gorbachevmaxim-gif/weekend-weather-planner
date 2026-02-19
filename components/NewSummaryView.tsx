@@ -225,7 +225,7 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
                   )}
                   {section.w2Cities.length > 0 ? (
                     <div className="flex flex-wrap gap-0">
-                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#222222] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
+                      <div className={`${isDark ? "bg-[#777777] text-[#000000]" : "bg-[#333333] text-[#F3F3F3]"} text-[13px] tracking-tighter rounded-full px-4 py-2`}>Через неделю</div>
                       {section.w2Cities.map((city: CityAnalysisResult) => {
                         const score = getCityScore(city, section, true);
                         return (
