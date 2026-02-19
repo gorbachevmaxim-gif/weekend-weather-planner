@@ -84,7 +84,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [routeStatus, setRouteStatus] = useState<string>("");
     const [foundRoutes, setFoundRoutes] = useState<FoundRoute[]>([]);
     const [selectedRouteIdx, setSelectedRouteIdx] = useState<number>(0);
-    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(isDesktop ? { "одежда": true, "детали": true, "еда": true } : {});
+    const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(isDesktop ? { "одежда": true, "детали": true, "еда": true, "спортпит": true } : {});
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
@@ -102,6 +102,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 одежда: false,
                 детали: false,
                 еда: false,
+                спортпит: false,
                 [section]: !isCurrentlyOpen
             });
         } else {
@@ -421,6 +422,26 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     };
 
+    // Calculate duration in minutes for sport nutrition calculations
+    const calculateDurationMinutes = (distKm: number, speedKmH: number) => {
+        return Math.round((distKm / speedKmH) * 60);
+    };
+
+    // Sport nutrition calculations
+    const sportNutrition = useMemo(() => {
+        if (!currentRouteData) return { bidons: 0, gels: 0 };
+        
+        const durationMinutes = calculateDurationMinutes(currentRouteData.distanceKm, speed);
+        
+        // 1 bidon per 1h 20min (80 minutes)
+        const bidons = Math.ceil(durationMinutes / 80);
+        
+        // 1 gel/bar per 40 minutes
+        const gels = Math.ceil(durationMinutes / 40);
+        
+        return { bidons, gels };
+    }, [currentRouteData, speed]);
+
     // Sub-render methods
     const renderWeatherSection = () => (
         activeStats && (
@@ -448,7 +469,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             <div className={`${isDesktop ? 'border-y' : 'px-4 py-[14px] mt-0 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}>
                 {isDesktop ? (
                     <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-3 py-6">
+                        <div className="col-span-3 py-4">
                             <p className="text-xs text-neutral-400">МАРШРУТ</p>
                             <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
                                 {routeStartCity}—{routeEndCity}
@@ -722,7 +743,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
                 {/* Info Group: Wear, Food & Profile */}
                 <div className={`grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4 w-full`}>
-                    {/* What to wear - for mobile only in second position */}
+                    {/* What to wear - for mobile only */}
                     {!isDesktop && (
                         <div className="flex flex-col">
                             <button
@@ -756,6 +777,76 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </div>
                     )}
 
+                    {/* Профиль - for mobile only */}
+                    {!isDesktop && currentRouteData && (
+                        <div className="flex flex-col">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["детали"] 
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("детали")}
+                            >
+                                <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["детали"]}>
+                                <div className="mt-0 flex flex-wrap pl-0 gap-0">
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        Profile Score {profileScore}
+                                    </span>
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        {getDifficultyLabel(profileScore)}
+                                    </span>
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        {getDistanceLabel(currentRouteData?.distanceKm || 0)}
+                                    </span>
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        {(currentRouteData?.distanceKm || 0) > 160 ? "Темповой" : "Прогулочный"}
+                                    </span>
+                                </div>
+                            </AccordionContent>
+                        </div>
+                    )}
+
+                    {/* Спортпит - for mobile only */}
+                    {!isDesktop && currentRouteData && (
+                        <div className="flex flex-col">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["спортпит"]
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("спортпит")}
+                            >
+                                <span className="flex items-center">Спортпит<ArrowDown isOpen={!!openSections["спортпит"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["спортпит"]}>
+                                <div className="mt-0 flex flex-wrap pl-0 gap-0">
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        Bidons {sportNutrition.bidons}
+                                    </span>
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        Gel/Bar {sportNutrition.gels}
+                                    </span>
+                                </div>
+                            </AccordionContent>
+                        </div>
+                    )}
+
                     {/* What to wear - for desktop - first position */}
                     {isDesktop && (
                         <div className="flex flex-col">
@@ -782,7 +873,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className={`mt-0 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
+                                    <div className={`mt-1 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
                                         Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
                                     </div>
                                 )}
@@ -803,7 +894,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
                         </button>
                         <AccordionContent isOpen={!!openSections["детали"]}>
-                            <div className="mt-0 flex flex-wrap pl-0 gap-0">
+                            <div className="mt-1 flex flex-wrap pl-0 gap-0">
                                 <div className="relative inline-block">
                                     <button 
                                         className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
@@ -930,7 +1021,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 <span className="flex items-center">Где поесть<ArrowDown isOpen={!!openSections["еда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
                             </button>
                             <AccordionContent isOpen={!!openSections["еда"]}>
-                                <div className="mt-2 flex flex-wrap gap-0">
+                                <div className="mt-1 flex flex-wrap gap-0">
                                     <a
                                         href={routeStartCity === "Завидово" ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeStartCity)}`}
                                         target="_blank"
@@ -947,6 +1038,36 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     >
                                         На финише
                                     </a>
+                                </div>
+                            </AccordionContent>
+                        </div>
+                    )}
+
+                    {/* Спортпит - Sport nutrition - fourth position for desktop, second for mobile */}
+                    {currentRouteData && (
+                        <div className="flex flex-col">
+                            <button
+                                className={`text-xl font-unbounded font-medium text-left py-px ${
+                                    openSections["спортпит"]
+                                        ? activeColor 
+                                        : inactiveColor
+                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
+                                onClick={() => toggleSection("спортпит")}
+                            >
+                                <span className="flex items-center">Спортпит<ArrowDown isOpen={!!openSections["спортпит"]} width="23" height="23" style={{ top: "-7px" }} /></span>
+                            </button>
+                            <AccordionContent isOpen={!!openSections["спортпит"]}>
+                                <div className="mt-1 flex flex-wrap pl-0 gap-0">
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        Bidons {sportNutrition.bidons}
+                                    </span>
+                                    <span
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    >
+                                        Gel/Bar {sportNutrition.gels}
+                                    </span>
                                 </div>
                             </AccordionContent>
                         </div>
