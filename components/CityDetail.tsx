@@ -95,10 +95,22 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [activeSliderContent, setActiveSliderContent] = useState<string | null>(null);
 
     const toggleSection = (section: string) => {
-        setOpenSections(prev => ({
-            ...prev,
-            [section]: !prev[section]
-        }));
+        if (!isDesktop) {
+            // Mobile: accordion behavior - close others when one opens
+            const isCurrentlyOpen = openSections[section];
+            setOpenSections({
+                одежда: false,
+                детали: false,
+                еда: false,
+                [section]: !isCurrentlyOpen
+            });
+        } else {
+            // Desktop: keep current behavior - allow multiple sections open
+            setOpenSections(prev => ({
+                ...prev,
+                [section]: !prev[section]
+            }));
+        }
     };
 
     const allAvailableDays = useMemo(() => {
