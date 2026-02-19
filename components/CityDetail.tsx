@@ -92,6 +92,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false);
     const [showDistanceTooltip, setShowDistanceTooltip] = useState(false);
     const [showPaceTooltip, setShowPaceTooltip] = useState(false);
+    const [showBidonsTooltip, setShowBidonsTooltip] = useState(false);
+    const [showGelBarTooltip, setShowGelBarTooltip] = useState(false);
     const [activeSliderContent, setActiveSliderContent] = useState<string | null>(null);
 
     const toggleSection = (section: string) => {
@@ -832,16 +834,28 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </button>
                             <AccordionContent isOpen={!!openSections["спортпит"]}>
                                 <div className="mt-0 flex flex-wrap pl-0 gap-0">
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                    >
-                                        Bidons {sportNutrition.bidons}
-                                    </span>
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                    >
-                                        Gel/Bar {sportNutrition.gels}
-                                    </span>
+                                    <div className="relative inline-block">
+                                        <button 
+                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveSliderContent("Изотоник — это база, обеспечивающая водно-солевой баланс и часть энергии. Рекомендуется выпивать около 500 мл в час, делая небольшие глотки каждые 10–15 минут. Стандартный изотоник содержит около 30–45 г углеводов на 500 мл. Если использовать концентрированные напитки, они могут давать до 80 г углеводов, что снижает потребность в твердой пище. При высокой температуре или обильном потоотделении добавляй в бачок солевые таблетки или выбирай составы с повышенным содержанием натрия, магния и калия для профилактики судорог.");
+                                            }}
+                                        >
+                                            Bidons {sportNutrition.bidons}
+                                        </button>
+                                    </div>
+                                    <div className="relative inline-block">
+                                        <button 
+                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveSliderContent("Комбинируй разные источники энергии, чтобы избежать «вкусовой усталости» и перегрузки желудка. Батончики оптимальны в первой половине большого райда (более 3 часов), когда пульс не на пределе. Выбирай батончики с низким содержанием жиров и белков для более легкого усвоения. Гели используй на высокой интенсивности, в горах или во второй половине райда. Один гель обычно содержит 20–30 г углеводов. Гель необходимо запивать 150–200 мл чистой воды (если это не гидрогель), иначе концентрация сахара может замедлить всасывание воды из кишечника. Начинай питаться с 20-30 минуты езды, не дожидаясь чувства голода. В течение 30 минут после финиша выпей рекавери с соотношением углеводов и белков 3:1 или 4:1 для быстрого восполнения гликогена.");
+                                            }}
+                                        >
+                                            Gel/Bar {sportNutrition.gels}
+                                        </button>
+                                    </div>
                                 </div>
                             </AccordionContent>
                         </div>
@@ -1058,16 +1072,60 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </button>
                             <AccordionContent isOpen={!!openSections["спортпит"]}>
                                 <div className="mt-1 flex flex-wrap pl-0 gap-0">
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                    >
-                                        Bidons {sportNutrition.bidons}
-                                    </span>
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                    >
-                                        Gel/Bar {sportNutrition.gels}
-                                    </span>
+                                    <div className="relative inline-block">
+                                        <button 
+                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (isDesktop) {
+                                                    setShowBidonsTooltip(!showBidonsTooltip);
+                                                } else {
+                                                    setActiveSliderContent("Изотоник — это база, обеспечивающая водно-солевой баланс и часть энергии. Рекомендуется выпивать около 500 мл в час, делая небольшие глотки каждые 10–15 минут. Стандартный изотоник содержит около 30–45 г углеводов на 500 мл. Если использовать концентрированные напитки, они могут давать до 80 г углеводов, что снижает потребность в твердой пище. При высокой температуре или обильном потоотделении добавляй в бачок солевые таблетки или выбирай составы с повышенным содержанием натрия, магния и калия для профилактики судорог.");
+                                                }
+                                            }}
+                                            onMouseEnter={() => isDesktop && setShowBidonsTooltip(true)}
+                                            onMouseLeave={() => isDesktop && setShowBidonsTooltip(false)}
+                                        >
+                                            Bidons {sportNutrition.bidons}
+                                        </button>
+                                        
+                                        {showBidonsTooltip && (
+                                            <div 
+                                                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Изотоник — это база, обеспечивающая водно-солевой баланс и часть энергии. Рекомендуется выпивать около 500 мл в час, делая небольшие глотки каждые 10–15 минут. Стандартный изотоник содержит около 30–45 г углеводов на 500 мл. Если использовать концентрированные напитки, они могут давать до 80 г углеводов, что снижает потребность в твердой пище. При высокой температуре или обильном потоотделении добавляй в бачок солевые таблетки или выбирай составы с повышенным содержанием натрия, магния и калия для профилактики судорог.
+                                                <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="relative inline-block">
+                                        <button 
+                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (isDesktop) {
+                                                    setShowGelBarTooltip(!showGelBarTooltip);
+                                                } else {
+                                                    setActiveSliderContent("Комбинируй разные источники энергии, чтобы избежать «вкусовой усталости» и перегрузки желудка. Батончики оптимальны в первой половине большого райда (более 3 часов), когда пульс не на пределе. Выбирай батончики с низким содержанием жиров и белков для более легкого усвоения. Гели используй на высокой интенсивности, в горах или во второй половине райда. Один гель обычно содержит 20–30 г углеводов. Гель необходимо запивать 150–200 мл чистой воды (если это не гидрогель), иначе концентрация сахара может замедлить всасывание воды из кишечника. Начинай питаться с 20-30 минуты езды, не дожидаясь чувства голода. В течение 30 минут после финиша выпей рекавери с соотношением углеводов и белков 3:1 или 4:1 для быстрого восполнения гликогена.");
+                                                }
+                                            }}
+                                            onMouseEnter={() => isDesktop && setShowGelBarTooltip(true)}
+                                            onMouseLeave={() => isDesktop && setShowGelBarTooltip(false)}
+                                        >
+                                            Gel/Bar {sportNutrition.gels}
+                                        </button>
+                                        
+                                        {showGelBarTooltip && (
+                                            <div 
+                                                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Комбинируй разные источники энергии, чтобы избежать «вкусовой усталости» и перегрузки желудка. Батончики оптимальны в первой половине большого райда (более 3 часов), когда пульс не на пределе. Выбирай батончики с низким содержанием жиров и белков для более легкого усвоения. Гели используй на высокой интенсивности, в горах или во второй половине райда. Один гель обычно содержит 20–30 г углеводов. Гель необходимо запивать 150–200 мл чистой воды (если это не гидрогель), иначе концентрация сахара может замедлить всасывание воды из кишечника. Начинай питаться с 20-30 минуты езды, не дожидаясь чувства голода. В течение 30 минут после финиша выпей рекавери с соотношением углеводов и белков 3:1 или 4:1 для быстрого восполнения гликогена.
+                                                <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </AccordionContent>
                         </div>
