@@ -522,10 +522,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <p className="text-xs text-neutral-400">НАБОР</p>
                     {renderWeatherValue(Math.round(currentRouteData.elevationM).toString(), " м")}
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col items-start">
                     <div className="flex items-center gap-2">
                         <p className="text-xs text-neutral-400">ТЕМП</p>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 -mt-1">
                             <button 
                                 onClick={() => setSpeed(s => Math.max(23, s - 1))} 
                                 className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-0.5 text-neutral-400 ${isDark ? "hover:text-[#D9D9D9] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
