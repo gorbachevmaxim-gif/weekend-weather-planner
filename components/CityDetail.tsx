@@ -794,26 +794,42 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </button>
                             <AccordionContent isOpen={!!openSections["детали"]}>
                                 <div className="mt-0 flex flex-wrap pl-0 gap-0">
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    <button 
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveSliderContent("Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое в конце. (Формула ProCyclingStats)");
+                                        }}
                                     >
                                         Profile Score {profileScore}
-                                    </span>
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    </button>
+                                    <button 
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveSliderContent("С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Бодрый – от 12 до 20. Легкий – менее 12.");
+                                        }}
                                     >
                                         {getDifficultyLabel(profileScore)}
-                                    </span>
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    </button>
+                                    <button 
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveSliderContent("Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.");
+                                        }}
                                     >
                                         {getDistanceLabel(currentRouteData?.distanceKm || 0)}
-                                    </span>
-                                    <span
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
+                                    </button>
+                                    <button 
+                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveSliderContent("Темповой – средняя скорость в движении должна быть выше 33 км/ч. Такая средняя необходима как условие для большого райда от 160 до 200 км. Прогулочный – оптимальная средняя от 30 до 33 км/ч.");
+                                        }}
                                     >
                                         {(currentRouteData?.distanceKm || 0) > 160 ? "Темповой" : "Прогулочный"}
-                                    </span>
+                                    </button>
                                 </div>
                             </AccordionContent>
                         </div>
@@ -896,6 +912,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     )}
 
                     {/* Profile - second position for desktop */}
+                    {isDesktop && (
                     <div className="flex flex-col">
                         <button
                             className={`text-xl font-unbounded font-medium text-left py-px ${
@@ -1020,6 +1037,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </div>
                         </AccordionContent>
                     </div>
+                    )}
 
                     {/* Где поесть - third for desktop */}
                     {isDesktop && (
@@ -1057,8 +1075,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </div>
                     )}
 
-                    {/* Спортпит - Sport nutrition - fourth position for desktop, second for mobile */}
-                    {currentRouteData && (
+                    {/* Спортпит - Sport nutrition - fourth position for desktop */}
+                    {isDesktop && currentRouteData && (
                         <div className="flex flex-col">
                             <button
                                 className={`text-xl font-unbounded font-medium text-left py-px ${
