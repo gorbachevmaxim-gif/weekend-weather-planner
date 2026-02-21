@@ -16,6 +16,76 @@ import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
 import BottomSlider from "./BottomSlider";
 
+// Google AI Studio API function for generating friendly ride announcements
+const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  
+  console.log("API Key present:", !!apiKey);
+  console.log("API Key value:", apiKey ? apiKey.substring(0, 10) + "..." : "missing");
+  
+  if (!apiKey) {
+    throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
+  }
+
+  const prompt = `Давай сделаем из этого текста анонс для райда с друзьями. Стиль дружественный и спокойный, поменьше структуры и совсем без иконок, чтобы был как проза. Обязательно упоминай в тексте про характер маршрута и влияние рельефа на ощущения от райда - ProfileScore. Также обязательно упоминай вокзалы отправления и прибытия в Москве, если они упомянуты.
+    Пример текста:
+    В субботу проедем красивый райд. Маршрут на 120 км покружит нас по красивейшим сосновым дюнам Оки, поднимет на высокий Каширский мост и перенесет через понтонную переправу в Озеры. На финише всем Рульки вверх и царские калачи в знаменитой Коломенской Калачной.
+    Как по заказу будет солнечно и по ветру, +17…+26° и 16 км/ч с порывами до 30 км/ч. Одеваемся по погоде.
+    Экспресс до Ступино отходит с Павелецкого. Собираемся у касс вокзала.
+    Старт райда в 10:30…10:45, но сначала кофе и круассаны.
+    Обратно едем на Рязанском экспрессе от станции Голутвин, прибываем на Казанский вокзал вечером. Поторопитесь купить билеты на обратный поезд в приложении Яндекс Электрички или РЖД Пассажирам.
+  \n\n${summaryText}`;
+
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  console.log("Calling API URL:", apiUrl.replace(apiKey, "REDACTED"));
+
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 1,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 1024,
+      },
+    }),
+  });
+
+  console.log("Response status:", response.status);
+  console.log("Response statusText:", response.statusText);
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.log("API Error response:", error);
+    throw new Error(`API error (${response.status}): ${error}`);
+  }
+
+  const data = await response.json();
+  console.log("API Response data:", JSON.stringify(data, null, 2));
+  
+  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+    return data.candidates[0].content.parts[0].text;
+  }
+  
+  if (data.error) {
+    throw new Error(`API error: ${JSON.stringify(data.error)}`);
+  }
+  
+  throw new Error("No response from AI - check console for details");
+};
+
 // Helper component for smooth accordion animation
 const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => {
   const [overflow, setOverflow] = useState("overflow-hidden");
@@ -96,6 +166,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [showBidonsTooltip, setShowBidonsTooltip] = useState(false);
     const [showGelBarTooltip, setShowGelBarTooltip] = useState(false);
     const [activeSliderContent, setActiveSliderContent] = useState<string | null>(null);
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [aiAnnouncement, setAiAnnouncement] = useState<string | null>(null);
 
     const toggleSection = (section: string) => {
         if (!isDesktop) {
@@ -429,6 +501,57 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     };
 
+    const handleGenerateAIAnnouncement = async () => {
+        const text = generateSummaryText();
+        if (!text) return;
+
+        setIsGeneratingAI(true);
+        setAiAnnouncement(null);
+
+        try {
+            const aiText = await generateAIAnnouncement(text);
+            setAiAnnouncement(aiText);
+            
+            // Try to share the AI-generated text
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        text: aiText
+                    });
+                } catch (shareError) {
+                    // If share fails, copy to clipboard
+                    try {
+                        await navigator.clipboard.writeText(aiText);
+                        alert("AI анонс скопирован в буфер обмена!");
+                    } catch (clipError) {
+                        console.error("Error copying to clipboard", clipError);
+                    }
+                }
+            } else {
+                // Fallback: copy to clipboard
+                try {
+                    await navigator.clipboard.writeText(aiText);
+                    alert("AI анонс скопирован в буфер обмена!");
+                } catch (clipError) {
+                    console.error("Error copying to clipboard", clipError);
+                }
+            }
+        } catch (error) {
+            console.error("Error generating AI announcement:", error);
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+            console.log("Detailed error:", errorMessage);
+            
+            // Check for quota error
+            if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("quota")) {
+                alert(`Ошибка: квота Google AI API исчерпана. Проверьте лимиты в Google AI Studio: https://ai.dev/rate-limit`);
+            } else {
+                alert(`Ошибка при генерации анонса: ${errorMessage}`);
+            }
+        } finally {
+            setIsGeneratingAI(false);
+        }
+    };
+
 
     const generateTransportLink = (fromCityName: string, toCityName: string, date: Date) => {
         const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
@@ -600,6 +723,20 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                     Резюме
                                 </div>
                             </button>
+
+                            <button
+                                onClick={handleGenerateAIAnnouncement}
+                                disabled={isGeneratingAI}
+                                className={`group relative focus:outline-none ${isGeneratingAI ? "opacity-50" : ""}`}
+                            >
+                                <span className={`text-lg font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`}>
+                                    {isGeneratingAI ? "..." : "AI"}
+                                </span>
+                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                    AI анонс
+                                </div>
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -733,10 +870,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     );
 
     const renderDownloads = () => {
-        // Mobile: 3 columns layout: Отправить | Открыть | Резюме
+        // Mobile: 4 columns layout: Отправить | Открыть | Резюме | AI
         if (!isDesktop) {
             return (
-                <div className="grid grid-cols-3 gap-2 px-4 pt-4 pb-2">
+                <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-2">
                     {canShare && (
                         <a
                             href="#"
@@ -766,6 +903,17 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
                     >
                         <span className="underline decoration-1 underline-offset-4">Резюме</span>
+                        <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
+                    </button>
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleGenerateAIAnnouncement();
+                        }}
+                        disabled={isGeneratingAI}
+                        className={`text-sm text-center ${isGeneratingAI ? "opacity-50" : ""} ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "..." : "AI"}</span>
                         <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
                     </button>
                 </div>
