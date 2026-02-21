@@ -27,7 +27,11 @@ const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
     throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
   }
 
-  const prompt = `Давай сделаем из этого текста анонс для райда с друзьями. Стиль дружественный и спокойный, поменьше структуры и совсем без иконок, чтобы был как проза. Обязательно упоминай в тексте про характер маршрута и влияние рельефа на ощущения от райда - ProfileScore. Также обязательно упоминай вокзалы отправления и прибытия в Москве, если они упомянуты.
+  const prompt = `Давай сделаем из этого текста анонс для райда с друзьями. Стиль дружественный и спокойный, поменьше структуры и совсем без иконок, чтобы был как проза. 
+    Обязательно упоминай в тексте про характер маршрута и влияние рельефа на ощущения от райда - ProfileScore. 
+    Также обязательно пиши про вокзалы отправления и прибытия в Москве, если они упомянуты. 
+    В тексте упоминай количество спортпита.
+    На основе погодных данных и локации маршрута, внедряй в текст короткое описание природы.
     Пример текста:
     В субботу проедем красивый райд. Маршрут на 120 км покружит нас по красивейшим сосновым дюнам Оки, поднимет на высокий Каширский мост и перенесет через понтонную переправу в Озеры. На финише всем Рульки вверх и царские калачи в знаменитой Коломенской Калачной.
     Как по заказу будет солнечно и по ветру, +17…+26° и 16 км/ч с порывами до 30 км/ч. Одеваемся по погоде.
@@ -512,23 +516,17 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             const aiText = await generateAIAnnouncement(text);
             setAiAnnouncement(aiText);
             
-            // Try to share the AI-generated text
+            // Try to share the AI-generated text immediately
             if (navigator.share) {
                 try {
                     await navigator.share({
                         text: aiText
                     });
                 } catch (shareError) {
-                    // If share fails, copy to clipboard
-                    try {
-                        await navigator.clipboard.writeText(aiText);
-                        alert("AI анонс скопирован в буфер обмена!");
-                    } catch (clipError) {
-                        console.error("Error copying to clipboard", clipError);
-                    }
+                    // User cancelled or error - do nothing, let them copy manually if needed
                 }
             } else {
-                // Fallback: copy to clipboard
+                // Fallback for browsers without share: copy to clipboard
                 try {
                     await navigator.clipboard.writeText(aiText);
                     alert("AI анонс скопирован в буфер обмена!");
