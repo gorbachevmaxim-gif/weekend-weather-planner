@@ -3,7 +3,7 @@ import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 import GeeseIcon from "./icons/GeeseIcon";
 
 interface OverlayContentProps {
-    activeOverlay: 'manifesto' | 'rules';
+    activeOverlay: 'manifesto' | 'rules' | 'velominati';
     theme: 'light' | 'dark';
 }
 
@@ -25,7 +25,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                             <span className="font-bold">2.</span> Быть сильным во время заездов, не жаловаться, рассчитывать свои силы и поддерживать друг друга.
                         </p>
                         <p>
-                            <span className="font-bold">3.</span> Можно ли быть слабым для больших райдов, но быть в сообществе? Конечно, да! Главное, быть воспитанным, отдавать в комьюнити больше, чем забирать, регулярно тренироваться, если необходимо, прогрессировать и присоединяться к заездам по готовности.
+                            <span className="font-bold">3.</span> Можно ли быть слабым для больших райдов, но быть в Конечно, да! Глав сообществе?ное, быть воспитанным, отдавать в комьюнити больше, чем забирать, регулярно тренироваться, если необходимо, прогрессировать и присоединяться к заездам по готовности.
                         </p>
                         <p>
                             <span className="font-bold">4.</span> Проявлять интерес к еде и к людям, кто её создает. Вы можете не знать чем отличается итальянский трюфель от французского, или же фамилии всех шефов сибирских ресторанов, но нам хочется, чтобы каждый развивал свои вкусы и помогал бы находить новые направления для туров через интересную локальную гастрономию.
@@ -40,7 +40,7 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                             <span className="font-bold">7.</span> Управлять ожиданиями в комьюнити, чтобы ни у кого не было недопониманий. Сразу спрашивать, если что-то непонятно, и не молчать, когда видите, что чего-то не хватает. Делать шаг вперед, если есть идея с чем можете всем помочь, но не знаете с чего начать. Говорить заранее, если с чем-то не согласны, а критикуя что-то — всегда предлагать свой вариант. И главное, беря ответственность за что-либо — быть прозрачным, доводить дело до конца или вовремя делегировать на другого участника.
                         </p>
                         <p>
-                            <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
+                            <span className="font-bold">8.</span> Если по каким-то причинам решили не быть частью комьюнити, то это нормально — сообщите всем об этом, поблагодарим друг друга за опыт, обнимемся и будем спокойно жить дальше.
                         </p>
                         <div className={`pt-12 mt-12 border-t transition-colors duration-700 ${theme === 'dark' ? "border-[#333333]" : "border-[#D9D9D9]"} flex justify-center`}>
                             <GstrdnmcLogo fill={theme === 'dark' ? "#777777" : "#111111"} className="w-1/3 h-auto" />
@@ -110,6 +110,86 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         </div>
                         <div className="pt-12 flex justify-center mx-[-16px] min-[1200px]:mx-[-64px]">
                             <GeeseIcon className={`w-[68%] min-[1200px]:w-[76%] h-auto transition-colors duration-700 ${theme === 'dark' ? "text-[#666666]" : ""}`} />
+                        </div>
+                    </div>
+                </>
+            )}
+            {activeOverlay === 'velominati' && (
+                <>
+                    <div className="mb-6">
+                        <p>
+                            The Rules of The Velominati.
+                        </p>
+                    </div>
+                    <div className="flex flex-col gap-y-6 pb-0">
+                        <div>
+                            <p className="font-bold text-lg mb-2">27</p>
+                            <p>Shorts and socks should be like Goldilocks. Not too long and not too short. (Disclaimer: despite Sean Yates' horrible choice in shorts length, he is a quintessential hard man of cycling and is deeply admired by the Velominati. Whereas Armstrong's short and sock lengths are just plain wrong.) No socks is a no-no, as are those ankle-length ones that should only be worn by female tennis players.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">29</p>
+                            <p>No European Posterior Man-Satchels. Saddle bags have no place on a road bike, and are only acceptable on mountain bikes in extreme cases.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">31</p>
+                            <p>Spare tubes, multi-tools and repair kits should be stored in jersey pockets. If absolutely necessary, in a converted bidon in a cage on bike. Or, use one of these.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">33</p>
+                            <p>Shave your guns. Legs are to be carefully shaved at all times. If, for some reason, your legs are to be left hairy, make sure you can dish out plenty of hurt to shaved riders, or be considered a hippie douche on your way to a Critical Mass. Whether you use a straight razor or a Bowie knife, use Baxter to keep them smooth.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">36</p>
+                            <p>Eyewear shall be cycling specific. No Aviator shades, blueblockers, or clip-on covers for eye glasses.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">41</p>
+                            <p>Quick-release levers are to be carefully positioned. Quick release angle on the front skewer shall be an upward angle which tightens just aft of the fork and the rear quick release shall tighten at an angle that bisects angle between the seat and chain stays. It is acceptable, however, to have the rear quick release tighten upward, just aft of the seat stay, when the construction of the frame or its dropouts will not allow the preferred positioning. For Time Trial bikes only, quick releases may be in the horizontal position facing towards the rear of the bike. This is for maximum aero effect.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">42</p>
+                            <p>A bike ride shall never be preceded with a swim and/or followed by a run. If it's preceded with a swim and/or followed by a run, it is not called a bike ride, it is called duathlon or a triathlon. Neither of which is a bike race. Also keep in mind that one should only swim in order to prevent drowning, and should only run if being chased. And even then, one should only run fast enough to prevent capture.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">43</p>
+                            <p>Don't be a jackass. But if you absolutely must be a jackass, be a funny jackass. Always remember, we're all brothers and sisters on the road.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">50</p>
+                            <p>Facial hair is to be carefully regulated. No full beards, no moustaches. Goatees are permitted only if your name starts with "Marco" and ends with "Pantani", or if your head is intentionally or unintentionally bald. One may never shave on the morning of an important race, as it saps your virility, and you need that to kick ass.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">52</p>
+                            <p>Drink in Moderation. Bidons are to be small in size. 500-610ml maximum, no extra large vessels are to be seen on one's machine. Two cages can be mounted, but only one bidon on rides under two hours is to be employed. Said solo bidon must be placed in the downtube cage only. You may only ride with a bidon in the rear cage if you have a front bidon, or you just handed your front bidon to a fan at the roadside and you are too busy crushing everyone to move it forward until you take your next drink. Bidons should match each other and preferably your bike and/or kit.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">59</p>
+                            <p>Hold your line. Ride predictably, and don't make sudden movements. And, under no circumstances, are you to deviate from your line.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">62</p>
+                            <p>You shall not ride with earphones. Cycling is about getting outside and into the elements and you don't need to be listening to Queen or Slayer in order to experience that. Immerse yourself in the rhythm and pain, not in whatever 80's hair band you call "music".</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">72</p>
+                            <p>Legs speak louder than words. Unless you routinely demonstrate your riding superiority and the smoothness of your Stroke, refrain from discussing your power meter, heartrate, or any other riding data.</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-lg mb-2">74</p>
+                            <p>V Meters or small computers only. Forego the data and ride on feel; little compares to the pleasure of riding as hard as your mind will allow. Learn to read your body, meditate on Rule #5, and learn to push yourself to your limit. Power meters, heart rate monitors and GPS are bulky, ugly and superfluous. Any cycle computer, if deemed necessary, should be simple, small, mounted on the stem and wireless.</p>
                         </div>
                     </div>
                 </>

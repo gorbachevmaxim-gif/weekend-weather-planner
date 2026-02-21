@@ -30,8 +30,8 @@ const App: React.FC = () => {
   
   const [isDesktop, setIsDesktop] = useState<boolean>(window.innerWidth >= 1200);
   const [isSliderOpen, setIsSliderOpen] = useState<boolean>(false);
-  const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | null>(null);
-  const lastActiveOverlayRef = useRef<'manifesto' | 'rules' | null>(null);
+  const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | 'velominati' | null>(null);
+  const lastActiveOverlayRef = useRef<'manifesto' | 'rules' | 'velominati' | null>(null);
 
   useEffect(() => {
     if (activeOverlay) {
@@ -285,7 +285,7 @@ const App: React.FC = () => {
                 >
                     <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#111111] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
                         <div className="w-full px-16">
-                            <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-700 ${theme === 'dark' ? "bg-[#111111]" : "bg-[#F5F5F5]"}`}>
+                            <div className={`0 pt-[18sticky top-px] pb-8 z-10 transition-colors duration-700 ${theme === 'dark' ? "bg-[#111111]" : "bg-[#F5F5F5]"}`}>
                                 <button
                                     onClick={() => setActiveOverlay(null)}
                                     className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
@@ -325,6 +325,7 @@ const App: React.FC = () => {
                             isDesktop={true}
                             onCommunityClick={() => setActiveOverlay('manifesto')}
                             onRulesClick={() => setActiveOverlay('rules')}
+                            onVelominatiClick={() => setActiveOverlay('velominati')}
                         />
                     </div>
                 </div>
@@ -375,7 +376,7 @@ const App: React.FC = () => {
                         <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[45deg]" style={{ position: "relative", top: "7px", left: "-2px" }} />
                     </button>
                 </div>
-                <OverlayContent activeOverlay={(activeOverlay || lastActiveOverlayRef.current) as 'manifesto' | 'rules'} theme={theme} />
+                <OverlayContent activeOverlay={(activeOverlay || lastActiveOverlayRef.current) as 'manifesto' | 'rules' | 'velominati'} theme={theme} />
             </div>
         )}
       </div>
@@ -408,6 +409,7 @@ const App: React.FC = () => {
                     isDesktop={false}
                     onCommunityClick={() => setActiveOverlay('manifesto')}
                     onRulesClick={() => setActiveOverlay('rules')}
+                    onVelominatiClick={() => setActiveOverlay('velominati')}
                 />
             </>
         ) : (
