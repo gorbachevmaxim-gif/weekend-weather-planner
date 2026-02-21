@@ -173,6 +173,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [activeSliderContent, setActiveSliderContent] = useState<string | null>(null);
     const [isGeneratingAI, setIsGeneratingAI] = useState(false);
     const [aiAnnouncement, setAiAnnouncement] = useState<string | null>(null);
+    const lastClickTimeRef = useRef<number>(0);
 
     const toggleSection = (section: string) => {
         if (!isDesktop) {
@@ -507,6 +508,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const handleGenerateAIAnnouncement = async () => {
+        // Debounce: prevent multiple clicks within 3 seconds
+        const now = Date.now();
+        if (now - lastClickTimeRef.current < 10000) {
+            return;
+        }
+        lastClickTimeRef.current = now;
+
         const text = generateSummaryText();
         if (!text) return;
 
