@@ -714,27 +714,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </button>
 
                             <button
-                                onClick={handleShareSummary}
-                                className="group relative focus:outline-none"
+                                onClick={handleGenerateAIAnnouncement}
+                                disabled={isGeneratingAI}
+                                className={`group relative focus-outline-none ${isGeneratingAI ? "opacity-50" : ""}`}
                             >
                                 <RidesAnnounceIcon width={26} height={26} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Резюме
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={handleGenerateAIAnnouncement}
-                                disabled={isGeneratingAI}
-                                className={`group relative focus:outline-none ${isGeneratingAI ? "opacity-50" : ""}`}
-                            >
-                                <span className={`text-lg font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`}>
-                                    {isGeneratingAI ? "..." : "AI"}
-                                </span>
-                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    AI анонс
                                 </div>
                             </button>
                         </div>
@@ -870,10 +857,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     );
 
     const renderDownloads = () => {
-        // Mobile: 4 columns layout: Отправить | Открыть | Резюме | AI
+        // Mobile: 3 columns layout: Отправить | Открыть | Резюме
         if (!isDesktop) {
             return (
-                <div className="grid grid-cols-4 gap-2 px-4 pt-4 pb-2">
+                <div className="grid grid-cols-3 gap-2 px-4 pt-4 pb-2">
                     {canShare && (
                         <a
                             href="#"
@@ -898,22 +885,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     <button
                         onClick={(e) => {
                             e.preventDefault();
-                            handleShareSummary();
-                        }}
-                        className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Резюме</span>
-                        <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
-                    </button>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
                             handleGenerateAIAnnouncement();
                         }}
                         disabled={isGeneratingAI}
                         className={`text-sm text-center ${isGeneratingAI ? "opacity-50" : ""} ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
                     >
-                        <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "..." : "AI"}</span>
+                        <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "..." : "Резюме"}</span>
                         <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
                     </button>
                 </div>
