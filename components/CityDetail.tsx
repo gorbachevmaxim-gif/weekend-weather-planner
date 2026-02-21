@@ -508,7 +508,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const handleGenerateAIAnnouncement = async () => {
-        // Debounce: prevent multiple clicks within 3 seconds
+        // Debounce: prevent multiple clicks within 10 seconds
         const now = Date.now();
         if (now - lastClickTimeRef.current < 10000) {
             return;
