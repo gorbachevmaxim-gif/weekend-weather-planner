@@ -10,6 +10,7 @@ import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
 import ArrowUp from "./icons/ArrowUp";
 import GpxIcon from "./icons/GpxIcon";
 import ShareIcon from "./icons/ShareIcon";
+import RidesAnnounceIcon from "./icons/RidesAnnounceIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
@@ -339,6 +340,95 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         window.location.href = komootUrl;
     };
 
+    // Generate summary text for sharing
+    const generateSummaryText = () => {
+        if (!activeStats || !currentRouteData) return null;
+
+        const date = activeStats.dateObj;
+        const dayName = activeStats.dayName;
+        const route = `${routeStartCity}—${routeEndCity}`;
+        const distance = currentRouteData.distanceKm.toFixed(0);
+        const elevation = Math.round(currentRouteData.elevationM);
+        const duration = calculateDuration(currentRouteData.distanceKm, speed);
+        const pace = speed;
+        const profileScoreValue = profileScore;
+        const difficulty = getDifficultyLabel(profileScoreValue);
+        const distanceLabel = getDistanceLabel(currentRouteData.distanceKm);
+        const paceLabel = currentRouteData.distanceKm > 160 ? "Темповой" : "Прогулочный";
+        const temp = activeStats.tempRange;
+        const windDir = activeStats.windDirection;
+        const windSpeed = activeStats.windRange;
+        const sun = activeStats.sunStr.split(" ")[0];
+        const clothing = activeStats.clothingHints?.join(", ") || "Подскажем, что надеть, когда погода наладится";
+        const bidons = sportNutrition.bidons;
+        const gels = sportNutrition.gels;
+
+        // Format date as "DD.MM"
+        const dateStr = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+        // Generate transport links
+        const toLink = routeStartCity !== "Москва" ? generateTransportLink("Москва", routeStartCity, date) : "";
+        const fromLink = routeEndCity !== "Москва" ? generateTransportLink(routeEndCity, "Москва", date) : "";
+
+        // Generate food place links
+        const foodStartLink = routeStartCity === "Завидово" 
+            ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" 
+            : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeStartCity)}`;
+        const foodEndLink = routeEndCity === "Завидово" 
+            ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" 
+            : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeEndCity)}`;
+
+        const text = `Едем по маршруту ${route} ${dateStr}, ${dayName}.
+Дистанция: ${distance} км / ${elevation} м набора.
+В седле примерно ${duration} при темпе ${pace} км/ч.
+Характер маршрута: ${distanceLabel}, ${paceLabel}.
+Влияние рельефа на ощущения от райда: ProfileScore ${profileScoreValue}, ${difficulty}.
+
+Погода: ${temp}º, ветер ${windDir}, ${windSpeed} км/ч. Солнца будет примерно ${sun} часа(ов).
+Реко по одежде: ${clothing}
+
+Доберемся туда: ${toLink}
+Вернемся обратно: ${fromLink}
+
+Спортпит: пьем ${bidons} бидона(ов) изотоника и едим ${gels} гелей/батончиков.
+ 
+Где поесть на старте: ${foodStartLink}
+
+Где поесть на финише: ${foodEndLink}.`;
+
+        return text;
+    };
+
+    const handleShareSummary = async () => {
+        const text = generateSummaryText();
+        if (!text) return;
+
+        // Try to use native share if available
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    text: text
+                });
+            } catch (error) {
+                // User cancelled or error - try copying to clipboard
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("Текст скопирован в буфер обмена!");
+                } catch (clipError) {
+                    console.error("Error copying to clipboard", clipError);
+                }
+            }
+        } else {
+            // Fallback: copy to clipboard
+            try {
+                await navigator.clipboard.writeText(text);
+                alert("Текст скопирован в буфер обмена!");
+            } catch (error) {
+                console.error("Error copying to clipboard", error);
+            }
+        }
+    };
+
 
     const generateTransportLink = (fromCityName: string, toCityName: string, date: Date) => {
         const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
@@ -456,7 +546,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         <p className="text-xs text-neutral-400 flex items-center">
                             {activeStats.windDirection}
                             <ArrowUp width="14" height="14" style={{ transform: `rotate(${activeStats.windDeg + 180}deg)`, marginLeft: '4px', marginRight: '4px' }} />
-                            Порывы {activeStats.windGusts}
+                            Порывы {String(activeStats.windGusts)}
                         </p>
                     </div>
                     {renderWeatherBlock("ОСАДКИ", activeStats.isDry ? "0" : activeStats.precipSum.toFixed(1), " мм", (activeStats.isRideable && activeStats.rainHours) ? activeStats.rainHours : `Вероятность ${activeStats.precipitationProbability}%`)}
@@ -497,6 +587,17 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     Скачать
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={handleShareSummary}
+                                className="group relative focus:outline-none"
+                            >
+                                <RidesAnnounceIcon width={24} height={24} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
+                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
+                                    Резюме
                                 </div>
                             </button>
                         </div>
@@ -631,31 +732,73 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         )
     );
 
-    const renderDownloads = () => (
-        <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-2' : 'grid-cols-1'}`}>
-            {canShare && !isDesktop && (
+    const renderDownloads = () => {
+        // Mobile: 3 columns layout: Отправить | Открыть | Резюме
+        if (!isDesktop) {
+            return (
+                <div className="grid grid-cols-3 gap-2 px-4 pt-4 pb-2">
+                    {canShare && (
+                        <a
+                            href="#"
+                            onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
+                            className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
+                        >
+                            <span className="underline decoration-1 underline-offset-4">Отправить</span>
+                            <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
+                        </a>
+                    )}
+                    <a
+                        href="#"
+                        onClick={(e) => { 
+                            e.preventDefault(); 
+                            handleDownloadGpx();
+                        }}
+                        className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">Открыть</span>
+                        <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
+                    </a>
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleShareSummary();
+                        }}
+                        className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">Резюме</span>
+                        <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
+                    </button>
+                </div>
+            );
+        }
+
+        // Desktop: original layout
+        return (
+            <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {canShare && !isDesktop && (
+                    <a
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
+                        className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
+                    >
+                        <span className="underline decoration-1 underline-offset-4">Отправить</span>
+                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                    </a>
+                )}
                 <a
                     href="#"
-                    onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
+                    onClick={(e) => { 
+                        e.preventDefault(); 
+                        handleDownloadGpx();
+                    }}
                     className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
                 >
-                    <span className="underline decoration-1 underline-offset-4">Отправить</span>
-                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
+                    <span className="underline decoration-1 underline-offset-4">{isDesktop ? "Скачать" : "Открыть"}</span>
+                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: isDesktop ? "rotate(135deg)" : "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
                 </a>
-            )}
-            <a
-                href="#"
-                onClick={(e) => { 
-                    e.preventDefault(); 
-                    handleDownloadGpx();
-                }}
-                className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-            >
-                <span className="underline decoration-1 underline-offset-4">{isDesktop ? "Скачать" : "Открыть"}</span>
-                <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: isDesktop ? "rotate(135deg)" : "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-            </a>
-        </div>
-    );
+            </div>
+        );
+    };
 
     const getDistanceLabel = (dist: number) => {
         if (dist > 160) return "Большой";
