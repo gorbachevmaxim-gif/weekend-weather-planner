@@ -497,9 +497,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     };
 
     const handleGenerateAIAnnouncement = async () => {
-        // Debounce: prevent multiple clicks within 10 seconds
+        // Debounce: prevent multiple clicks within 15 seconds
         const now = Date.now();
-        if (now - lastClickTimeRef.current < 10000) {
+        if (now - lastClickTimeRef.current < 15000) {
             return;
         }
         lastClickTimeRef.current = now;
@@ -712,7 +712,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             <button
                                 onClick={handleGenerateAIAnnouncement}
                                 disabled={isGeneratingAI}
-                                className={`group relative focus-outline-none ${isGeneratingAI ? "opacity-50" : ""}`}
+                                className="group relative focus-outline-none"
                             >
                                 <RidesAnnounceIcon width={26} height={26} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
@@ -884,7 +884,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             handleGenerateAIAnnouncement();
                         }}
                         disabled={isGeneratingAI}
-                        className={`text-sm text-center ${isGeneratingAI ? "opacity-50" : ""} ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1`}
+                        className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-1 disabled:opacity-50`}
                     >
                         <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "..." : "Резюме"}</span>
                         <ArrowUp width="16" height="16" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "5px" }} />
