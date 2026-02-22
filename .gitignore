@@ -1,5 +1,7 @@
 node_modules
 dist
 dist-ssr
-
 .DS_Store
+# Environment variables (local secrets)
+.env.local
+.env.*.local
