@@ -4,6 +4,7 @@ import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
 import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
 import { ElevationPoint, calculateProfileScore, getDifficultyLabel } from "../utils/elevationUtils";
+import { RIDE_ANNOUNCEMENT_PROMPT, AI_API_CONFIG } from "../prompts/rideAnnouncementPrompt";
 import RoutesIcon from "./icons/RoutesIcon";
 import ArrowDown from "./icons/ArrowDown";
 import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
@@ -27,21 +28,9 @@ const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
     throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
   }
 
-  const prompt = `Давай сделаем из этого текста анонс для райда с друзьями. Стиль дружественный и спокойный, поменьше структуры и совсем без иконок, чтобы был как проза. 
-    Обязательно упоминай в тексте про характер маршрута и влияние рельефа на ощущения от райда - ProfileScore. 
-    Также обязательно пиши про вокзалы отправления и прибытия. Но если райд начинается или заканчивается в Москве, то вокзал в Москве упоминай только в контексте наличия элемента "туда" или "обратно". 
-    В тексте упоминай количество спортпита.
-    На основе погодных данных и локации маршрута, внедряй в текст короткое описание природы.
-    Интегрируй в текст темп райда в км/ч и общее время в седле, чтобы друзья понимали, что их ждет.
-    Пример текста:
-    В субботу проедем красивый райд. Маршрут на 120 км покружит нас по красивейшим сосновым дюнам Оки, поднимет на высокий Каширский мост и перенесет через понтонную переправу в Озеры. На финише всем Рульки вверх и царские калачи в знаменитой Коломенской Калачной.
-    Как по заказу будет солнечно и по ветру, +17…+26° и 16 км/ч с порывами до 30 км/ч. Одеваемся по погоде.
-    Экспресс до Ступино отходит с Павелецкого. Собираемся у касс вокзала.
-    Старт райда в 10:30…10:45, но сначала кофе и круассаны.
-    Обратно едем на Рязанском экспрессе от станции Голутвин, прибываем на Казанский вокзал вечером. Поторопитесь купить билеты на обратный поезд в приложении Яндекс Электрички или РЖД Пассажирам.
-  \n\n${summaryText}`;
+  const prompt = `${RIDE_ANNOUNCEMENT_PROMPT}\n\n${summaryText}`;
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_API_CONFIG.model}:generateContent?key=${apiKey}`;
   console.log("Calling API URL:", apiUrl.replace(apiKey, "REDACTED"));
 
   const response = await fetch(apiUrl, {
@@ -60,10 +49,10 @@ const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
         },
       ],
       generationConfig: {
-        temperature: 1,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 1024,
+        temperature: AI_API_CONFIG.temperature,
+        topP: AI_API_CONFIG.topP,
+        topK: AI_API_CONFIG.topK,
+        maxOutputTokens: AI_API_CONFIG.maxOutputTokens,
       },
     }),
   });
