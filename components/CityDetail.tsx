@@ -1011,7 +1011,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
 
                 {/* Info Group: Wear, Food & Profile */}
-                <div className={`grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4 w-full`}>
+                <div className={`grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-1'} gap-4 w-full`}>
                     {/* What to wear - for mobile only */}
                     {!isDesktop && (
                         <div className="flex flex-col">
