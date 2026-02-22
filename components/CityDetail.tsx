@@ -539,8 +539,12 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
             console.log("Detailed error:", errorMessage);
             
+            // Check for VPN/location error (400 - User location is not supported)
+            if (errorMessage.includes("400") && errorMessage.includes("User location is not supported")) {
+                alert("Необходимо включить VPN");
+            }
             // Check for quota error
-            if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("quota")) {
+            else if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("quota")) {
                 alert(`Ошибка: квота Google AI API исчерпана. Проверьте лимиты в Google AI Studio: https://ai.dev/rate-limit`);
             } else {
                 alert(`Ошибка при генерации анонса: ${errorMessage}`);
