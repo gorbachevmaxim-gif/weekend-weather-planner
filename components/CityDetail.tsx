@@ -22,7 +22,7 @@ const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
   const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
   
   console.log("API Key present:", !!apiKey);
-  console.log("API Key value:", apiKey ? apiKey.substring(0, 10) + "..." : "missing");
+  console.log("API Key value:", apiKey ? apiKey.substring(0, 10) + "Пишу..." : "missing");
   
   if (!apiKey) {
     throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
