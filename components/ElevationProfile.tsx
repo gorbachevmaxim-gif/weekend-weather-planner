@@ -504,6 +504,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     const borderColor = isDark ? '#666666' : '#000000';
 
+    // Calculate time values for legacy tooltip
+    const legacyTimeToFinish = activeHoverPoint 
+        ? Math.max(0, totalDist - activeHoverPoint.dist) / targetSpeed
+        : 0;
+
     const tooltipStyle: React.CSSProperties = variant === 'inline' 
         ? {
             top: 8,
@@ -522,12 +527,16 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             boxShadow: 'none'
         };
 
-    // Calculate data for infotracker modes
     const infotrackerData = useMemo(() => {
         if (!activeHoverPoint) return null;
 
-        const timeToFinish = Math.max(0, totalTime - activeHoverPoint.time);
+        // Calculate time to finish based on target speed (timeInSaddle at given TEMPO)
         const distToFinish = Math.max(0, totalDist - activeHoverPoint.dist);
+        const timeToFinish = distToFinish / targetSpeed;
+        
+        // Calculate time from start based on target speed (timeInSaddle at given TEMPO)
+        const distFromStart = activeHoverPoint.dist;
+        const timeFromStart = distFromStart / targetSpeed;
         
         // Calculate remaining elevation gain (from current point to end)
         // Using the route's total elevation gain minus what we've gained so far
@@ -549,7 +558,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         return {
             // Mode A: Время от старта, дистанция от старта
             modeA: {
-                timeFromStart: `${Math.floor(activeHoverPoint.time)}:${(Math.round((activeHoverPoint.time - Math.floor(activeHoverPoint.time)) * 60)).toString().padStart(2, '0')}`,
+                timeFromStart: `${Math.floor(timeFromStart)}:${(Math.round((timeFromStart - Math.floor(timeFromStart)) * 60)).toString().padStart(2, '0')}`,
                 distFromStart: `${Math.round(activeHoverPoint.dist)} км`,
                 label: 'ОТ СТАРТА'
             },
@@ -766,7 +775,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
                             </span>
 
                             <span>
-                                -{Math.floor(Math.max(0, totalTime - activeHoverPoint.time))}:{(Math.round((Math.max(0, totalTime - activeHoverPoint.time) - Math.floor(Math.max(0, totalTime - activeHoverPoint.time))) * 60)).toString().padStart(2, '0')}
+                                -{Math.floor(legacyTimeToFinish)}:{(Math.round((legacyTimeToFinish - Math.floor(legacyTimeToFinish)) * 60)).toString().padStart(2, '0')}
                             </span>
                             <span>
                                 {Math.max(0, totalDist - activeHoverPoint.dist).toFixed(1)} км
