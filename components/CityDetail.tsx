@@ -22,7 +22,7 @@ const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
   const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
   
   console.log("API Key present:", !!apiKey);
-  console.log("API Key value:", apiKey ? apiKey.substring(0, 10) + "Пишу..." : "missing");
+  console.log("API Key value:", apiKey ? apiKey.substring(0, 10) + "..." : "missing");
   
   if (!apiKey) {
     throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
@@ -516,22 +516,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             const aiText = await generateAIAnnouncement(text);
             setAiAnnouncement(aiText);
             
-            // Try to share the AI-generated text immediately
+            // Open share dialog for user to choose Telegram, WhatsApp, etc.
             if (navigator.share) {
                 try {
                     await navigator.share({
                         text: aiText
                     });
                 } catch (shareError) {
-                    // User cancelled or error - do nothing, let them copy manually if needed
-                }
-            } else {
-                // Fallback for browsers without share: copy to clipboard
-                try {
-                    await navigator.clipboard.writeText(aiText);
-                    alert("AI анонс скопирован в буфер обмена!");
-                } catch (clipError) {
-                    console.error("Error copying to clipboard", clipError);
+                    // User cancelled share - do nothing
                 }
             }
         } catch (error) {
@@ -724,7 +716,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 <RidesAnnounceIcon width={26} height={26} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    {isWritingTooltip ? "Пишу…" : "Резюме"}
+                                    {isWritingTooltip ? "Пишу..." : "Резюме"}
                                 </div>
                             </button>
                         </div>
@@ -893,7 +885,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         disabled={isGeneratingAI}
                         className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-0 disabled:opacity-50`}
                     >
-                        <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "..." : "Резюме"}</span>
+                        <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "Пишу..." : "Резюме"}</span>
                         <ArrowUp width="28" height="28" strokeWidth="1.3" style={{ transform: "rotate(45deg)", position: "relative", top: "1px" }} />
                     </button>
                 </div>
