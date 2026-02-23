@@ -7,43 +7,71 @@ interface AnnouncementModalProps {
   isDark?: boolean;
 }
 
+// Fix AI-generated markdown links where URL contains ) and AI incorrectly placed closing bracket
+const fixMarkdownLinks = (text: string): string => {
+  return text.replace(/\[([^\]]+)\]\(([^)]+\))\)(\.?)/g, '[$1($2)$3]');
+};
+
+// Parse markdown links to HTML for display
+const parseMarkdownLinks = (text: string): React.ReactNode[] => {
+  const fixedText = fixMarkdownLinks(text);
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = linkRegex.exec(fixedText)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(fixedText.substring(lastIndex, match.index));
+    }
+    
+    const linkText = match[1];
+    const linkUrl = match[2];
+    parts.push(
+      <a key={match.index} href={linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+        {linkText}
+      </a>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  if (lastIndex < fixedText.length) {
+    parts.push(fixedText.substring(lastIndex));
+  }
+  
+  return parts;
+};
+
 const AnnouncementModal: React.FC<AnnouncementModalProps> = ({ isOpen, onClose, content, isDark = false }) => {
   if (!isOpen) return null;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(content);
-      alert("Текст скопирован в буфер обмена!");
-    } catch (error) {
-      console.error("Error copying to clipboard:", error);
-    }
-  };
+  const parsedContent = parseMarkdownLinks(content);
 
-  const handleShare = async () => {
-    if (navigator.share) {
+  const handleCopy = async () => {
+    // Use the same approach as manual selection/copy
+    const selection = window.getSelection();
+    const range = document.createRange();
+    
+    // Get the content element
+    const contentElement = document.querySelector('.announcement-content');
+    if (contentElement) {
+      range.selectNodeContents(contentElement);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      
       try {
-        await navigator.share({
-          text: content
-        });
-      } catch (error) {
-        // User cancelled or error - try copying to clipboard
-        if ((error as Error).name !== "AbortError") {
-          try {
-            await navigator.clipboard.writeText(content);
-            alert("Текст скопирован в буфер обмена!");
-          } catch (clipError) {
-            console.error("Error copying to clipboard:", clipError);
-          }
-        }
+        document.execCommand('copy');
+        selection?.removeAllRanges();
+        alert("Текст скопирован!");
+      } catch (err) {
+        // Fallback
+        await navigator.clipboard.writeText(fixMarkdownLinks(content));
       }
     } else {
-      // Fallback: copy to clipboard
-      try {
-        await navigator.clipboard.writeText(content);
-        alert("Текст скопирован в буфер обмена!");
-      } catch (error) {
-        console.error("Error copying to clipboard:", error);
-      }
+      // Fallback
+      await navigator.clipboard.writeText(fixMarkdownLinks(content));
     }
   };
 
@@ -52,17 +80,14 @@ const AnnouncementModal: React.FC<AnnouncementModalProps> = ({ isOpen, onClose, 
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       onClick={onClose}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" />
       
-      {/* Modal Content */}
       <div 
         className={`relative w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl shadow-2xl ${
           isDark ? "bg-[#222222] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className={`flex items-center justify-between px-6 py-4 border-b ${
           isDark ? "border-[#444444]" : "border-[#E5E5E5]"
         }`}>
@@ -80,28 +105,26 @@ const AnnouncementModal: React.FC<AnnouncementModalProps> = ({ isOpen, onClose, 
           </button>
         </div>
 
-        {/* Content */}
         <div className={`flex-1 overflow-y-auto p-6 ${
-          isDark ? "[&_a]:text-[#6B9AFF] [&_a]:underline" : "[&_a:text-blue-600]"
+          isDark ? "text-[#D9D9D9]" : "text-black"
         }`}>
-          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-            {content}
+          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed announcement-content">
+            {parsedContent}
           </pre>
         </div>
 
-        {/* Actions */}
         <div className={`flex justify-center px-6 py-4 border-t ${
           isDark ? "border-[#444444]" : "border-[#E5E5E5]"
         }`}>
           <button
-            onClick={handleShare}
+            onClick={handleCopy}
             className={`py-3 px-6 rounded-full font-medium text-[15px] tracking-tighter transition-colors duration-100 ${
               isDark 
                 ? "bg-[#383838] hover:bg-[#444444] text-[#D9D9D9]" 
                 : "bg-white hover:bg-pill-hover text-black"
             }`}
           >
-            Поделиться
+            Копировать
           </button>
         </div>
       </div>
