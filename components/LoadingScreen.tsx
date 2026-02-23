@@ -68,7 +68,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete }) => {
                 completedRef.current = true;
                 onComplete();
             }
-        }, 100);
+        }, 200);
         
         return () => clearTimeout(timer);
     }
@@ -104,6 +104,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete }) => {
               Weather data by Open-Meteo.com
           </a>
       </div>
+      <div className="absolute bottom-12 text-center text-xs" style={{ color: '#777777' }}>
+          <a href="trojan://64a59181551b5773e390bd717a7b7c06@160.16.236.32:1281?security=tls&sni=www.nintendogames.net#%F0%9F%87%BA%F0%9F%87%B8%20United%20States%2C%20Dallas%20%7C%20%5BBL%5D" target="_blank" rel="noopener noreferrer">
+              С VPN загружается быстро и весело
+          </a>
+      </div>      
     </div>
   );
 };
