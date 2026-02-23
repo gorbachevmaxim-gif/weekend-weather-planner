@@ -126,6 +126,7 @@ const App: React.FC = () => {
 
       const BATCH_SIZE = 10;
       
+      // First pass - try to fetch all cities
       for (let i = 0; i < total; i += BATCH_SIZE) {
          if (i > 0) await new Promise(resolve => setTimeout(resolve, 50));
 
@@ -141,6 +142,30 @@ const App: React.FC = () => {
          });
          
          setLoading(prev => ({ ...prev, current: Math.min(total, i + batch.length) }));
+      }
+
+      // Second pass - retry failed cities (those that returned null)
+      const successfulCityNames = new Set(results.map(r => r.cityName));
+      const failedCities = cityNames.filter(name => !successfulCityNames.has(name));
+      
+      if (failedCities.length > 0) {
+        console.log(`Retrying ${failedCities.length} failed cities:`, failedCities);
+        setLoading(prev => ({ ...prev, status: "Повторная попытка для неудачных городов..." }));
+        
+        for (let i = 0; i < failedCities.length; i += BATCH_SIZE) {
+            const batch = failedCities.slice(i, i + BATCH_SIZE);
+            const promises = batch.map(name => {
+                setLoading(prev => ({ ...prev, current: prev.current, status: `Повтор: ${name}` }));
+                return analyzeCity(name, CITIES[name], dates);
+            });
+
+            const batchResults = await Promise.all(promises);
+            batchResults.forEach(res => {
+                if (res) results.push(res);
+            });
+            
+            setLoading(prev => ({ ...prev, current: Math.min(total, total - failedCities.length + i + batch.length) }));
+        }
       }
 
       setData(results);

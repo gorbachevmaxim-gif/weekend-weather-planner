@@ -15,23 +15,32 @@ export interface TargetDate {
     type: 'w1_sat' | 'w1_sun' | 'w2_sat' | 'w2_sun' | 'extra';
 }
 
+function isAbortError(error: any): boolean {
+    return error && (error.name === 'AbortError' || error.message === 'Fetch is aborted');
+}
+
 async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+    let lastError: any;
     for (let i = 0; i < retries; i++) {
         try {
             return await fn();
         } catch (error: any) {
+            lastError = error;
+            // Don't retry abort errors - they happen when component unmounts
+            if (isAbortError(error)) {
+                console.warn(`Fetch aborted, not retrying...`, error.message);
+                throw error;
+            }
             if (i < retries - 1) {
                 console.warn(`Retry attempt ${i + 1}/${retries} failed. Retrying in ${delay}ms...`, error.message);
                 await new Promise(res => setTimeout(res, delay));
-            } else {
-                throw error;
             }
         }
     }
-    throw new Error("Retry failed");
+    throw lastError;
 }
 
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 2000): Promise<Response> {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
