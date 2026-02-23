@@ -40,7 +40,7 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promis
     throw lastError;
 }
 
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 2000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 5000): Promise<Response> {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
