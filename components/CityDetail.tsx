@@ -18,6 +18,7 @@ import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
 import BottomSlider from "./BottomSlider";
+import AnnouncementModal from "./AnnouncementModal";
 
 // Google AI Studio API function for generating friendly ride announcements
 const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
@@ -165,6 +166,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [isGeneratingAI, setIsGeneratingAI] = useState(false);
     const [aiAnnouncement, setAiAnnouncement] = useState<string | null>(null);
     const [isWritingTooltip, setIsWritingTooltip] = useState(false);
+    const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
     const lastClickTimeRef = useRef<number>(0);
 
     const toggleSection = (section: string) => {
@@ -518,19 +520,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             const aiText = await generateAIAnnouncement(text);
             setAiAnnouncement(aiText);
             
-            // Show alert with the generated announcement text so user can read and copy it
-            alert(aiText);
-            
-            // Open share dialog for user to choose Telegram, WhatsApp, etc.
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        text: aiText
-                    });
-                } catch (shareError) {
-                    // User cancelled share - do nothing
-                }
-            }
+            // Show custom modal instead of alert
+            setShowAnnouncementModal(true);
         } catch (error) {
             console.error("Error generating AI announcement:", error);
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -1443,6 +1434,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         {renderProfile()}
                     </div>
                 </div>
+
+                <AnnouncementModal
+                    isOpen={showAnnouncementModal}
+                    onClose={() => setShowAnnouncementModal(false)}
+                    content={aiAnnouncement || ""}
+                    isDark={isDark}
+                />
             </div>
         );
     }
@@ -1506,6 +1504,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 isOpen={activeSliderContent !== null}
                 onClose={() => setActiveSliderContent(null)}
                 content={activeSliderContent}
+                isDark={isDark}
+            />
+
+            <AnnouncementModal
+                isOpen={showAnnouncementModal}
+                onClose={() => setShowAnnouncementModal(false)}
+                content={aiAnnouncement || ""}
                 isDark={isDark}
             />
         </div>
