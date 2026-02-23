@@ -438,9 +438,14 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         // Format date as "DD.MM"
         const dateStr = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-        // Generate transport links
+        // Generate transport links and station info
         const toLink = routeStartCity !== "Москва" ? generateTransportLink("Москва", routeStartCity, date) : "";
         const fromLink = routeEndCity !== "Москва" ? generateTransportLink(routeEndCity, "Москва", date) : "";
+        
+        // Station info for "туда" (Moscow → start city)
+        const toStationInfo = routeStartCity !== "Москва" ? `${startMoscowStation} → ${startStation}` : "";
+        // Station info for "обратно" (end city → Moscow)
+        const fromStationInfo = routeEndCity !== "Москва" ? `${endStation} → ${endMoscowStation}` : "";
 
         // Generate food place links
         const foodStartLink = routeStartCity === "Завидово" 
@@ -457,10 +462,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 Влияние рельефа на ощущения от райда: ProfileScore ${profileScoreValue}, ${difficulty}.
 
 Погода: ${temp}º, ветер ${windDir}, ${windSpeed} км/ч. Солнца будет примерно ${sun} часа(ов).
-Реко по одежде: ${clothing}
+Рекомендация по одежде: ${clothing}
 
-Доберемся туда: ${toLink}
-Вернемся обратно: ${fromLink}
+Доберемся туда (${toStationInfo}): ${toLink}
+Вернемся обратно (${fromStationInfo}): ${fromLink}
 
 Спортпит: пьем ${bidons} бидона(ов) изотоника и едим ${gels} гелей/батончиков.
  
