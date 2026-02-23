@@ -12,6 +12,8 @@ import ArrowUp from "./icons/ArrowUp";
 import GpxIcon from "./icons/GpxIcon";
 import ShareIcon from "./icons/ShareIcon";
 import RidesAnnounceIcon from "./icons/RidesAnnounceIcon";
+import GeminiAnnounceIcon from "./icons/GeminiAnnounceIcon";
+import GeminiIcon from "./icons/GeminiIcon";
 import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
@@ -716,7 +718,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                                 disabled={isGeneratingAI}
                                 className="group relative focus-outline-none"
                             >
-                                <RidesAnnounceIcon width={26} height={26} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
+                                <GeminiAnnounceIcon width={26} height={26} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
                                 <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
                                     <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
                                     {isWritingTooltip ? "Пишу..." : "Резюме"}
@@ -886,10 +888,10 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             handleGenerateAIAnnouncement();
                         }}
                         disabled={isGeneratingAI}
-                        className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-0 disabled:opacity-50`}
+                        className={`group text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-2 disabled:opacity-50`}
                     >
-                        <span className="underline decoration-1 underline-offset-4">{isGeneratingAI ? "Пишу..." : "Резюме"}</span>
-                        <ArrowUp width="28" height="28" strokeWidth="1.3" style={{ transform: "rotate(45deg)", position: "relative", top: "1px" }} />
+                        <span className="underline decoration-1 underline-offset-4 group-hover:text-[#777777] transition-colors">{isGeneratingAI ? "Пишу..." : "Резюме"}</span>
+                        <GeminiIcon width={18} height={18} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} group-hover:text-[#777777] transition-colors`} />
                     </button>
                 </div>
             );
