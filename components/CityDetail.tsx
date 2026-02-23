@@ -516,6 +516,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             const aiText = await generateAIAnnouncement(text);
             setAiAnnouncement(aiText);
             
+            // Show alert with the generated announcement text so user can read and copy it
+            alert(aiText);
+            
             // Open share dialog for user to choose Telegram, WhatsApp, etc.
             if (navigator.share) {
                 try {
