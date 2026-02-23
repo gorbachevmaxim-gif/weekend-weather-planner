@@ -19,17 +19,21 @@ function isAbortError(error: any): boolean {
     return error && (error.name === 'AbortError' || error.message === 'Fetch is aborted');
 }
 
-async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 2000, context?: string): Promise<T> {
     let lastError: any;
     for (let i = 0; i < retries; i++) {
         try {
             return await fn();
         } catch (error: any) {
             lastError = error;
-            // Don't retry abort errors - they happen when component unmounts
+            // Abort errors (timeouts) should be retried with longer delay
             if (isAbortError(error)) {
-                console.warn(`Fetch aborted, not retrying...`, error.message);
-                throw error;
+                console.warn(`Fetch aborted for ${context || 'request'}, retry ${i + 1}/${retries} in ${delay}ms...`);
+                if (i < retries - 1) {
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2; // Exponential backoff for abort errors
+                    continue;
+                }
             }
             if (i < retries - 1) {
                 console.warn(`Retry attempt ${i + 1}/${retries} failed. Retrying in ${delay}ms...`, error.message);
@@ -40,7 +44,7 @@ async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promis
     throw lastError;
 }
 
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 5000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 20000): Promise<Response> {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
@@ -288,7 +292,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
             const res = await fetchWithTimeout(`${API_URL}?${params.toString()}`);
             if (!res.ok) throw new Error(`API Error: ${res.status}`);
             return res;
-        });
+        }, 3, 2000, cityName);
         const data = await response.json();
         const hourly = data.hourly;
         const result: CityAnalysisResult = {
