@@ -237,7 +237,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, []);
 
 
-    // Initialize Map
+    // Initialize Map (only once on mount)
     useEffect(() => {
         if (!mapContainerRef.current) return;
 
@@ -275,7 +275,24 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             resizeObserver.disconnect();
             map.remove();
         };
-    }, [isDark]); // Re-initialize on theme change
+    }, [cityCoords.lat, cityCoords.lon]); // Only recreate when city changes
+
+    // Handle theme changes without recreating the map
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (!map) return;
+
+        const styleUrl = isDark 
+            ? '/styles/style-dark.json'
+            : '/styles/style-light.json';
+
+        // Simply change style - MapLibre will preserve sources and layers
+        try {
+            map.setStyle(styleUrl);
+        } catch (e) {
+            console.warn("Failed to set map style:", e);
+        }
+    }, [isDark]);
 
     // Update View (Center/Zoom) when no route
     useEffect(() => {
