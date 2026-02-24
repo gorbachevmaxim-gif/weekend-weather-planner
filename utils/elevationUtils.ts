@@ -305,3 +305,9 @@ export function getDifficultyLabel(score: number): string {
     if (score <= 20) return "Бодрый";
     return "Тяжелый";
 }
+
+export function getDistanceLabel(dist: number): string {
+    if (dist > 160) return "Большой";
+    if (dist >= 120) return "Объемный";
+    return "Короткий";
+}

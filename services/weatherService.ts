@@ -1,14 +1,9 @@
-import { API_URL, CITY_FILENAMES, FLIGHT_CITIES } from '../constants';
+import { API_URL, CITY_FILENAMES, FLIGHT_CITIES, MOUNTAIN_CITIES, HOLIDAYS } from '../config/constants';
+import { CITY_ROUTES } from '../config/routes';
 import { parseGpx, RouteData } from './gpxUtils';
 import { calculateProfileScore } from '../utils/elevationUtils';
 import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types';
 import { track } from '@vercel/analytics';
-
-export const MOUNTAIN_CITIES: string[] = [/*"Кемер",*/ "Фетхие"];
-
-const HOLIDAYS = [
-  "2026-05-01", "2026-05-11", "2026-06-12", "2026-11-04"
-];
 
 export interface TargetDate {
     date: Date;
@@ -245,30 +240,27 @@ function getClothingRecommendations(
 async function checkRouteAvailability(cityName: string, windDeg: number): Promise<RouteData | null> {
     const fileCityName = CITY_FILENAMES[cityName] || cityName;
     const windDirCode = getCardinal(windDeg);
-    const baseName = `routes/${fileCityName}_${windDirCode}`;
-    const candidates = [`${baseName}.gpx`, `${baseName}_1.gpx`, `${baseName}_2.gpx`, `${baseName}_3.gpx`];
+    
+    const availableRoutes = CITY_ROUTES[fileCityName];
+    if (!availableRoutes) return null;
+
+    // Find route matching wind direction
+    const matchingRoute = availableRoutes.find(r => r.direction === windDirCode);
+    
+    if (!matchingRoute) return null;
+
+    const url = `routes/${matchingRoute.filename}`;
 
     try {
-        const routePromises = candidates.map(async (url) => {
-            try {
-                const cacheBustedUrl = `${url}?t=${Date.now()}`;
-                const res = await fetch(cacheBustedUrl, { method: "GET" });
-                if (res.ok) {
-                    const gpxText = await res.text();
-                    return parseGpx(gpxText);
-                }
-                return null;
-            } catch (e) {
-                return null;
-            }
-        });
-        const results = await Promise.all(routePromises);
-        for (const route of results) {
-            if (route) return route;
+        const cacheBustedUrl = `${url}?t=${Date.now()}`;
+        const res = await fetch(cacheBustedUrl, { method: "GET" });
+        if (res.ok) {
+            const gpxText = await res.text();
+            return parseGpx(gpxText);
         }
         return null;
     } catch (e) {
-        // Silently fail - no route available for this direction
+        console.error(`Failed to fetch route ${url}`, e);
         return null;
     }
 }
@@ -286,14 +278,46 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
         timezone: "Europe/Moscow"
     });
 
+    const cacheKey = `weather_${cityName}_${startStr}_${endStr}`;
+    const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours
+
     try {
-        track('API Request', { endpoint: 'open-meteo', city: cityName });
-        const response = await retry(async () => {
-            const res = await fetchWithTimeout(`${API_URL}?${params.toString()}`);
-            if (!res.ok) throw new Error(`API Error: ${res.status}`);
-            return res;
-        }, 3, 2000, cityName);
-        const data = await response.json();
+        let data: any;
+        const cached = localStorage.getItem(cacheKey);
+        
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                if (Date.now() - parsed.timestamp < CACHE_DURATION) {
+                    // console.log(`Using cached data for ${cityName}`);
+                    data = parsed.data;
+                }
+            } catch (e) {
+                console.warn("Failed to parse cache", e);
+                localStorage.removeItem(cacheKey);
+            }
+        }
+
+        if (!data) {
+            track('API Request', { endpoint: 'open-meteo', city: cityName });
+            const response = await retry(async () => {
+                const res = await fetchWithTimeout(`${API_URL}?${params.toString()}`);
+                if (!res.ok) throw new Error(`API Error: ${res.status}`);
+                return res;
+            }, 3, 2000, cityName);
+            data = await response.json();
+            
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    timestamp: Date.now(),
+                    data
+                }));
+            } catch (e) {
+                console.warn("Failed to save to cache (quota exceeded?)", e);
+                // Optional: Clear old cache entries if quota exceeded
+            }
+        }
+
         const hourly = data.hourly;
         const result: CityAnalysisResult = {
             cityName,

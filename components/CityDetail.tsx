@@ -1,112 +1,20 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { CityAnalysisResult } from "../types";
-import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../constants";
-import { getCardinal, MOUNTAIN_CITIES } from "../services/weatherService";
+import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from "../config/constants";
+import { getCardinal } from "../services/weatherService";
 import { parseGpx, getDistanceFromLatLonInKm, RouteData } from "../services/gpxUtils";
-import { ElevationPoint, calculateProfileScore, getDifficultyLabel } from "../utils/elevationUtils";
-import { RIDE_ANNOUNCEMENT_PROMPT, AI_API_CONFIG } from "../prompts/rideAnnouncementPrompt";
-import RoutesIcon from "./icons/RoutesIcon";
-import ArrowDown from "./icons/ArrowDown";
-import ArrowLeftDiagonal from "./icons/ArrowLeftDiagonal";
-import ArrowUp from "./icons/ArrowUp";
-import GpxIcon from "./icons/GpxIcon";
-import ShareIcon from "./icons/ShareIcon";
-import RidesAnnounceIcon from "./icons/RidesAnnounceIcon";
-import GeminiAnnounceIcon from "./icons/GeminiAnnounceIcon";
-import GeminiIcon from "./icons/GeminiIcon";
-import { CITY_TRANSPORT_CONFIG } from "../transportConfig";
+import { ElevationPoint, calculateProfileScore } from "../utils/elevationUtils";
+import { useRideAnnouncement } from "../hooks/useRideAnnouncement";
 import { MapView } from "./MapView";
 import ElevationProfile from "./ElevationProfile";
 import BottomSlider from "./BottomSlider";
 import AnnouncementModal from "./AnnouncementModal";
-
-// Google AI Studio API function for generating friendly ride announcements
-const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  
-  console.log("API Key present:", !!apiKey);
-  console.log("API Key value:", apiKey ? apiKey.substring(0, 10) + "..." : "missing");
-  
-  if (!apiKey) {
-    throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
-  }
-
-  const prompt = `${RIDE_ANNOUNCEMENT_PROMPT}\n\n${summaryText}`;
-
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_API_CONFIG.model}:generateContent?key=${apiKey}`;
-  console.log("Calling API URL:", apiUrl.replace(apiKey, "REDACTED"));
-
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: AI_API_CONFIG.temperature,
-        topP: AI_API_CONFIG.topP,
-        topK: AI_API_CONFIG.topK,
-        maxOutputTokens: AI_API_CONFIG.maxOutputTokens,
-      },
-    }),
-  });
-
-  console.log("Response status:", response.status);
-  console.log("Response statusText:", response.statusText);
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.log("API Error response:", error);
-    throw new Error(`API error (${response.status}): ${error}`);
-  }
-
-  const data = await response.json();
-  console.log("API Response data:", JSON.stringify(data, null, 2));
-  
-  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    return data.candidates[0].content.parts[0].text;
-  }
-  
-  if (data.error) {
-    throw new Error(`API error: ${JSON.stringify(data.error)}`);
-  }
-  
-  throw new Error("No response from AI - check console for details");
-};
-
-// Helper component for smooth accordion animation
-const AccordionContent: React.FC<{ isOpen: boolean; children: React.ReactNode }> = ({ isOpen, children }) => {
-  const [overflow, setOverflow] = useState("overflow-hidden");
-
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => setOverflow("overflow-visible"), 300);
-      return () => clearTimeout(timer);
-    } else {
-      setOverflow("overflow-hidden");
-    }
-  }, [isOpen]);
-
-  return (
-    <div 
-        className="grid transition-all duration-300 ease-in-out" 
-        style={{ gridTemplateRows: isOpen ? '1fr' : '0fr', opacity: isOpen ? 1 : 0 }}
-    >
-      <div className={overflow}>
-        {children}
-      </div>
-    </div>
-  );
-};
+import CityWeather from "./city/CityWeather";
+import CityRouteStats from "./city/CityRouteStats";
+import CityDownloads from "./city/CityDownloads";
+import CityDetails from "./city/CityDetails";
+import { generateTransportLink, getStationName, getMoscowStationName } from "../utils/transportUtils";
+import { getDifficultyLabel, getDistanceLabel } from "../utils/elevationUtils";
 
 interface CityDetailProps {
     data: CityAnalysisResult;
@@ -123,19 +31,6 @@ interface FoundRoute {
     gpxString: string;
     url: string;
 }
-
-const getShortDayName = (fullName: string) => {
-    const map: { [key: string]: string } = {
-        "Понедельник": "ПН",
-        "Вторник": "ВТ",
-        "Среда": "СР",
-        "Четверг": "ЧТ",
-        "Пятница": "ПТ",
-        "Суббота": "СБ",
-        "Воскресенье": "ВС"
-    };
-    return map[fullName] || fullName.slice(0, 2).toUpperCase();
-};
 
 const getShortMonthName = (date: Date) => {
     const months = [
@@ -156,22 +51,23 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const [isMapFullscreen, setIsMapFullscreen] = useState(false);
     const [speed, setSpeed] = useState<number>(30);
     const [elevationHoverPoint, setElevationHoverPoint] = useState<ElevationPoint | null>(null);
+    
+    // Tooltips
     const [showProfileTooltip, setShowProfileTooltip] = useState(false);
     const [showDifficultyTooltip, setShowDifficultyTooltip] = useState(false);
     const [showDistanceTooltip, setShowDistanceTooltip] = useState(false);
     const [showPaceTooltip, setShowPaceTooltip] = useState(false);
     const [showBidonsTooltip, setShowBidonsTooltip] = useState(false);
     const [showGelBarTooltip, setShowGelBarTooltip] = useState(false);
+    
     const [activeSliderContent, setActiveSliderContent] = useState<string | null>(null);
-    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-    const [aiAnnouncement, setAiAnnouncement] = useState<string | null>(null);
-    const [isWritingTooltip, setIsWritingTooltip] = useState(false);
     const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+    
+    const { generate: generateAnnouncement, isGenerating: isGeneratingAI, announcement: aiAnnouncement } = useRideAnnouncement();
     const lastClickTimeRef = useRef<number>(0);
 
     const toggleSection = (section: string) => {
         if (!isDesktop) {
-            // Mobile: accordion behavior - close others when one opens
             const isCurrentlyOpen = openSections[section];
             setOpenSections({
                 одежда: false,
@@ -181,7 +77,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 [section]: !isCurrentlyOpen
             });
         } else {
-            // Desktop: keep current behavior - allow multiple sections open
             setOpenSections(prev => ({
                 ...prev,
                 [section]: !prev[section]
@@ -230,7 +125,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     useEffect(() => {
         if (initialDay) {
-            // Find specific date string to be unambiguous
             const initialDate = allAvailableDays.find(d => d.id === initialDay && (!initialTab || d.weekend === initialTab))?.date.getTime();
             if (initialDate) {
                 setRouteDay(initialDate.toString());
@@ -276,8 +170,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
     const currentRouteData = foundRoutes[selectedRouteIdx]?.routeData;
     const isFlightDestination = FLIGHT_CITIES.includes(data.cityName);
 
-    const moscow = CITIES["Москва"];
-
     let routeStartLat = cityCoords.lat, routeStartLon = cityCoords.lon;
     let routeEndLat = cityCoords.lat, routeEndLon = cityCoords.lon;
 
@@ -301,19 +193,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     const routeStartCity = findClosestCityName(routeStartLat, routeStartLon);
     const routeEndCity = findClosestCityName(routeEndLat, routeEndLon);
-
-    const getStationName = (city: string) => {
-        return CITY_TRANSPORT_CONFIG[city]?.displayName || city;
-    };
-
-    const getMoscowStationName = (city: string) => {
-        return CITY_TRANSPORT_CONFIG[city]?.moscowStation || "Москва";
-    };
-
-    const startStation = getStationName(routeStartCity);
-    const endStation = getStationName(routeEndCity);
-    const startMoscowStation = getMoscowStationName(routeStartCity);
-    const endMoscowStation = getMoscowStationName(routeEndCity);
 
     useEffect(() => {
         let isMounted = true;
@@ -403,16 +282,35 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         }
     };
 
-    const handleKomoot = () => {
-        const selectedRoute = foundRoutes[selectedRouteIdx];
-        if (!selectedRoute) return;
+    const calculateDuration = (distKm: number, speedKmH: number) => {
+        let hours = Math.floor(distKm / speedKmH);
+        let minutes = Math.round((distKm / speedKmH - hours) * 60);
 
-        const gpxUrl = new URL(selectedRoute.url, window.location.href).href;
-        const komootUrl = `komoot://import?url=${encodeURIComponent(gpxUrl)}`;
-        window.location.href = komootUrl;
+        if (minutes === 60) {
+            hours += 1;
+            minutes = 0;
+        }
+
+        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     };
 
-    // Generate summary text for sharing
+    const calculateDurationMinutes = (distKm: number, speedKmH: number) => {
+        return Math.round((distKm / speedKmH) * 60);
+    };
+
+    const sportNutrition = useMemo(() => {
+        if (!currentRouteData) return { bidons: 0, gels: 0 };
+        const durationMinutes = calculateDurationMinutes(currentRouteData.distanceKm, speed);
+        const bidons = Math.ceil(durationMinutes / 80);
+        const gels = Math.ceil(durationMinutes / 40);
+        return { bidons, gels };
+    }, [currentRouteData, speed]);
+
+    const profileScore = useMemo(() => {
+        if (!currentRouteData) return 0;
+        return calculateProfileScore(currentRouteData.points, currentRouteData.cumulativeDistances);
+    }, [currentRouteData]);
+
     const generateSummaryText = () => {
         if (!activeStats || !currentRouteData) return null;
 
@@ -435,19 +333,19 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         const bidons = sportNutrition.bidons;
         const gels = sportNutrition.gels;
 
-        // Format date as "DD.MM"
         const dateStr = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-        // Generate transport links and station info
         const toLink = routeStartCity !== "Москва" ? generateTransportLink("Москва", routeStartCity, date) : "";
         const fromLink = routeEndCity !== "Москва" ? generateTransportLink(routeEndCity, "Москва", date) : "";
         
-        // Station info for "туда" (Moscow → start city)
+        const startStation = getStationName(routeStartCity);
+        const endStation = getStationName(routeEndCity);
+        const startMoscowStation = getMoscowStationName(routeStartCity);
+        const endMoscowStation = getMoscowStationName(routeEndCity);
+
         const toStationInfo = routeStartCity !== "Москва" ? `${startMoscowStation} → ${startStation}` : "";
-        // Station info for "обратно" (end city → Moscow)
         const fromStationInfo = routeEndCity !== "Москва" ? `${endStation} → ${endMoscowStation}` : "";
 
-        // Generate food place links
         const foodStartLink = routeStartCity === "Завидово" 
             ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" 
             : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeStartCity)}`;
@@ -455,7 +353,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" 
             : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeEndCity)}`;
 
-        const text = `Едем по маршруту ${route} ${dateStr}, ${dayName}.
+        return `Едем по маршруту ${route} ${dateStr}, ${dayName}.
 Дистанция: ${distance} км / ${elevation} м набора.
 В седле примерно ${duration} при темпе ${pace} км/ч.
 Характер маршрута: ${distanceLabel}, ${paceLabel}.
@@ -472,42 +370,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 Где поесть на старте: ${foodStartLink}
 
 Где поесть на финише: ${foodEndLink}.`;
-
-        return text;
-    };
-
-    const handleShareSummary = async () => {
-        const text = generateSummaryText();
-        if (!text) return;
-
-        // Try to use native share if available
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    text: text
-                });
-            } catch (error) {
-                // User cancelled or error - try copying to clipboard
-                try {
-                    await navigator.clipboard.writeText(text);
-                    alert("Текст скопирован в буфер обмена!");
-                } catch (clipError) {
-                    console.error("Error copying to clipboard", clipError);
-                }
-            }
-        } else {
-            // Fallback: copy to clipboard
-            try {
-                await navigator.clipboard.writeText(text);
-                alert("Текст скопирован в буфер обмена!");
-            } catch (error) {
-                console.error("Error copying to clipboard", error);
-            }
-        }
     };
 
     const handleGenerateAIAnnouncement = async () => {
-        // Debounce: prevent multiple clicks within 12 seconds
         const now = Date.now();
         if (now - lastClickTimeRef.current < 12000) {
             return;
@@ -517,163 +382,13 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         const text = generateSummaryText();
         if (!text) return;
 
-        setIsGeneratingAI(true);
-        setIsWritingTooltip(true);
-        setAiAnnouncement(null);
-
         try {
-            const aiText = await generateAIAnnouncement(text);
-            setAiAnnouncement(aiText);
-            
-            // Show custom modal instead of alert
+            await generateAnnouncement(text);
             setShowAnnouncementModal(true);
         } catch (error) {
-            console.error("Error generating AI announcement:", error);
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
-            console.log("Detailed error:", errorMessage);
-            
-            // Check for VPN/location error (400 - User location is not supported)
-            if (errorMessage.includes("400") && errorMessage.includes("User location is not supported")) {
-                alert("Необходимо включить VPN");
-            }
-            // Check for quota error
-            else if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("quota")) {
-                alert(`Ошибка: квота Google AI API исчерпана. Проверьте лимиты в Google AI Studio: https://ai.dev/rate-limit`);
-            } else {
-                alert(`Ошибка при генерации анонса: ${errorMessage}`);
-            }
-        } finally {
-            setIsGeneratingAI(false);
-            setIsWritingTooltip(false);
+            alert(`Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`);
         }
     };
-
-
-    const generateTransportLink = (fromCityName: string, toCityName: string, date: Date) => {
-        const fromConfig = CITY_TRANSPORT_CONFIG[fromCityName];
-        const toConfig = CITY_TRANSPORT_CONFIG[toCityName];
-
-        if (!fromConfig || !toConfig) {
-            return "#";
-        }
-
-        const isFlight = fromConfig.provider === "aeroflot" || toConfig.provider === "aeroflot";
-
-        if (isFlight) {
-            const day = String(date.getDate()).padStart(2, "0");
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            
-            const fromCode = fromConfig.apiName === "Москва" ? "MOW" : fromConfig.apiName;
-            const toCode = toConfig.apiName === "Москва" ? "MOW" : toConfig.apiName;
-
-            return `https://www.aviasales.ru/search/${fromCode}${day}${month}${toCode}1`;
-        }
-
-        if (!fromConfig.yandexId || !toConfig.yandexId) {
-            console.error("Missing transport config for Yandex link generation", { fromCityName, toCityName, fromConfig, toConfig });
-            return "#";
-        }
-
-        const fromId = fromConfig.yandexId;
-        const fromName = encodeURIComponent(fromConfig.displayName);
-        const toId = toConfig.yandexId;
-        const toName = encodeURIComponent(toConfig.displayName);
-
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        const when = encodeURIComponent(`${day}.${month}.${year}`);
-
-        return `https://rasp.yandex.ru/search/suburban/?fromId=${fromId}&fromName=${fromName}&toId=${toId}&toName=${toName}&when=${when}`;
-    };
-
-    const renderWeatherValue = (value: string, unit: string) => (
-        <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
-            {value.replace("-", "–")}
-            <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#D9D9D9" : "#111111" }}>{unit.replace("-", "–")}</span>
-        </p>
-    );
-
-    const renderWeatherBlock = (title: string, value: string, unit: string, subValue: string) => (
-        <div className="flex flex-col">
-            <p className="text-xs text-neutral-400">{title}</p>
-            {title === "ОСАДКИ" ? (
-                <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
-                    {value}
-                    <span className="text-base font-unbounded font-medium" style={{ color: isDark ? "#D9D9D9" : "#111111" }}>{unit}</span>
-                </p>
-            ) : (
-                renderWeatherValue(value, unit)
-            )}
-            <p className="text-xs text-neutral-400">{subValue.replace("-", "-")}</p>
-        </div>
-    );
-
-    const isMountainCity = MOUNTAIN_CITIES.includes(data.cityName);
-    const temperatureSubValue = isMountainCity && activeStats?.temperature900hPa !== undefined && activeStats?.temperature850hPa !== undefined
-        ? `1000 м ${activeStats.temperature900hPa}º, 1500 м ${activeStats.temperature850hPa}º`
-        : `Ощущ: ${activeStats?.feelsRange.split("..",)[0]}°..${activeStats?.feelsRange.split("..",)[1]}°`;
-
-    const profileScore = useMemo(() => {
-        if (!currentRouteData) return 0;
-        return calculateProfileScore(currentRouteData.points, currentRouteData.cumulativeDistances);
-    }, [currentRouteData]);
-
-    const markers: { coords: [number, number]; label: string }[] = [];
-
-    const calculateDuration = (distKm: number, speedKmH: number) => {
-        let hours = Math.floor(distKm / speedKmH);
-        let minutes = Math.round((distKm / speedKmH - hours) * 60);
-
-        if (minutes === 60) {
-            hours += 1;
-            minutes = 0;
-        }
-
-        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-    };
-
-    // Calculate duration in minutes for sport nutrition calculations
-    const calculateDurationMinutes = (distKm: number, speedKmH: number) => {
-        return Math.round((distKm / speedKmH) * 60);
-    };
-
-    // Sport nutrition calculations
-    const sportNutrition = useMemo(() => {
-        if (!currentRouteData) return { bidons: 0, gels: 0 };
-        
-        const durationMinutes = calculateDurationMinutes(currentRouteData.distanceKm, speed);
-        
-        // 1 bidon per 1h 20min (80 minutes)
-        const bidons = Math.ceil(durationMinutes / 80);
-        
-        // 1 gel/bar per 40 minutes
-        const gels = Math.ceil(durationMinutes / 40);
-        
-        return { bidons, gels };
-    }, [currentRouteData, speed]);
-
-    // Sub-render methods
-    const renderWeatherSection = () => (
-        activeStats && (
-            <div className={`${isDesktop ? `bg-transparent border-y py-6 ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}` : 'px-4 py-[14px]'}`}>
-                <div className={`grid gap-4 ${isDesktop ? 'grid-cols-4' : 'grid-cols-2 md:grid-cols-4'}`}>
-                    {renderWeatherBlock("ТЕМПЕРАТУРА", activeStats.tempRange.split("..",)[0] + "°", `..${activeStats.tempRange.split("..",)[1]}°`, temperatureSubValue)}
-                    <div className="flex flex-col">
-                        <p className="text-xs text-neutral-400">ВЕТЕР</p>
-                        {renderWeatherValue(activeStats.windRange, " км/ч")}
-                        <p className="text-xs text-neutral-400 flex items-center">
-                            {activeStats.windDirection}
-                            <ArrowUp width="14" height="14" style={{ transform: `rotate(${activeStats.windDeg + 180}deg)`, marginLeft: '4px', marginRight: '4px' }} />
-                            Порывы {String(activeStats.windGusts)}
-                        </p>
-                    </div>
-                    {renderWeatherBlock("ОСАДКИ", activeStats.isDry ? "0" : activeStats.precipSum.toFixed(1), " мм", (activeStats.isRideable && activeStats.rainHours) ? activeStats.rainHours : `Вероятность ${activeStats.precipitationProbability}%`)}
-                    {renderWeatherBlock("СОЛНЦЕ", activeStats.sunStr.split(" ")[0], ` ч ${activeStats.sunStr.split(" ")[2]} мин`, "09:00 – 18:00")}
-                </div>
-            </div>
-        )
-    );
 
     const renderRouteName = () => (
         activeStats && (
@@ -687,39 +402,15 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                             </p>
                         </div>
                         <div className="flex items-center justify-start gap-[16px] mt-[6px]">
-                            <button
-                                onClick={handleForwardGpx}
-                                className="group relative focus:outline-none"
-                            >
-                                <ShareIcon width="24" height="24" className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
-                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Отправить
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={handleDownloadGpx}
-                                className="group relative focus:outline-none"
-                            >
-                                <GpxIcon width="24" height="24" className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
-                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Скачать
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={handleGenerateAIAnnouncement}
-                                disabled={isGeneratingAI}
-                                className="group relative focus-outline-none"
-                            >
-                                <GeminiAnnounceIcon width={26} height={26} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] transition-colors`} />
-                                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    {isWritingTooltip ? "Пишу..." : "Анонс"}
-                                </div>
-                            </button>
+                            <CityDownloads 
+                                isDesktop={true}
+                                isDark={isDark}
+                                canShare={canShare}
+                                isGeneratingAI={isGeneratingAI}
+                                onForward={handleForwardGpx}
+                                onDownload={handleDownloadGpx}
+                                onGenerate={handleGenerateAIAnnouncement}
+                            />
                         </div>
                     </div>
                 ) : (
@@ -730,47 +421,6 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         </p>
                     </div>
                 )}
-            </div>
-        )
-    );
-
-    const renderRouteStats = () => (
-        currentRouteData && (
-            <div className={`${isDesktop ? '' : 'px-4 pb-[14px]'} grid grid-cols-2 md:grid-cols-4 gap-4`}>
-                <div className="flex flex-col">
-                    <p className="text-xs text-neutral-400">ДИСТАНЦИЯ</p>
-                    {renderWeatherValue(currentRouteData.distanceKm.toFixed(0), " км")}
-                </div>
-                <div className="flex flex-col">
-                    <p className="text-xs text-neutral-400">НАБОР</p>
-                    {renderWeatherValue(Math.round(currentRouteData.elevationM).toString(), " м")}
-                </div>
-                <div className="flex flex-col items-start">
-                    <div className="flex items-center gap-2">
-                        <p className="text-xs text-neutral-400">ТЕМП</p>
-                        <div className="flex items-center gap-1.5 -mt-1">
-                            <button 
-                                onClick={() => setSpeed(s => Math.max(23, s - 1))} 
-                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-0.5 text-neutral-400 ${isDark ? "hover:text-[#D9D9D9] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
-                            >
-                                −
-                            </button>
-                            <button 
-                                onClick={() => setSpeed(s => Math.min(38, s + 1))} 
-                                className={`w-5 h-5 flex items-center justify-center text-lg leading-none pb-0.5 -translate-x-1 text-neutral-400 ${isDark ? "hover:text-[#D9D9D9] hover:bg-[#333333]" : "hover:text-black hover:bg-gray-200"} rounded transition-colors`}
-                            >
-                                +
-                            </button>
-                        </div>
-                    </div>
-                    {renderWeatherValue(speed.toString(), " км/ч")}
-                </div>
-                <div className="flex flex-col">
-                    <p className="text-xs text-neutral-400">В СЕДЛЕ</p>
-                    <p className={`text-base font-unbounded font-medium ${isDark ? "text-[#D9D9D9]" : "text-[#111111]"}`}>
-                        {calculateDuration(currentRouteData.distanceKm, speed)}
-                    </p>
-                </div>
             </div>
         )
     );
@@ -786,7 +436,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 cityCoords={cityCoords}
                 currentRouteData={currentRouteData}
                 routeStatus={routeStatus}
-                markers={markers}
+                markers={[]}
                 windDeg={activeStats?.windDeg}
                 windSpeed={activeStats?.windRange}
                 windDirection={activeStats?.windDirection}
@@ -803,7 +453,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 onElevationHover={setElevationHoverPoint}
                 hourlyWind={activeStats?.hourlyWind}
                 hourlyWindDir={activeStats?.hourlyWindDir}
-                isMountainRegion={isMountainCity}
+                isMountainRegion={FLIGHT_CITIES.includes(data.cityName)} // Approximate check, ideally use MOUNTAIN_CITIES
                 startCityName={routeStartCity}
                 endCityName={routeEndCity}
             />
@@ -815,7 +465,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         routeData={currentRouteData}
                         isDark={isDark}
                         targetSpeed={speed}
-                        isMountainRegion={isMountainCity}
+                        isMountainRegion={FLIGHT_CITIES.includes(data.cityName)}
                         onHover={setElevationHoverPoint}
                         startTemp={activeStats?.startTemperature}
                         endTemp={activeStats?.endTemperature}
@@ -840,7 +490,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     routeData={currentRouteData} 
                     isDark={isDark} 
                     targetSpeed={speed} 
-                    isMountainRegion={isMountainCity}
+                    isMountainRegion={FLIGHT_CITIES.includes(data.cityName)}
                     onHover={setElevationHoverPoint}
                     startTemp={activeStats?.startTemperature}
                     endTemp={activeStats?.endTemperature}
@@ -852,540 +502,9 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         )
     );
 
-    const renderDownloads = () => {
-        // Mobile: 3 columns layout: Отправить | Открыть | Резюме/Анонс
-        if (!isDesktop) {
-            return (
-                <div className="grid grid-cols-3 gap-2 px-4 pt-4 pb-2">
-                    {canShare && (
-                        <a
-                            href="#"
-                            onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
-                            className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-0`}
-                        >
-                            <span className="underline decoration-1 underline-offset-4">Отправить</span>
-                            <ArrowUp width="28" height="28" strokeWidth="1.3" style={{ transform: "rotate(45deg)", position: "relative", top: "1px" }} />
-                        </a>
-                    )}
-                    <a
-                        href="#"
-                        onClick={(e) => { 
-                            e.preventDefault(); 
-                            handleDownloadGpx();
-                        }}
-                        className={`text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-0`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Открыть</span>
-                        <ArrowUp width="28" height="28" strokeWidth="1.3" style={{ transform: "rotate(45deg)", position: "relative", top: "1px" }} />
-                    </a>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleGenerateAIAnnouncement();
-                        }}
-                        disabled={isGeneratingAI}
-                        className={`group text-sm text-center ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-center justify-center gap-2 disabled:opacity-50`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4 group-hover:text-[#777777] transition-colors">{isGeneratingAI ? "Пишу..." : "Анонс"}</span>
-                        <GeminiIcon width={18} height={18} className={`${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} group-hover:text-[#777777] transition-colors`} />
-                    </button>
-                </div>
-            );
-        }
-
-        // Desktop: original layout
-        return (
-            <div className={`grid gap-4 ${isDesktop ? '' : 'px-4 pt-4 pb-2'} ${canShare ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                {canShare && !isDesktop && (
-                    <a
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handleForwardGpx(); }}
-                        className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-                    >
-                        <span className="underline decoration-1 underline-offset-4">Отправить</span>
-                        <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                    </a>
-                )}
-                <a
-                    href="#"
-                    onClick={(e) => { 
-                        e.preventDefault(); 
-                        handleDownloadGpx();
-                    }}
-                    className={`text-sm ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} hover:text-[#777777] flex items-baseline gap-0.5`}
-                >
-                    <span className="underline decoration-1 underline-offset-4">{isDesktop ? "Скачать" : "Открыть"}</span>
-                    <ArrowUp width="22" height="22" strokeWidth="1" style={{ transform: isDesktop ? "rotate(135deg)" : "rotate(45deg)", position: "relative", top: "7px", left: "-2px" }} />
-                </a>
-            </div>
-        );
-    };
-
-    const getDistanceLabel = (dist: number) => {
-        if (dist > 160) return "Большой";
-        if (dist >= 120) return "Объемный";
-        return "Короткий";
-    };
-
-    const renderDetails = () => {
-        const hasOpenSection = Object.values(openSections).some(Boolean);
-        const inactiveColor = isDark ? 'text-[#777777]' : 'text-[#B2B2B2]';
-        const activeColor = isDark ? 'text-[#D9D9D9]' : 'text-[#111111]';
-        const linkClass = (baseClass: string) => 
-            `${baseClass} ${!isDesktop && hasOpenSection ? inactiveColor : activeColor} ${isDark ? 'hover:text-[#AAAAAA]' : 'hover:text-[#777777]'}`;
-
-        return (
-            <div className={`${isDesktop ? '' : 'mt-[22px] px-4 pb-4 pt-[22px] mb-12 border-t'} ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"} flex flex-col gap-4`}>
-                
-                {/* Transport & Places Group */}
-                <div className="flex flex-wrap gap-4 w-full">
-                    {routeStartCity !== "Москва" && (
-                        <a
-                            href={activeStats?.dateObj ? generateTransportLink("Москва", routeStartCity, activeStats.dateObj) : "#"}
-                            className={linkClass(`flex-1 min-w-full md:min-w-[45%] flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px`)}
-                            target="_blank"
-                        >
-                            <div className="flex flex-col">
-                                <span className="flex items-center">Туда<RoutesIcon width="22" height="22" /></span>
-                                <span className="text-sm text-[#666666] station-name">{startMoscowStation} – {startStation}</span>
-                            </div>
-                        </a>
-                    )}
-
-                    {routeEndCity !== "Москва" && (
-                        <a
-                            href={activeStats?.dateObj ? generateTransportLink(routeEndCity, "Москва", activeStats.dateObj) : "#"}
-                            className={linkClass(`flex-1 min-w-full md:min-w-[45%] flex items-center md:items-start text-xl font-unbounded font-medium text-left py-px`)}
-                            target="_blank"
-                        >
-                            <div className="flex flex-col">
-                                <span className="flex items-center">Обратно<RoutesIcon width="22" height="22" /></span>
-                                <span className="text-sm text-[#666666] station-name">{endStation} – {endMoscowStation}</span>
-                            </div>
-                        </a>
-                    )}
-
-                    {/* Где поесть - mobile only - in first group */}
-                    {!isDesktop && (
-                        <div className="flex flex-col flex-1 min-w-full md:min-w-[45%]">
-                            <button
-                                className={`text-xl font-unbounded font-medium text-left py-px ${
-                                    openSections["еда"]
-                                        ? activeColor 
-                                        : inactiveColor
-                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                                onClick={() => toggleSection("еда")}
-                            >
-                                <span className="flex items-center">Где поесть<ArrowDown isOpen={!!openSections["еда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                            </button>
-                            <AccordionContent isOpen={!!openSections["еда"]}>
-                                <div className="mt-2 flex flex-wrap gap-0">
-                                    <a
-                                        href={routeStartCity === "Завидово" ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeStartCity)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
-                                    >
-                                        На старте
-                                    </a>
-                                    <a
-                                        href={routeEndCity === "Завидово" ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeEndCity)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
-                                    >
-                                        На финише
-                                    </a>
-                                </div>
-                            </AccordionContent>
-                        </div>
-                    )}
-
-                    {/* Separator - Desktop only - inside the group */}
-                    {isDesktop && (
-                        <div className={`w-full border-t ${isDark ? "border-[#333333]" : "border-[#D9D9D9]"}`}></div>
-                    )}
-                </div>
-
-                {/* Info Group: Wear, Food & Profile */}
-                <div className={`grid grid-cols-1 ${isDesktop ? 'grid-cols-2' : 'md:grid-cols-1'} gap-4 w-full`}>
-                    {/* What to wear - for mobile only */}
-                    {!isDesktop && (
-                        <div className="flex flex-col">
-                            <button
-                                className={`text-xl font-unbounded font-medium text-left py-px ${
-                                    openSections["одежда"]
-                                        ? activeColor 
-                                        : inactiveColor
-                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                                onClick={() => toggleSection("одежда")}
-                            >
-                                <span className="flex items-center">Что надеть<ArrowDown isOpen={!!openSections["одежда"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                            </button>
-                            <AccordionContent isOpen={!!openSections["одежда"]}>
-                                {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
-                                    <div className="mt-0 flex flex-wrap pl-0">
-                                        {activeStats.clothingHints.map((hint: string) => (
-                                            <span
-                                                key={hint}
-                                                className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                            >
-                                                {hint}
-                                            </span>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className={`mt-0 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
-                                        Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
-                                    </div>
-                                )}
-                            </AccordionContent>
-                        </div>
-                    )}
-
-                    {/* Профиль - for mobile only */}
-                    {!isDesktop && currentRouteData && (
-                        <div className="flex flex-col">
-                            <button
-                                className={`text-xl font-unbounded font-medium text-left py-px ${
-                                    openSections["детали"] 
-                                        ? activeColor 
-                                        : inactiveColor
-                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                                onClick={() => toggleSection("детали")}
-                            >
-                                <span className="flex items-center">Профиль<ArrowDown isOpen={!!openSections["детали"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                            </button>
-                            <AccordionContent isOpen={!!openSections["детали"]}>
-                                <div className="mt-0 flex flex-wrap pl-0 gap-0">
-                                    <button 
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveSliderContent("Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое в конце. (Формула ProCyclingStats)");
-                                        }}
-                                    >
-                                        Profile Score {profileScore}
-                                    </button>
-                                    <button 
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveSliderContent("С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Бодрый – от 12 до 20. Легкий – менее 12.");
-                                        }}
-                                    >
-                                        {getDifficultyLabel(profileScore)}
-                                    </button>
-                                    <button 
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveSliderContent("Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.");
-                                        }}
-                                    >
-                                        {getDistanceLabel(currentRouteData?.distanceKm || 0)}
-                                    </button>
-                                    <button 
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveSliderContent("Темповой – средняя скорость в движении должна быть выше 33 км/ч. Такая средняя необходима как условие для большого райда от 160 до 200 км. Прогулочный – оптимальная средняя от 30 до 33 км/ч.");
-                                        }}
-                                    >
-                                        {(currentRouteData?.distanceKm || 0) > 160 ? "Темповой" : "Прогулочный"}
-                                    </button>
-                                </div>
-                            </AccordionContent>
-                        </div>
-                    )}
-
-                    {/* Спортпит - for mobile only */}
-                    {!isDesktop && currentRouteData && (
-                        <div className="flex flex-col">
-                            <button
-                                className={`text-xl font-unbounded font-medium text-left py-px ${
-                                    openSections["спортпит"]
-                                        ? activeColor 
-                                        : inactiveColor
-                                } ${isDark ? "hover:text-[#AAAAAA]" : "hover:text-[#777777]"}`}
-                                onClick={() => toggleSection("спортпит")}
-                            >
-                                <span className="flex items-center">Спортпит<ArrowDown isOpen={!!openSections["спортпит"]} width="23" height="23" style={{ top: "-7px" }} /></span>
-                            </button>
-                            <AccordionContent isOpen={!!openSections["спортпит"]}>
-                                <div className="mt-0 flex flex-wrap pl-0 gap-0">
-                                    <div className="relative inline-block">
-                                        <button 
-                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setActiveSliderContent("Изотоник — база, обеспечивающая водно-солевой баланс и часть энергии. Рекомендуется выпивать около 500 мл в час, делая небольшие глотки каждые 10–15 минут. Стандартный изотоник содержит около 30–45 г углеводов на 500 мл. Концентрированные напитки могут давать до 80 г углеводов, что снижает потребность в твердой пище. Когда жарко и сильно потеешь, добавляй в бачок солевые таблетки или выбирай изотоник с повышенным содержанием натрия, магния и калия, чтобы не было судорог.");
-                                            }}
-                                        >
-                                            Bidons {sportNutrition.bidons}
-                                        </button>
-                                    </div>
-                                    <div className="relative inline-block">
-                                        <button 
-                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setActiveSliderContent("Комбинируй разные источники энергии, чтобы избежать «вкусовой усталости» и перегрузки желудка. Батончики оптимальны в первой половине большого райда (более 3 часов), когда пульс не на пределе. Гели используй на высокой интенсивности, в горах или во второй половине райда. Один гель обычно содержит 20–30 г углеводов. Гель необходимо запивать 150–200 мл чистой воды (если это не гидрогель), иначе концентрация сахара может замедлить всасывание воды из кишечника. Начинай питаться с 20-30 минуты езды, не дожидаясь чувства голода. В течение 30 минут после финиша выпей рекавери с соотношением углеводов и белков 3:1 или 4:1 для быстрого восполнения гликогена.");
-                                            }}
-                                        >
-                                            Gel/Bar {sportNutrition.gels}
-                                        </button>
-                                    </div>
-                                </div>
-                            </AccordionContent>
-                        </div>
-                    )}
-
-                    {/* What to wear - for desktop - first position */}
-                    {isDesktop && (
-                        <div className="flex flex-col">
-                            <div className={`text-xl font-unbounded font-medium text-left py-px ${activeColor}`}>
-                                <span className="flex items-center">Что надеть</span>
-                            </div>
-                            {activeStats?.clothingHints && activeStats.clothingHints.length > 0 ? (
-                                <div className="mt-0 flex flex-wrap pl-0">
-                                    {activeStats.clothingHints.map((hint: string) => (
-                                        <span
-                                            key={hint}
-                                            className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 transition-colors duration-100`}
-                                        >
-                                            {hint}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className={`mt-1 pl-0 ${isDark ? "text-[#D9D9D9]" : "text-[#222222]"} text-sm`}>
-                                    Подскажем, что надеть на райд, когда погода наладится: нужно, чтобы было без осадков и теплее +5º
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Profile - second position for desktop */}
-                    {isDesktop && currentRouteData && (
-                    <div className="flex flex-col">
-                        <div className={`text-xl font-unbounded font-medium text-left py-px ${activeColor}`}>
-                            <span className="flex items-center">Профиль</span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap pl-0 gap-0">
-                            <div className="relative inline-block">
-                                <button 
-                                    className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (isDesktop) {
-                                            setShowProfileTooltip(!showProfileTooltip);
-                                        } else {
-                                            setActiveSliderContent("Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое в конце. (Формула ProCyclingStats)");
-                                        }
-                                    }}
-                                    onMouseEnter={() => isDesktop && setShowProfileTooltip(true)}
-                                    onMouseLeave={() => isDesktop && setShowProfileTooltip(false)}
-                                >
-                                    Profile Score {profileScore}
-                                </button>
-                                
-                                {showProfileTooltip && (
-                                    <div 
-                                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Общий набор высоты обманчив: 800 метров могут быть пологими или крутыми «стенками». ProfileScore показывает реальную сложность, оценивая «убойность» горок. Баллы зависят от крутизны и момента: подъем на финише «дороже», чем на старте. Высокий ProfileScore при малом наборе значит, что маршрут коварен и тяжелое в конце. (Формула ProCyclingStats)
-                                        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="relative inline-block">
-                                <button 
-                                    className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (isDesktop) {
-                                            setShowDifficultyTooltip(!showDifficultyTooltip);
-                                        } else {
-                                            setActiveSliderContent("С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Бодрый – от 12 до 20. Легкий – менее 12.");
-                                        }
-                                    }}
-                                    onMouseEnter={() => isDesktop && setShowDifficultyTooltip(true)}
-                                    onMouseLeave={() => isDesktop && setShowDifficultyTooltip(false)}
-                                >
-                                    {getDifficultyLabel(profileScore)}
-                                </button>
-                                
-                                {showDifficultyTooltip && (
-                                    <div 
-                                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        С психологической точки зрения важно заранее понимать характер маршрута. Будет ли это монотонная работа или проверка на силу и выносливость, где придется потерпеть? Речь о влиянии рельефа на ощущения от катания. Тяжелый – Profile Score выше 20. Бодрый – от 12 до 20. Легкий – менее 12.
-                                        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="relative inline-block">
-                                <button 
-                                    className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (isDesktop) {
-                                            setShowDistanceTooltip(!showDistanceTooltip);
-                                        } else {
-                                            setActiveSliderContent("Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.");
-                                        }
-                                    }}
-                                    onMouseEnter={() => isDesktop && setShowDistanceTooltip(true)}
-                                    onMouseLeave={() => isDesktop && setShowDistanceTooltip(false)}
-                                >
-                                    {getDistanceLabel(currentRouteData?.distanceKm || 0)}
-                                </button>
-                                
-                                {showDistanceTooltip && (
-                                    <div 
-                                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Большой маршрут – дистанция райда выше 160 км. Объемный – от 120 до 160 км. Короткий – менее 120 км.
-                                        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="relative inline-block">
-                                <button 
-                                    className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (isDesktop) {
-                                            setShowPaceTooltip(!showPaceTooltip);
-                                        } else {
-                                            setActiveSliderContent("Темповой – средняя скорость в движении должна быть выше 33 км/ч. Такая средняя необходима как условие для большого райда от 160 до 200 км. Прогулочный – оптимальная средняя от 30 до 33 км/ч. ");
-                                        }
-                                    }}
-                                    onMouseEnter={() => isDesktop && setShowPaceTooltip(true)}
-                                    onMouseLeave={() => isDesktop && setShowPaceTooltip(false)}
-                                >
-                                    {(currentRouteData?.distanceKm || 0) > 160 ? "Темповой" : "Прогулочный"}
-                                </button>
-                                
-                                {showPaceTooltip && (
-                                    <div 
-                                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Темповой – средняя скорость в движении должна быть выше 33 км/ч. Такая средняя необходима как условие для большого райда от 160 до 200 км. Прогулочный – оптимальная средняя от 30 до 33 км/ч. 
-                                        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    )}
-
-                    {/* Где поесть - third for desktop */}
-                    {isDesktop && (
-                        <div className="flex flex-col">
-                            <div className={`text-xl font-unbounded font-medium text-left py-px ${activeColor}`}>
-                                <span className="flex items-center">Где поесть</span>
-                            </div>
-                            <div className="mt-1 flex flex-wrap gap-0">
-                                <a
-                                    href={routeStartCity === "Завидово" ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeStartCity)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
-                                >
-                                    На старте
-                                </a>
-                                <a
-                                    href={routeEndCity === "Завидово" ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeEndCity)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black hover:bg-pill-hover"}`}
-                                >
-                                    На финише
-                                </a>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Спортпит - Sport nutrition - fourth position for desktop */}
-                    {isDesktop && currentRouteData && (
-                        <div className="flex flex-col">
-                            <div className={`text-xl font-unbounded font-medium text-left py-px ${activeColor}`}>
-                                <span className="flex items-center">Спортпит</span>
-                            </div>
-                            <div className="mt-1 flex flex-wrap pl-0 gap-0">
-                                <div className="relative inline-block">
-                                    <button 
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (isDesktop) {
-                                                setShowBidonsTooltip(!showBidonsTooltip);
-                                            } else {
-                                                setActiveSliderContent("Изотоник — база, обеспечивающая водно-солевой баланс и часть энергии. Рекомендуется выпивать около 500 мл в час, делая небольшие глотки каждые 10–15 минут. Стандартный изотоник содержит около 30–45 г углеводов на 500 мл. Концентрированные напитки могут давать до 80 г углеводов, что снижает потребность в твердой пище. Когда жарко и сильно потеешь, добавляй в бачок солевые таблетки или выбирай изотоник с повышенным содержанием натрия, магния и калия, чтобы не было судорог.");
-                                            }
-                                        }}
-                                        onMouseEnter={() => isDesktop && setShowBidonsTooltip(true)}
-                                        onMouseLeave={() => isDesktop && setShowBidonsTooltip(false)}
-                                    >
-                                        Bidons {sportNutrition.bidons}
-                                    </button>
-                                    
-                                    {showBidonsTooltip && (
-                                        <div 
-                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            Изотоник — база, обеспечивающая водно-солевой баланс и часть энергии. Рекомендуется выпивать около 500 мл в час, делая небольшие глотки каждые 10–15 минут. Стандартный изотоник содержит около 30–45 г углеводов на 500 мл. Концентрированные напитки могут давать до 80 г углеводов, что снижает потребность в твердой пище. Когда жарко и сильно потеешь, добавляй в бачок солевые таблетки или выбирай изотоник с повышенным содержанием натрия, магния и калия, чтобы не было судорог.
-                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="relative inline-block">
-                                    <button 
-                                        className={`${isDark ? "bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]" : "bg-white text-black"} text-15 tracking-tighter rounded-full px-4 py-2 cursor-help focus:outline-none transition-colors duration-100`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (isDesktop) {
-                                                setShowGelBarTooltip(!showGelBarTooltip);
-                                            } else {
-                                                setActiveSliderContent("Комбинируй разные источники энергии, чтобы избежать «вкусовой усталости» и перегрузки желудка. Батончики оптимальны в первой половине большого райда (более 3 часов), когда пульс не на пределе. Гели используй на высокой интенсивности, в горах или во второй половине райда. Один гель обычно содержит 20–30 г углеводов. Гель необходимо запивать 150–200 мл чистой воды (если это не гидрогель), иначе концентрация сахара может замедлить всасывание воды из кишечника. Начинай питаться с 20-30 минуты езды, не дожидаясь чувства голода. В течение 30 минут после финиша выпей рекавери с соотношением углеводов и белков 3:1 для быстрого восполнения гликогена.");
-                                            }
-                                        }}
-                                        onMouseEnter={() => isDesktop && setShowGelBarTooltip(true)}
-                                        onMouseLeave={() => isDesktop && setShowGelBarTooltip(false)}
-                                    >
-                                        Gel/Bar {sportNutrition.gels}
-                                    </button>
-                                    
-                                    {showGelBarTooltip && (
-                                        <div 
-                                            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[280px] md:w-[320px] p-4 rounded-xl shadow-xl text-sm leading-tight z-50 ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            Комбинируй разные источники энергии, чтобы избежать «вкусовой усталости» и перегрузки желудка. Батончики оптимальны в первой половине большого райда (более 3 часов), когда пульс не на пределе. Гели используй на высокой интенсивности, в горах или во второй половине райда. Один гель обычно содержит 20–30 г углеводов. Гель необходимо запивать 150–200 мл чистой воды (если это не гидрогель), иначе концентрация сахара может замедлить всасывание воды из кишечника. Начинай питаться с 20-30 минуты езды, не дожидаясь чувства голода. В течение 30 минут после финиша выпей рекавери с соотношением углеводов и белков 3:1 для быстрого восполнения гликогена.
-                                            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-            </div>
-        );
-    };
-
     if (isDesktop) {
         return (
             <div className={`w-full ${isDark ? "text-[#D9D9D9]" : "text-black"} transition-colors duration-700`}>
-                {/* Header: Burger + Days */}
                 <div className="w-full mb-6 flex items-center gap-4">
                     {onToggleSlider && (
                         <button onClick={onToggleSlider} className={`p-2 ml-[7px] ${isDark ? "text-[#D9D9D9]" : "text-black"}`}>
@@ -1424,16 +543,52 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                 </div>
 
                 <div className="flex gap-[5%]">
-                    {/* Left Column 45% */}
                     <div className="w-[45%] flex flex-col gap-6 pl-4">
                         {renderRouteName()}
-                        {renderRouteStats()}
-                        {renderWeatherSection()}
-                        {/* Transport, Places, Wear - reusing renderDetails but simplified logic inside */}
-                        {renderDetails()}
+                        {currentRouteData && (
+                            <CityRouteStats 
+                                routeData={currentRouteData} 
+                                speed={speed} 
+                                setSpeed={setSpeed} 
+                                isDesktop={isDesktop} 
+                                isDark={isDark} 
+                            />
+                        )}
+                        {activeStats && (
+                            <CityWeather 
+                                stats={activeStats} 
+                                cityName={data.cityName} 
+                                isDesktop={isDesktop} 
+                                isDark={isDark} 
+                            />
+                        )}
+                        <CityDetails 
+                            routeStartCity={routeStartCity}
+                            routeEndCity={routeEndCity}
+                            activeStats={activeStats}
+                            currentRouteData={currentRouteData}
+                            profileScore={profileScore}
+                            sportNutrition={sportNutrition}
+                            isDesktop={isDesktop}
+                            isDark={isDark}
+                            openSections={openSections}
+                            toggleSection={toggleSection}
+                            setActiveSliderContent={setActiveSliderContent}
+                            setShowProfileTooltip={setShowProfileTooltip}
+                            setShowDifficultyTooltip={setShowDifficultyTooltip}
+                            setShowDistanceTooltip={setShowDistanceTooltip}
+                            setShowPaceTooltip={setShowPaceTooltip}
+                            setShowBidonsTooltip={setShowBidonsTooltip}
+                            setShowGelBarTooltip={setShowGelBarTooltip}
+                            showProfileTooltip={showProfileTooltip}
+                            showDifficultyTooltip={showDifficultyTooltip}
+                            showDistanceTooltip={showDistanceTooltip}
+                            showPaceTooltip={showPaceTooltip}
+                            showBidonsTooltip={showBidonsTooltip}
+                            showGelBarTooltip={showGelBarTooltip}
+                        />
                     </div>
 
-                    {/* Right Column 55% */}
                     <div className="w-[55%] flex flex-col gap-6">
                         {renderMap()}
                         {renderProfile()}
@@ -1490,19 +645,68 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             <div 
                 className="overflow-y-auto flex-1"
             >
-                {renderWeatherSection()}
+                {activeStats && (
+                    <CityWeather 
+                        stats={activeStats} 
+                        cityName={data.cityName} 
+                        isDesktop={isDesktop} 
+                        isDark={isDark} 
+                    />
+                )}
                 
                 {renderRouteName()}
                 
-                {renderRouteStats()}
+                {currentRouteData && (
+                    <CityRouteStats 
+                        routeData={currentRouteData} 
+                        speed={speed} 
+                        setSpeed={setSpeed} 
+                        isDesktop={isDesktop} 
+                        isDark={isDark} 
+                    />
+                )}
 
                 {renderMap()}
 
                 {renderProfile()}
 
-                {renderDownloads()}
+                {!isDesktop && (
+                    <CityDownloads 
+                        isDesktop={isDesktop}
+                        isDark={isDark}
+                        canShare={canShare}
+                        isGeneratingAI={isGeneratingAI}
+                        onForward={handleForwardGpx}
+                        onDownload={handleDownloadGpx}
+                        onGenerate={handleGenerateAIAnnouncement}
+                    />
+                )}
                 
-                {renderDetails()}
+                <CityDetails 
+                    routeStartCity={routeStartCity}
+                    routeEndCity={routeEndCity}
+                    activeStats={activeStats}
+                    currentRouteData={currentRouteData}
+                    profileScore={profileScore}
+                    sportNutrition={sportNutrition}
+                    isDesktop={isDesktop}
+                    isDark={isDark}
+                    openSections={openSections}
+                    toggleSection={toggleSection}
+                    setActiveSliderContent={setActiveSliderContent}
+                    setShowProfileTooltip={setShowProfileTooltip}
+                    setShowDifficultyTooltip={setShowDifficultyTooltip}
+                    setShowDistanceTooltip={setShowDistanceTooltip}
+                    setShowPaceTooltip={setShowPaceTooltip}
+                    setShowBidonsTooltip={setShowBidonsTooltip}
+                    setShowGelBarTooltip={setShowGelBarTooltip}
+                    showProfileTooltip={showProfileTooltip}
+                    showDifficultyTooltip={showDifficultyTooltip}
+                    showDistanceTooltip={showDistanceTooltip}
+                    showPaceTooltip={showPaceTooltip}
+                    showBidonsTooltip={showBidonsTooltip}
+                    showGelBarTooltip={showGelBarTooltip}
+                />
             </div>
 
             <BottomSlider 

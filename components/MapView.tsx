@@ -1,17 +1,15 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import PlusIcon from "./icons/PlusIcon";
-import MinusIcon from "./icons/MinusIcon";
-import CenterIcon from "./icons/CenterIcon";
-import EscIcon from "./icons/EscIcon";
-import ExpandIcon from "./icons/ExpandIcon";
-import OptionIcon from "./icons/OptionIcon";
-import ShiftIcon from "./icons/ShiftIcon";
 import { RouteData } from "../services/gpxUtils";
 import { CityCoordinates } from "../types";
 import { calculateElevationProfile, ElevationPoint } from "../utils/elevationUtils";
 import ElevationProfile from "./ElevationProfile";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+import MapControls from "./map/MapControls";
+import MapMarkers from "./map/MapMarkers";
+import RouteLayer from "./map/RouteLayer";
+import WindIndicator from "./map/WindIndicator";
 
 interface MarkerData {
     coords: [number, number]; // [lat, lon]
@@ -44,44 +42,6 @@ interface MapViewProps {
     endCityName?: string;
 }
 
-const getWindDirectionText = (deg: number) => {
-    const directions = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
-    const index = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
-    return directions[index];
-};
-
-const getAverageWindSpeed = (range?: string) => {
-    if (!range) return "";
-    const parts = range.split("..");
-    if (parts.length === 2) {
-        const min = parseInt(parts[0], 10);
-        const max = parseInt(parts[1], 10);
-        const avg = Math.round((min + max) / 2);
-        return `${avg} км/ч`;
-    }
-    return `${range} км/ч`;
-};
-
-const getPlacementClasses = (deg?: number) => {
-    if (deg === undefined) return "bottom-full left-1/2 -translate-x-1/2 mb-5"; 
-
-    const normalized = (deg % 360 + 360) % 360;
-    
-    if (normalized >= 315 || normalized < 45) {
-         // Wind from N -> Place N (Top)
-         return "bottom-full left-1/2 -translate-x-1/2 mb-5";
-    } else if (normalized >= 45 && normalized < 135) {
-         // Wind from E -> Place E (Right)
-         return "left-full top-1/2 -translate-y-1/2 ml-5";
-    } else if (normalized >= 135 && normalized < 225) {
-         // Wind from S -> Place S (Bottom)
-         return "top-full left-1/2 -translate-x-1/2 mt-5";
-    } else {
-         // Wind from W -> Place W (Left)
-         return "right-full top-1/2 -translate-y-1/2 mr-5";
-    }
-};
-
 export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, routeStatus, markers, windDeg, windSpeed, windDirection, isDark = false, onFullscreenToggle, routeCount = 0, selectedRouteIdx = 0, onRouteSelect, pace: initialPace = 25, onTargetSpeedChange, startTemp, endTemp, elevationCursor, onElevationHover, hourlyWind, hourlyWindDir, isMountainRegion = false, startCityName, endCityName }) => {
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -94,7 +54,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
 
     const activeCursor = elevationCursor || internalCursor;
 
-    // Sync internal pace state when initialPace prop changes (e.g., when speed is updated in CityDetail)
+    // Sync internal pace state
     useEffect(() => {
         setPace(initialPace);
     }, [initialPace]);
@@ -117,11 +77,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         );
     }, [currentRouteData, pace, isMountainRegion]);
 
-    // Update hoverInfo when elevationData changes (e.g. when speed changes) to recalculate time/speed values
-    // while keeping the cursor at the same geographic position
+    // Update hoverInfo when elevationData changes
     useEffect(() => {
         if (hoverInfo && elevationData.length > 0) {
-            // Find the point in new elevationData that has the same lat/lon as current hoverInfo
             const matchingPoint = elevationData.find(
                 p => Math.abs(p.lat - hoverInfo.lat) < 0.0001 && Math.abs(p.lon - hoverInfo.lon) < 0.0001
             );
@@ -135,16 +93,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const windDragRef = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+    const cursorRef = useRef<maplibregl.Marker | null>(null);
     const isMountedRef = useRef(false);
     const handleCenterMapRef = useRef<(() => void) | null>(null);
-
-    const handleZoomIn = useCallback(() => {
-        mapInstanceRef.current?.zoomIn();
-    }, []);
-
-    const handleZoomOut = useCallback(() => {
-        mapInstanceRef.current?.zoomOut();
-    }, []);
 
     const toggleFullscreen = useCallback(() => {
         const elem = wrapperRef.current;
@@ -164,12 +115,10 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         } else {
             if (elem.requestFullscreen) {
                 elem.requestFullscreen().catch(() => {
-                    // Fallback for iOS/unsupported
                     setIsFullscreen(true);
                     if (onFullscreenToggle) onFullscreenToggle(true);
                 });
             } else {
-                // Fallback for iOS/unsupported
                 setIsFullscreen(true);
                 if (onFullscreenToggle) onFullscreenToggle(true);
             }
@@ -177,44 +126,12 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [isFullscreen, onFullscreenToggle]);
 
     useEffect(() => {
-        const handleFullscreenChange = () => {
-            const isFs = !!document.fullscreenElement;
-            // Only update if native fullscreen is active or we are exiting native fullscreen
-            // This prevents interfering with pseudo-fullscreen if native event fires unexpectedly
-            if (isFs) {
-                setIsFullscreen(true);
-                if (onFullscreenToggle) onFullscreenToggle(true);
-            } else if (!isFs && document.fullscreenElement === null) {
-                // Only reset if we were in native fullscreen? 
-                // Actually, if we are in pseudo fullscreen, this event shouldn't fire.
-                // But if it does, we check if we were expecting native.
-                // Let's keep it simple: if event fires, sync state. 
-                // EXCEPT if we are in pseudo-mode, we don't want to be kicked out by a rogue event?
-                // But 'document.fullscreenElement' being null is the source of truth for NATIVE.
-                
-                // If we are using CSS fallback, we are NOT in native fullscreen.
-                // So document.fullscreenElement is null.
-                // If this event fires (it shouldn't), it would set isFullscreen(false).
-                // That's acceptable.
-                
-                setIsFullscreen(false);
-                if (onFullscreenToggle) onFullscreenToggle(false);
-            }
-        };
-
         const handleNativeChange = () => {
              const isFs = !!document.fullscreenElement;
-             // If we entered native fullscreen, we must sync
              if (isFs) {
                  setIsFullscreen(true);
                  if (onFullscreenToggle) onFullscreenToggle(true);
-             } 
-             // If we exited native fullscreen
-             else {
-                 // But wait, if we are in pseudo-fullscreen, isFs is false.
-                 // Do we want to exit pseudo-fullscreen if native fullscreen exits?
-                 // Native fullscreen shouldn't "exit" if it wasn't active.
-                 // So this is safe.
+             } else {
                  setIsFullscreen(false);
                  setInternalCursor(null);
                  setHoverInfo(null);
@@ -237,7 +154,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, []);
 
 
-    // Initialize Map (only once on mount)
+    // Initialize Map
     useEffect(() => {
         if (!mapContainerRef.current) return;
 
@@ -275,9 +192,9 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             resizeObserver.disconnect();
             map.remove();
         };
-    }, [cityCoords.lat, cityCoords.lon]); // Only recreate when city changes
+    }, [cityCoords.lat, cityCoords.lon]);
 
-    // Handle theme changes without recreating the map
+    // Handle theme changes
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
@@ -286,7 +203,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             ? '/styles/style-dark.json'
             : '/styles/style-light.json';
 
-        // Simply change style - MapLibre will preserve sources and layers
         try {
             map.setStyle(styleUrl);
         } catch (e) {
@@ -307,212 +223,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             });
         }
     }, [cityCoords, routeStatus, currentRouteData]);
-
-    // Handle Route (Polyline) and Endpoints (A/B)
-    useEffect(() => {
-        const map = mapInstanceRef.current;
-        if (!map) return;
-
-        const hasData = currentRouteData?.points?.length && currentRouteData.points.length > 0;
-        const coordinates = hasData 
-            ? currentRouteData!.points.map(([lat, lon]) => [lon, lat]) 
-            : [];
-
-        // 1. Route Line GeoJSON
-        const geoJson = {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: coordinates
-            }
-        };
-
-        // 2. Endpoints (A/B) GeoJSON
-        const endpointsFeatures: any[] = [];
-        if (hasData) {
-                endpointsFeatures.push({
-                    type: 'Feature',
-                    properties: { label: 'A' },
-                    geometry: { type: 'Point', coordinates: [currentRouteData!.points[0][1], currentRouteData!.points[0][0]] }
-                });
-                endpointsFeatures.push({
-                    type: 'Feature',
-                    properties: { label: 'B' },
-                    geometry: { type: 'Point', coordinates: [currentRouteData!.points[currentRouteData!.points.length-1][1], currentRouteData!.points[currentRouteData!.points.length-1][0]] }
-                });
-        }
-        const endpointsGeoJson = { type: 'FeatureCollection', features: endpointsFeatures };
-
-        // Function to restore/add layers (called on style load/change)
-        // Optimized to NOT update data if source exists
-        const ensureLayers = () => {
-            if (!map.getStyle()) return;
-
-            let layersAdded = false;
-
-            try {
-                // Route Source & Layer
-                if (!map.getSource('route')) {
-                    if (hasData) {
-                        map.addSource('route', { type: 'geojson', data: geoJson as any });
-                    }
-                }
-                if (hasData && map.getSource('route') && !map.getLayer('route')) {
-                    map.addLayer({
-                        id: 'route',
-                        type: 'line',
-                        source: 'route',
-                        layout: { 
-                            'line-join': 'round', 
-                            'line-cap': 'round',
-                            'visibility': 'visible'
-                        },
-                        paint: { 
-                            'line-color': isDark ? '#CCCCCC' : '#444444', 
-                            'line-width': 3,
-                            'line-opacity': 1
-                        }
-                    });
-                    layersAdded = true;
-                }
-
-                // Endpoints Source & Layers
-                if (!map.getSource('endpoints')) {
-                    if (hasData) {
-                        map.addSource('endpoints', { type: 'geojson', data: endpointsGeoJson as any });
-                    }
-                }
-                if (hasData && map.getSource('endpoints')) {
-                    if (!map.getLayer('endpoints-bg')) {
-                        map.addLayer({
-                            id: 'endpoints-bg',
-                            type: 'circle',
-                            source: 'endpoints',
-                            paint: {
-                                'circle-radius': 10,
-                                'circle-color': isDark ? '#CCCCCC' : '#444444',
-                                'circle-stroke-width': 1,
-                                'circle-stroke-color': isDark ? '#333333' : '#ffffff'
-                            }
-                        });
-                        layersAdded = true;
-                    }
-                    if (!map.getLayer('endpoints-label')) {
-                        map.addLayer({
-                            id: 'endpoints-label',
-                            type: 'symbol',
-                            source: 'endpoints',
-                            layout: {
-                                'text-field': ['get', 'label'],
-                                'text-size': 10,
-                                'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular', 'Open Sans Regular'],
-                                'text-justify': 'center',
-                                'text-anchor': 'center'
-                            },
-                            paint: { 'text-color': isDark ? '#333333' : '#ffffff' }
-                        });
-                        layersAdded = true;
-                    }
-                }
-            } catch (e) {
-                console.warn("Layer addition failed", e);
-            }
-
-            if (layersAdded) {
-                // Ensure visibility after adding layers
-                setTimeout(() => {
-                    map.resize();
-                    map.triggerRepaint();
-                }, 50);
-            }
-        };
-
-        // Function to update data (called when currentRouteData changes)
-        const updateData = () => {
-             const source = map.getSource('route') as maplibregl.GeoJSONSource;
-             if (source) source.setData(geoJson as any);
-             
-             const epSource = map.getSource('endpoints') as maplibregl.GeoJSONSource;
-             if (epSource) epSource.setData(endpointsGeoJson as any);
-        };
-
-        const onStyleData = () => {
-            if (map.isStyleLoaded()) {
-                ensureLayers();
-            }
-        };
-
-        // Initial Logic
-        if (map.isStyleLoaded() || map.loaded()) {
-             // If source exists, we update data. If not, we ensure layers (which adds source with data).
-             if (map.getSource('route')) {
-                 updateData();
-                 ensureLayers(); // Just in case layers are missing but source exists
-             } else {
-                 ensureLayers();
-             }
-
-             // Fit bounds logic - Only on data update/change
-             if (hasData) {
-                const canvas = map.getCanvas();
-                if (canvas && canvas.width > 0 && canvas.height > 0) {
-                    const bounds = new maplibregl.LngLatBounds();
-                    coordinates.forEach(coord => bounds.extend(coord as [number, number]));
-                    
-                    let padding: any = isMobile 
-                        ? { top: 50, bottom: 50, left: 55, right: 50 }
-                        : 60;
-                    if (isFullscreen) {
-                        padding = {
-                            top: isMobile ? 60 : 100,
-                            bottom: isMobile ? 180 : 150,
-                            left: 60,
-                            right: 50
-                        };
-                    }
-
-                    try {
-                        map.fitBounds(bounds, { padding: padding, duration: 500 });
-                    } catch (e) {
-                        console.warn("fitBounds failed", e);
-                    }
-                }
-             }
-        } else {
-            // Force ensureLayers once loaded
-            map.once('load', () => {
-                ensureLayers();
-                // Also trigger fitBounds logic via update if needed? 
-                // We can just rely on the fact that handleCenterMap will be called by ResizeObserver 
-                // or we can explicitly call it here.
-                if (hasData) {
-                    const canvas = map.getCanvas();
-                     if (canvas && canvas.width > 0 && canvas.height > 0) {
-                        const bounds = new maplibregl.LngLatBounds();
-                        coordinates.forEach(coord => bounds.extend(coord as [number, number]));
-                        let padding: any = isMobile 
-                            ? { top: 50, bottom: 50, left: 55, right: 50 }
-                            : 60;
-                        if (isFullscreen) {
-                            padding = { top: isMobile ? 60 : 100, bottom: isMobile ? 180 : 150, left: 60, right: 50 };
-                        }
-                        try { map.fitBounds(bounds, { padding, duration: 500 }); } catch (e) {}
-                     }
-                }
-            });
-        }
-
-        // Listen for style updates
-        map.on('styledata', onStyleData);
-
-        return () => {
-            map.off('styledata', onStyleData);
-        };
-    }, [currentRouteData, isDark, isMobile, isFullscreen]);
-
-    const markersRef = useRef<{ custom: maplibregl.Marker[] }>({ custom: [] });
-    const cursorRef = useRef<maplibregl.Marker | null>(null);
 
     // Handle Elevation Cursor
     useEffect(() => {
@@ -606,39 +316,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
             }
         }
     }, [activeCursor, isDark, isMobile, windDeg, rotation, hoverInfo, hourlyWindDir]);
-
-    // Handle Custom Markers
-    useEffect(() => {
-        const map = mapInstanceRef.current;
-        if (!map) return;
-
-        const updateCustomMarkers = () => {
-             // Custom Markers (Full rebuild)
-             markersRef.current.custom.forEach(m => m.remove());
-             markersRef.current.custom = [];
-
-             markers?.forEach(m => {
-                const el = document.createElement('div');
-                el.style.cssText = "background-color: white; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); white-space: nowrap; font-size: 11px; font-weight: bold; color: black; font-family: sans-serif; margin-bottom: 4px;";
-                el.innerText = m.label;
-                const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
-                    .setLngLat([m.coords[1], m.coords[0]])
-                    .addTo(map);
-                markersRef.current.custom.push(marker);
-            });
-        };
-
-        if (map.loaded()) {
-            updateCustomMarkers();
-        } else {
-            map.on('load', updateCustomMarkers);
-        }
-
-        return () => {
-            map.off('load', updateCustomMarkers);
-        };
-    }, [markers]);
-
 
     const handleWindMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
         if (!windDragRef.current) return;
@@ -779,7 +456,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         let closestIdx = -1;
 
         const points = currentRouteData.points;
-        const cumDists = currentRouteData.cumulativeDistances;
 
         for (let i = 0; i < points.length - 1; i++) {
             const p1 = map.project([points[i][1], points[i][0]]);
@@ -812,8 +488,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         if (closestIdx !== -1 && minDistSq < threshold * threshold) {
             setHoverInfo(elevationData[closestIdx]);
         } else {
-            // If windPos is set (dragged) but far from track, we might still want to show something? 
-            // Or just nothing.
             setHoverInfo(null);
         }
 
@@ -892,178 +566,44 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
                 </div>
             )}
 
+            <MapControls
+                isFullscreen={isFullscreen}
+                isDark={isDark}
+                isMobile={isMobile}
+                onToggleFullscreen={toggleFullscreen}
+                onCenterMap={handleCenterMap}
+                routeCount={routeCount}
+                selectedRouteIdx={selectedRouteIdx}
+                onRouteSelect={onRouteSelect}
+            />
 
-            {/* Top-left controls */}
-            <div className="absolute left-4 top-4 z-20 flex flex-col items-start gap-2">
-                <button
-                    className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
-                    onClick={toggleFullscreen}
-                >
-                    {isFullscreen ? (
-                        <EscIcon isDark={isDark} width={40} height={40} />
-                    ) : (
-                        <ExpandIcon isDark={isDark} width={40} height={40} />
-                    )}
-                    {!isMobile && (
-                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                            {isFullscreen ? "Свернуть" : "Развернуть"}
-                        </div>
-                    )}
-                </button>
-
-                <button
-                    className="w-8 h-8 rounded-md flex items-center justify-center transition-colors relative group"
-                    onClick={handleCenterMap}
-                >
-                    <CenterIcon isDark={isDark} width={30} height={30} />
-                    {!isMobile && (
-                        <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                            <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                            Центрировать
-                        </div>
-                    )}
-                </button>
-
-                {isFullscreen && (
-                    <>
-                        <button
-                            className="w-12 h-12 rounded-md flex items-center justify-center transition-colors relative group mt-[-8px]"
-                            onClick={() => {
-                                // Dispatch custom event for option button
-                                window.dispatchEvent(new CustomEvent('option-click'));
-                            }}
-                        >
-                            <OptionIcon isDark={isDark} width={53} height={29} />
-                            {!isMobile && (
-                                <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute left-[-2px] top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Листать инфотрекер
-                                </div>
-                            )}
-                        </button>
-
-                        <button
-                            className="w-13 h-12 rounded-md flex items-left justify-center transition-colors relative group mt-[-4px]"
-                            onClick={() => {
-                                // Dispatch custom event for shift button
-                                window.dispatchEvent(new CustomEvent('shift-click'));
-                            }}
-                        >
-                            <ShiftIcon isDark={isDark} width={47} height={27} />
-                            {!isMobile && (
-                                <div className={`absolute left-full top-0 ml-3 px-3 py-1.5 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans shadow-lg ${isDark ? "bg-[#888888] text-[#000000]" : "bg-[#111111] text-white"}`}>
-                                    <div className={`absolute left-[-2px] top-2.5 w-2 h-2 rotate-45 ${isDark ? "bg-[#888888]" : "bg-[#111111]"}`}></div>
-                                    Менять темп
-                                </div>
-                            )}
-                        </button>
-                    </>
-                )}
-
-                {routeCount > 1 && onRouteSelect && (
-                    <>
-                        {Array.from({ length: routeCount }).map((_, idx) => (
-                            <button
-                                key={idx}
-                                className={`w-8 h-8 backdrop-blur rounded-md shadow-md flex items-center justify-center transition-colors font-unbounded text-xs font-medium ${
-                                    selectedRouteIdx === idx
-                                        ? (isDark ? "bg-white text-[#111111]" : "bg-[#111111] text-white")
-                                        : (isDark 
-                                            ? "bg-[#333333]/90 text-[#D9D9D9] hover:bg-[#444444] active:bg-[#222222]" 
-                                            : "bg-white/90 text-[#111111] hover:bg-white active:bg-gray-100")
-                                }`}
-                                onClick={() => onRouteSelect(idx)}
-                            >
-                                {idx + 1}
-                            </button>
-                        ))}
-                    </>
-                )}
-            </div>
-
-            {/* Bottom-left controls - Hide in Fullscreen */}
             {!isFullscreen && (
-                <div 
-                    className={`absolute z-20 flex flex-col items-center p-[30px] ${windPos ? '' : '-left-[14px] bottom-[10px]'}`}
-                    style={windPos ? { left: windPos.x, top: windPos.y } : undefined}
+                <WindIndicator
+                    windDeg={windDeg}
+                    windSpeed={windSpeed}
+                    windDirection={windDirection}
+                    rotation={rotation}
+                    isDark={isDark}
+                    windPos={windPos}
+                    hoverInfo={hoverInfo}
+                    startTemp={startTemp}
+                    endTemp={endTemp}
+                    elevationData={elevationData}
+                    currentRouteDataDistance={currentRouteData?.distanceKm}
+                    hourlyWind={hourlyWind}
+                    hourlyWindDir={hourlyWindDir}
                     onMouseDown={handleWindMouseDown}
-                    onTouchStart={handleWindMouseDown}
-                >
-                    {windDeg !== undefined && (
-                    <div className="relative flex flex-col items-center w-8">
-                        <div 
-                            className="w-8 h-8 rounded-full flex items-center justify-center"
-                        >
-                            <svg 
-                                width="26" 
-                                height="26" 
-                                viewBox="0 0 24 24" 
-                                fill="none" 
-                                xmlns="http://www.w3.org/2000/svg"
-                                style={{ transform: `rotate(${windDeg + 180 - rotation}deg)` }}
-                            >
-                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "rgb(19, 13, 8)" : "rgb(243, 242, 242)"} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M12 19V5M5 12l7-7 7 7" stroke={isDark ? "#FFFFFF" : "#111111"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </div>
-                        {(windSpeed || windDirection) && !windPos && (
-                            <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 flex flex-col items-center w-max pointer-events-none">
-                                {windSpeed && (
-                                    <span className={`text-[13px] font-sans leading-none mb-0.5 ${isDark ? "text-[#D9D9D9]" : "text-[#444444]"}`}>
-                                        {getAverageWindSpeed(windSpeed)}
-                                    </span>
-                                )}
-                                {windDirection && (
-                                    <span className={`text-[11px] uppercase font-sans leading-none ${isDark ? "text-[#D9D9D9]" : "text-[#444444]"}`}>
-                                        {windDirection}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                        {/* Hover Info Pill */}
-                        {hoverInfo && (
-                            <div 
-                                className={`absolute ${getPlacementClasses(windDeg)} backdrop-blur rounded-md p-2 shadow-md pointer-events-none ${
-                                    isDark ? "bg-[#888888] text-[#000000]" : "bg-white/90 text-black"
-                                }`}
-                            >
-                                <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 font-medium text-xs font-sans whitespace-nowrap">
-                                    <span>{Math.floor(hoverInfo.time)}:{(Math.round((hoverInfo.time - Math.floor(hoverInfo.time)) * 60)).toString().padStart(2, '0')}</span>
-                                    <span>{hoverInfo.dist.toFixed(1)} км</span>
-                                    
-                                    <span>
-                                        {startTemp !== undefined && endTemp !== undefined && elevationData.length > 0
-                                            ? `${Math.round(startTemp + (endTemp - startTemp) * (hoverInfo.time / elevationData[elevationData.length-1].time))}°` 
-                                            : ''}
-                                    </span>
-                                    <span>{Math.round(hoverInfo.speed)} км/ч</span>
-                                    
-                                    <span>{Math.round(hoverInfo.originalEle)} м</span>
-                                    <span>+{Math.round(hoverInfo.realCumElevation)} м</span>
-
-                                    <span>{Math.round(hoverInfo.gradient)}%</span>
-                                    <span>
-                                        {hourlyWind && hourlyWindDir && (
-                                            <>
-                                            {getWindDirectionText(hourlyWindDir[Math.min(Math.round(hoverInfo.time + 1), hourlyWindDir.length - 1)] || 0)} {Math.round(hourlyWind[Math.min(Math.round(hoverInfo.time + 1), hourlyWind.length - 1)] || 0)} км/ч
-                                            </>
-                                        )}
-                                    </span>
-
-                                    <span>
-                                        -{Math.floor(Math.max(0, elevationData[elevationData.length-1].time - hoverInfo.time))}:{(Math.round((Math.max(0, elevationData[elevationData.length-1].time - hoverInfo.time) - Math.floor(Math.max(0, elevationData[elevationData.length-1].time - hoverInfo.time))) * 60)).toString().padStart(2, '0')}
-                                    </span>
-                                    <span>
-                                        {Math.max(0, currentRouteData!.distanceKm - hoverInfo.dist).toFixed(1)} км
-                                    </span>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+                />
             )}
+
+            <MapMarkers map={mapInstanceRef.current} markers={markers} />
+            <RouteLayer 
+                map={mapInstanceRef.current} 
+                routeData={currentRouteData}
+                isDark={isDark}
+                isMobile={isMobile}
+                isFullscreen={isFullscreen}
+            />
         </div>
     );
 };

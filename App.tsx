@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { CITIES } from "./constants";
+import { CITIES } from "./config/constants";
 import { CityAnalysisResult, LoadingState } from "./types";
-import { analyzeCity, getWeekendDates, MOUNTAIN_CITIES } from "./services/weatherService";
+import { analyzeCity, getWeekendDates } from "./services/weatherService";
+import { MOUNTAIN_CITIES } from "./config/constants";
 import LoadingScreen from "./components/LoadingScreen";
 import NewSummaryView from "./components/NewSummaryView";
 import CityDetail from "./components/CityDetail";
