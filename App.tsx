@@ -9,8 +9,6 @@ import CityDetail from "./components/CityDetail";
 import ArrowUp from "./components/icons/ArrowUp";
 import SquareLockIcon from "./components/icons/SquareLockIcon";
 import ThemeToggleIcon from "./components/icons/ThemeToggleIcon";
-import GeeseIcon from "./components/icons/GeeseIcon";
-import GstrdnmcLogo from "./components/icons/GstrdnmcLogo";
 import OverlayContent from "./components/OverlayContent";
 import AuthScreen from "./components/AuthScreen";
 import OrientationBlocker from "./components/OrientationBlocker";
@@ -310,7 +308,7 @@ const App: React.FC = () => {
                 >
                     <div className={`absolute inset-0 z-[100] transform transition-transform duration-500 ease-in-out overflow-y-auto ${activeOverlay ? 'translate-x-0' : '-translate-x-full'} ${theme === 'dark' ? "bg-[#111111] text-[#D9D9D9]" : "bg-[#F5F5F5] text-black"} transition-colors duration-700`}>
                         <div className="w-full px-16">
-                            <div className={`0 pt-[18sticky top-px] pb-8 z-10 transition-colors duration-700 ${theme === 'dark' ? "bg-[#111111]" : "bg-[#F5F5F5]"}`}>
+                            <div className={`sticky top-0 pt-[18px] pb-8 z-10 transition-colors duration-700 ${theme === 'dark' ? "bg-[#111111]" : "bg-[#F5F5F5]"}`}>
                                 <button
                                     onClick={() => setActiveOverlay(null)}
                                     className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
