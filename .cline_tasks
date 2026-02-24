@@ -1,0 +1,4 @@
+- [ ] Analyze `components/WeatherBlock.tsx` imports
+- [ ] Analyze `services/weatherService.ts` exports
+- [ ] Fix the export/import issue
+- [ ] Verify the fix by running the build or checking the files

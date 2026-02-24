@@ -1,7 +1,7 @@
 import React from "react";
 import { CityAnalysisResult } from "../types";
 import ArrowUp from "./icons/ArrowUp";
-import { MOUNTAIN_CITIES } from "../services/weatherService";
+import { MOUNTAIN_CITIES } from "../config/constants";
 
 interface WeatherBlockProps {
     activeStats: CityAnalysisResult["weekend1"]["saturday"];

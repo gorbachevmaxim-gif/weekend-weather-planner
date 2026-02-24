@@ -50,7 +50,7 @@ const CityDownloads: React.FC<CityDownloadsProps> = ({
                     onClick={onDownload}
                     className={`${iconColor} ${hoverColor} transition-colors p-1 relative group`}
                 >
-                    <GpxFileIcon width={20} height={22} isDark={isDark} />
+                    <GpxFileIcon width={22} height={24} isDark={isDark} />
                     {renderTooltip("Скачать")}
                 </button>
                 <button
@@ -58,7 +58,7 @@ const CityDownloads: React.FC<CityDownloadsProps> = ({
                     disabled={isGeneratingAI}
                     className={`${iconColor} ${hoverColor} transition-colors p-1 relative group`}
                 >
-                    <AnnounceGeminiIcon width={24} height={25} isDark={isDark} />
+                    <AnnounceGeminiIcon width={26} height={27} isDark={isDark} />
                     {renderTooltip(isGeneratingAI ? "Пишу..." : "Анонс")}
                 </button>
             </div>
