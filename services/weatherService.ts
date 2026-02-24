@@ -268,7 +268,7 @@ async function checkRouteAvailability(cityName: string, windDeg: number): Promis
         }
         return null;
     } catch (e) {
-        console.warn("Route check error", e);
+        // Silently fail - no route available for this direction
         return null;
     }
 }
