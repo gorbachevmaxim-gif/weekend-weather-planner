@@ -515,7 +515,7 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     return (
         <div 
             ref={wrapperRef} 
-            className={`${isFullscreen ? "fixed inset-0 z-[9999] h-[100dvh] rounded-none" : "relative w-full aspect-[4/3] md:aspect-[3/2] z-0 rounded-lg"} bg-slate-100 overflow-hidden transition-all duration-300`}
+            className={`${isFullscreen ? "fixed inset-0 z-[9999] h-[100dvh] rounded-none" : "relative w-full aspect-[13/12] z-0 rounded-lg"} bg-slate-100 overflow-hidden transition-all duration-300`}
         >
             <div ref={mapContainerRef} style={{ width: "100%", height: "100%", minHeight: "100%", filter: isDark ? "none" : "grayscale(100%)" }} /> 
             

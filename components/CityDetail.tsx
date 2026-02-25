@@ -479,28 +479,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
         </div>
     );
 
-    const renderProfile = () => (
-        !isMapFullscreen && currentRouteData && (
-            <div 
-                onTouchStart={(e) => e.stopPropagation()}
-                onTouchEnd={(e) => e.stopPropagation()}
-                className={isDesktop ? "pt-2" : ""}
-            >
-                <ElevationProfile 
-                    routeData={currentRouteData} 
-                    isDark={isDark} 
-                    targetSpeed={speed} 
-                    isMountainRegion={FLIGHT_CITIES.includes(data.cityName)}
-                    onHover={setElevationHoverPoint}
-                    startTemp={activeStats?.startTemperature}
-                    endTemp={activeStats?.endTemperature}
-                    hourlyWind={activeStats?.hourlyWind}
-                    hourlyWindDir={activeStats?.hourlyWindDir}
-                    variant="inline"
-                />
-            </div>
-        )
-    );
+    const renderProfile = () => null;
 
     if (isDesktop) {
         return (
@@ -542,8 +521,8 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                     </div>
                 </div>
 
-                <div className="flex gap-[5%]">
-                    <div className="w-[45%] flex flex-col gap-6 pl-4">
+                <div className="flex gap-[4%]">
+                    <div className="w-[48%] flex flex-col gap-6 pl-4">
                         {renderRouteName()}
                         {currentRouteData && (
                             <CityRouteStats 
@@ -589,7 +568,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
                         />
                     </div>
 
-                    <div className="w-[55%] flex flex-col gap-6">
+                    <div className="w-[48%] flex flex-col gap-6">
                         {renderMap()}
                         {renderProfile()}
                     </div>
