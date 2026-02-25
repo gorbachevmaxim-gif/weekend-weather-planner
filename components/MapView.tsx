@@ -96,6 +96,24 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     const cursorRef = useRef<maplibregl.Marker | null>(null);
     const isMountedRef = useRef(false);
     const handleCenterMapRef = useRef<(() => void) | null>(null);
+    const styleCache = useRef<Record<string, any>>({});
+
+    // Preload styles
+    useEffect(() => {
+        const loadStyles = async () => {
+            try {
+                const [light, dark] = await Promise.all([
+                    fetch('/styles/style-light.json').then(r => r.json()),
+                    fetch('/styles/style-dark.json').then(r => r.json())
+                ]);
+                styleCache.current['light'] = light;
+                styleCache.current['dark'] = dark;
+            } catch (e) {
+                console.error("Failed to preload styles:", e);
+            }
+        };
+        loadStyles();
+    }, []);
 
     const toggleFullscreen = useCallback(() => {
         const elem = wrapperRef.current;
@@ -215,14 +233,24 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
         const map = mapInstanceRef.current;
         if (!map) return;
 
-        const styleUrl = isDark 
-            ? '/styles/style-dark.json'
-            : '/styles/style-light.json';
+        const cachedStyle = isDark ? styleCache.current['dark'] : styleCache.current['light'];
 
-        try {
-            map.setStyle(styleUrl);
-        } catch (e) {
-            console.warn("Failed to set map style:", e);
+        if (cachedStyle) {
+            try {
+                map.setStyle(cachedStyle);
+            } catch (e) {
+                console.warn("Failed to set map style from cache:", e);
+            }
+        } else {
+            const styleUrl = isDark 
+                ? '/styles/style-dark.json'
+                : '/styles/style-light.json';
+
+            try {
+                map.setStyle(styleUrl);
+            } catch (e) {
+                console.warn("Failed to set map style:", e);
+            }
         }
     }, [isDark]);
 
