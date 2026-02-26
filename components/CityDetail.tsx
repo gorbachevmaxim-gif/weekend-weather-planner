@@ -386,7 +386,7 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
             await generateAnnouncement(text);
             setShowAnnouncementModal(true);
         } catch (error) {
-            alert(`Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`);
+            alert(`Упс! ${error instanceof Error ? error.message : "Неизвестная ошибка"}`);
         }
     };
 
