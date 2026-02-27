@@ -144,22 +144,6 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     }, [isFullscreen, onFullscreenToggle]);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // Check if user is typing in an input or textarea
-            if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
-                return;
-            }
-            
-            if (e.code === 'KeyF') {
-                toggleFullscreen();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [toggleFullscreen]);
-
-    useEffect(() => {
         const handleNativeChange = () => {
              const isFs = !!document.fullscreenElement;
              if (isFs) {
@@ -468,6 +452,26 @@ export const MapView: React.FC<MapViewProps> = ({ cityCoords, currentRouteData, 
     useEffect(() => {
         handleCenterMapRef.current = handleCenterMap;
     }, [handleCenterMap]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Check if user is typing in an input or textarea
+            if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+                return;
+            }
+            
+            if (e.code === 'KeyF') {
+                toggleFullscreen();
+            }
+
+            if (e.code === 'KeyC') {
+                handleCenterMap();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [toggleFullscreen, handleCenterMap]);
 
     useEffect(() => {
         if (!isMountedRef.current) {

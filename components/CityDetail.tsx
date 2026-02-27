@@ -157,9 +157,21 @@ const CityDetail: React.FC<CityDetailProps> = ({ data, initialTab = "w1", initia
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+                return;
+            }
+
             if (e.key === "Escape") {
                 if (document.fullscreenElement) return;
                 onClose();
+            }
+
+            if (e.key === "." || e.key === "ю") {
+                setSpeed((s) => Math.min(38, s + 1));
+            }
+
+            if (e.key === "," || e.key === "б") {
+                setSpeed((s) => Math.max(23, s - 1));
             }
         };
         window.addEventListener("keydown", handleKeyDown);
