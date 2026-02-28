@@ -50,7 +50,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
 
     const handleGenerate = async () => {
         if (!komootUrl || !fileName) {
-            setStatus('Please fill in URL and File Name');
+            setStatus('Вставьте ссылку URL и напишите файл латиницей File Name');
             return;
         }
 
@@ -101,7 +101,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
             
             const file = new File([gpxContent], finalFileName, { type: 'application/gpx+xml' });
             setGpxFile(file);
-            setStatus('GPX file ready');
+            setStatus('GPX файл готов. Нажмите "Send to Telegram" для отправки или скачайте файл вручную.');
 
         } catch (error: any) {
             console.error(error);
@@ -138,7 +138,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        setStatus('File downloaded. Open Telegram and send the file manually.');
+        setStatus('Файл сгенерирован. Откройте Telegram и отправьте файл вручную.');
     };
 
     return (
@@ -172,15 +172,15 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
                     />
                 </div>
 
-                <div className="pt-6 flex flex-col gap-4">
+                <div className="pt-6 flex flex-wrap gap-2">
                     <button
                         onClick={handleGenerate}
                         disabled={isGenerating}
-                        className={`w-full py-3 rounded-full font-sans text-sm font-medium transition-colors ${
+                        className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${
                             isDark 
-                                ? 'bg-[#333333] text-[#D9D9D9] hover:bg-[#444444]' 
-                                : 'bg-[#F5F5F5] text-[#111111] hover:bg-[#E5E5E5]'
-                        } disabled:opacity-50`}
+                                ? 'bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]' 
+                                : 'bg-white text-black hover:bg-pill-hover'
+                        } disabled:opacity-50 font-sans font-medium`}
                     >
                         {isGenerating ? 'Processing...' : 'Process Data'}
                     </button>
@@ -188,18 +188,18 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
                     {gpxFile && (
                         <button
                             onClick={handleSendToTelegram}
-                            className={`w-full py-3 rounded-full font-sans text-sm font-medium transition-colors ${
+                            className={`text-[13px] tracking-tighter rounded-full px-4 py-2 transition-colors duration-100 ${
                                 isDark 
-                                    ? 'bg-[#D9D9D9] text-[#111111] hover:bg-white' 
-                                    : 'bg-[#111111] text-white hover:bg-black'
-                            }`}
+                                    ? 'bg-[#222222] text-[#D9D9D9] hover:bg-[#444444]' 
+                                    : 'bg-white text-black hover:bg-pill-hover'
+                            } font-sans font-medium`}
                         >
                             Send to Telegram
                         </button>
                     )}
                     
                     {status && (
-                        <p className="text-xs text-center opacity-70">{status}</p>
+                        <p className="text-xs w-full mt-2 opacity-70">{status}</p>
                     )}
                 </div>
             </div>
