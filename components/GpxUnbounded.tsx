@@ -55,7 +55,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
         }
 
         setIsGenerating(true);
-        setStatus('Fetching data...');
+        setStatus('Получаю данные...');
         setGpxFile(null);
 
         try {
@@ -73,7 +73,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
                 html = await response.text();
             }
             
-            setStatus('Parsing data...');
+            setStatus('Парсинг данных...');
 
             const startMarker = 'kmtBoot.setProps("';
             const endMarker = '");';
