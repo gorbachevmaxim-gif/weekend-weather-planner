@@ -1,9 +1,10 @@
 import React from 'react';
 import GstrdnmcLogo from "./icons/GstrdnmcLogo";
 import GeeseIcon from "./icons/GeeseIcon";
+import GpxUnbounded from "./GpxUnbounded";
 
 interface OverlayContentProps {
-    activeOverlay: 'manifesto' | 'rules' | 'velominati';
+    activeOverlay: 'manifesto' | 'rules' | 'velominati' | 'gpxUnbounded';
     theme: 'light' | 'dark';
 }
 
@@ -193,6 +194,9 @@ const OverlayContent: React.FC<OverlayContentProps> = ({ activeOverlay, theme })
                         </div>
                     </div>
                 </>
+            )}
+            {activeOverlay === 'gpxUnbounded' && (
+                <GpxUnbounded theme={theme} />
             )}
         </div>
     );

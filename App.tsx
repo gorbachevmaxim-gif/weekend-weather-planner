@@ -29,8 +29,8 @@ const App: React.FC = () => {
   
   const [isDesktop, setIsDesktop] = useState<boolean>(window.innerWidth >= 1200);
   const [isSliderOpen, setIsSliderOpen] = useState<boolean>(false);
-  const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | 'velominati' | null>(null);
-  const lastActiveOverlayRef = useRef<'manifesto' | 'rules' | 'velominati' | null>(null);
+  const [activeOverlay, setActiveOverlay] = useState<'manifesto' | 'rules' | 'velominati' | 'gpxUnbounded' | null>(null);
+  const lastActiveOverlayRef = useRef<'manifesto' | 'rules' | 'velominati' | 'gpxUnbounded' | null>(null);
 
   useEffect(() => {
     if (activeOverlay) {
@@ -314,7 +314,7 @@ const App: React.FC = () => {
                                     onClick={() => setActiveOverlay(null)}
                                     className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
                                 >
-                                    <span className="underline decoration-1 underline-offset-4">Прочитано</span>
+                                    <span className="underline decoration-1 underline-offset-4">Закрыть</span>
                                     <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[45deg] group-hover:rotate-[-45deg] transition-transform duration-300" style={{ position: "relative", top: "7px", left: "-2px" }} />
                                     <span className="hidden md:inline"> </span>
                                 </button>
@@ -350,6 +350,7 @@ const App: React.FC = () => {
                             onCommunityClick={() => setActiveOverlay('manifesto')}
                             onRulesClick={() => setActiveOverlay('rules')}
                             onVelominatiClick={() => setActiveOverlay('velominati')}
+                            onGpxUnboundedClick={() => setActiveOverlay('gpxUnbounded')}
                         />
                     </div>
                 </div>
@@ -396,11 +397,11 @@ const App: React.FC = () => {
                         onClick={() => setActiveOverlay(null)}
                         className={`group flex items-baseline text-[14px] font-inter gap-0.5 ${theme === 'dark' ? "text-[#777777] hover:text-[#aaaaaa]" : "text-black hover:text-[#777777]"}`}
                     >
-                        <span className="underline decoration-1 underline-offset-4">Прочитано</span>
+                        <span className="underline decoration-1 underline-offset-4">Закрыть</span>
                         <ArrowUp width="22" height="22" strokeWidth="1" className="rotate-[45deg]" style={{ position: "relative", top: "7px", left: "-2px" }} />
                     </button>
                 </div>
-                <OverlayContent activeOverlay={(activeOverlay || lastActiveOverlayRef.current) as 'manifesto' | 'rules' | 'velominati'} theme={theme} />
+                <OverlayContent activeOverlay={(activeOverlay || lastActiveOverlayRef.current) as 'manifesto' | 'rules' | 'velominati' | 'gpxUnbounded'} theme={theme} />
             </div>
         )}
       </div>
@@ -434,6 +435,7 @@ const App: React.FC = () => {
                     onCommunityClick={() => setActiveOverlay('manifesto')}
                     onRulesClick={() => setActiveOverlay('rules')}
                     onVelominatiClick={() => setActiveOverlay('velominati')}
+                    onGpxUnboundedClick={() => setActiveOverlay('gpxUnbounded')}
                 />
             </>
         ) : (

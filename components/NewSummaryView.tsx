@@ -29,6 +29,7 @@ interface NewSummaryViewProps {
   onCommunityClick: () => void;
   onRulesClick: () => void;
   onVelominatiClick: () => void;
+  onGpxUnboundedClick: () => void;
 }
 
 const NewSummaryView: React.FC<NewSummaryViewProps> = ({ 
@@ -40,7 +41,8 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
   isDesktop = false,
   onCommunityClick,
   onRulesClick,
-  onVelominatiClick
+  onVelominatiClick,
+  onGpxUnboundedClick
 }) => {
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -350,6 +352,23 @@ const NewSummaryView: React.FC<NewSummaryViewProps> = ({
             }`}            
           >
             <span className="flex items-center">Velominati<ArrowUp width="19" height="19" className="rotate-90" style={{ top: "-7px", position: "relative" }} /></span>
+          </button>
+        </div>
+        <div 
+            className={`transition-all duration-500 ease-out transform ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            }`}
+            style={{ transitionDelay: `${(sections.length + 5) * 50}ms` }}
+        >
+          <button
+            onClick={onGpxUnboundedClick}
+            className={`flex items-center w-full text-[30px] font-unbounded font-medium text-left ${contentPadding} py-1 px-0 hover:text-[#777777] ${
+              isDark
+              ? (openSections.length > 0 ? 'text-[#383838]' : 'text-[#D9D9D9]')
+              : (openSections.length > 0 ? 'text-[#B2B2B2]' : 'text-[#333333]')
+            }`}            
+          >
+            <span className="flex items-center">GPX Unbounded<ArrowUp width="19" height="19" className="rotate-90" style={{ top: "-7px", position: "relative" }} /></span>
           </button>
         </div>
       </div>
