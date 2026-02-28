@@ -101,7 +101,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
             
             const file = new File([gpxContent], finalFileName, { type: 'application/gpx+xml' });
             setGpxFile(file);
-            setStatus('GPX файл готов. Нажмите "Send to Telegram" для отправки или скачайте файл вручную.');
+            setStatus('GPX файл готов. Нажмите "Send to Telegram" для отправки.');
 
         } catch (error: any) {
             console.error(error);
@@ -118,9 +118,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [gpxFile] })) {
             try {
                 await navigator.share({
-                    files: [gpxFile],
-                    title: fileName,
-                    text: `Route: ${fileName}`
+                    files: [gpxFile]
                 });
                 return;
             } catch (error) {
