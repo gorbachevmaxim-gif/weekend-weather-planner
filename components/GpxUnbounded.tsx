@@ -145,7 +145,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
         <div className={`mt-4 w-full max-w-[343px] min-[1200px]:max-w-none mx-auto ${isDark ? "text-[#D9D9D9]" : "text-[#333333]"}`}>
             <div className="mb-8">
                 <p className="font-sans text-lg leading-tight">
-                    Вставьте ссылку на маршрут в Komoot и имя GPX файла, который хотите получить. Нажмите "Process Data" для генерации GPX файла, который можно отправить в Telegram или использовать в других приложениях.
+                    Вставьте ссылку на закрытый маршрут в Komoot и имя GPX файла, который хотите получить. Нажмите "Process Data" для генерации GPX файла, который можно отправить в Telegram или использовать в других приложениях.
                 </p>
             </div>
 
@@ -206,7 +206,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
             
              <div className="mt-12 opacity-50 text-xs">
                 <p>
-                    Note: This uses a public proxy to fetch Komoot data. If it fails, check your connection or try again later.
+                    Парсер использует открытый proxy для получения данных Komoot. Если он выдаст ошибку, проверьте соединение с интернет или попробуйте генерацию gpx-файла позже.
                 </p>
             </div>
         </div>
