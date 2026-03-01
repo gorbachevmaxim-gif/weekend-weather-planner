@@ -142,8 +142,9 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
     return (
         <div className={`mt-4 w-full max-w-[343px] min-[1200px]:max-w-none mx-auto ${isDark ? "text-[#D9D9D9]" : "text-[#333333]"}`}>
             <div className="mb-8">
-                <p className="font-sans text-lg leading-tight">
-                    Вставьте ссылку на закрытый маршрут в Komoot и имя GPX файла, который хотите получить. Нажмите "Process Data" для генерации GPX файла, который можно отправить в Telegram или использовать в других приложениях.
+                <p className="font-sans text-ls leading-tight">
+                    Закрытые маршруты в Komoot недоступны для бесплатного прямого скачивания GPX файла для некоторых стран и регионов, гды мы часто бываем: Испания, Турция, Беларусь. 
+                    Следующие простые действия обходят ограничения Komoot. Просто вставьте ссылку на закрытый маршрут в Komoot и имя GPX файла, который хотите получить. Нажмите "Process Data" для генерации GPX файла, который можно отправить в Telegram или использовать в других приложениях.
                 </p>
             </div>
 
