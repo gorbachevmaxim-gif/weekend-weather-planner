@@ -275,10 +275,11 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
         start_date: startStr,
         end_date: endStr,
         hourly: "precipitation,precipitation_probability,temperature_2m,wind_speed_10m,wind_gusts_10m,apparent_temperature,wind_direction_10m,sunshine_duration,temperature_900hPa,temperature_850hPa",
-        timezone: "Europe/Moscow"
+        timezone: "Europe/Moscow",
+        models: "ecmwf_ifs04"
     });
 
-    const cacheKey = `weather_${cityName}_${startStr}_${endStr}`;
+    const cacheKey = `weather_${cityName}_${startStr}_${endStr}_ecmwf`;
     const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours
 
     try {
@@ -305,7 +306,10 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
                 if (!res.ok) throw new Error(`API Error: ${res.status}`);
                 return res;
             }, 3, 2000, cityName);
-            data = await response.json();
+            const jsonResponse = await response.json();
+            // When "models" is specified, Open-Meteo returns an array.
+            // Even if only one model is requested.
+            data = Array.isArray(jsonResponse) ? jsonResponse[0] : jsonResponse;
             
             try {
                 localStorage.setItem(cacheKey, JSON.stringify({
