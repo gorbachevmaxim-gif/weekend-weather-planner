@@ -28,7 +28,10 @@ export const CITIES: CityMap = {
     "Тула": { lat: 54.19, lon: 37.61 },
     "Пушкино": { lat: 56.01, lon: 37.85 },
     // "Кемер": { lat: 36.60, lon: 30.56 },
-    "Звенигород": { lat: 55.73, lon: 36.86 }
+    "Звенигород": { lat: 55.73, lon: 36.86 },
+    "Минск": { lat: 53.90, lon: 27.55 },
+    "Нижний Новгород": { lat: 56.32, lon: 44.00 },
+    "Псков": { lat: 57.81, lon: 28.34 }
 };
 
 export const MIN_SUN_HOURS = 6;
@@ -62,7 +65,10 @@ export const CITY_FILENAMES: Record<string, string> = {
     "Тула": "Tula",
     "Пушкино": "Pushkino",
     "Звенигород": "Zvenigorod",
-    // "Кемер": "Kemer"
+    // "Кемер": "Kemer",
+    "Минск": "Minsk",
+    "Нижний Новгород": "NNovgorod",
+    "Псков": "Pskov"
 };
 
 export const FLIGHT_CITIES: FlightCities = [/*"Кемер"*/];
@@ -394,5 +400,32 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Москва",
         stationFrom: "Москва",
         moscowStation: "Москва",
+    },
+    "Минск": {
+        apiName: "Минск-Пассажирский",
+        displayName: "Минск",
+        provider: "yandex",
+        yandexId: "c157",
+        stationTo: "Минск-Пассажирский",
+        stationFrom: "Минск-Пассажирский",
+        moscowStation: "Белорусский вокзал",
+    },
+    "Нижний Новгород": {
+        apiName: "Нижний Новгород",
+        displayName: "Нижний Новгород",
+        provider: "yandex",
+        yandexId: "c47",
+        stationTo: "Нижний Новгород",
+        stationFrom: "Нижний Новгород",
+        moscowStation: "Восточный вокзал",
+    },
+    "Псков": {
+        apiName: "Псков-Пассажирский",
+        displayName: "Псков",
+        provider: "yandex",
+        yandexId: "c24",
+        stationTo: "Псков-Пассажирский",
+        stationFrom: "Псков-Пассажирский",
+        moscowStation: "Ленинградский вокзал",
     },
 };

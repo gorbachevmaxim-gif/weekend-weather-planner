@@ -40,6 +40,11 @@ export const CITY_ROUTES: Record<string, RouteInfo[]> = {
         { filename: "Kubinka_SW.gpx", direction: "SW" },
         { filename: "Kubinka_W_1.gpx", direction: "W", variant: 1 }
     ],
+    "Minsk": [
+        { filename: "Minsk_N_1.gpx", direction: "N", variant: 1 },
+        { filename: "Minsk_N_2.gpx", direction: "N", variant: 2 },
+        { filename: "Minsk_W.gpx", direction: "W" }
+    ],
     "Moscow": [
         { filename: "Moscow_N.gpx", direction: "N" },
         { filename: "Moscow_NE.gpx", direction: "NE" },
@@ -62,6 +67,10 @@ export const CITY_ROUTES: Record<string, RouteInfo[]> = {
         { filename: "NaroFominsk_SW.gpx", direction: "SW" },
         { filename: "NaroFominsk_W.gpx", direction: "W" }
     ],
+    "NNovgorod": [
+        { filename: "NNovgorod_N.gpx", direction: "N" },
+        { filename: "NNovgorod_S.gpx", direction: "S" }
+    ],
     "Obninsk": [
         { filename: "Obninsk_NW.gpx", direction: "NW" },
         { filename: "Obninsk_SW.gpx", direction: "SW" },
@@ -76,6 +85,11 @@ export const CITY_ROUTES: Record<string, RouteInfo[]> = {
         { filename: "Podolsk_E.gpx", direction: "E" },
         { filename: "Podolsk_N.gpx", direction: "N" },
         { filename: "Podolsk_SE.gpx", direction: "SE" }
+    ],
+    "Pskov": [
+        { filename: "Pskov_NE.gpx", direction: "NE" },
+        { filename: "Pskov_SE.gpx", direction: "SE" },
+        { filename: "Pskov_W.gpx", direction: "W" }
     ],
     "Pushkino": [
         { filename: "Pushkino_S.gpx", direction: "S" },
