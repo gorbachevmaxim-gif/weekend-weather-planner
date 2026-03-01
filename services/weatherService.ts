@@ -275,11 +275,10 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
         start_date: startStr,
         end_date: endStr,
         hourly: "precipitation,precipitation_probability,temperature_2m,wind_speed_10m,wind_gusts_10m,apparent_temperature,wind_direction_10m,sunshine_duration,temperature_900hPa,temperature_850hPa",
-        timezone: "Europe/Moscow",
-        models: "ecmwf_ifs04"
+        timezone: "Europe/Moscow"
     });
 
-    const cacheKey = `weather_${cityName}_${startStr}_${endStr}_ecmwf`;
+    const cacheKey = `weather_${cityName}_${startStr}_${endStr}`;
     const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours
 
     try {
