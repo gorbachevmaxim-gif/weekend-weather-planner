@@ -143,8 +143,8 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
         <div className={`mt-4 w-full max-w-[343px] min-[1200px]:max-w-none mx-auto ${isDark ? "text-[#D9D9D9]" : "text-[#333333]"}`}>
             <div className="mb-8">
                 <p className="font-sans text-ls leading-tight">
-                    Некоторые маршруты в Komoot недоступны для бесплатного прямого скачивания GPX файла для стран и регионов, гды мы часто бываем: Испания, Турция, Беларусь. 
-                    Следующие простые действия обходят ограничения Komoot. Просто вставьте ссылку на закрытый маршрут в Komoot и имя GPX файла, который хотите получить. Нажмите "Process Data" для генерации GPX файла, который можно отправить в Telegram или использовать в других приложениях.
+                    Обход ограничений Komoot на скачивание GPX. Актуально для платных регионов: Испания, Турция, Беларусь.
+                    Вставьте ссылку на маршрут Komoot и введите имя для сохранения файла. Нажмите кнопку Process Data. Сгенерированный gpx-файл будет готов к экспорту в Telegram или сторонние навигаторы.
                 </p>
             </div>
 
@@ -166,7 +166,7 @@ const GpxUnbounded: React.FC<GpxUnboundedProps> = ({ theme }) => {
                         type="text" 
                         value={fileName}
                         onChange={(e) => setFileName(e.target.value)}
-                        placeholder="[Minsk_N_1]"
+                        placeholder="Minsk_N_1"
                         className={inputClass}
                     />
                 </div>
