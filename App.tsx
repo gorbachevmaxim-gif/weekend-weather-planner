@@ -39,6 +39,7 @@ const App: React.FC = () => {
   }, [activeOverlay]);
   
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [userManuallySetTheme, setUserManuallySetTheme] = useState(false);
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dates = useMemo(() => getWeekendDates(), [refreshTrigger]);
@@ -79,12 +80,58 @@ const App: React.FC = () => {
     // Check initial theme from DOM or system
     if (document.documentElement.classList.contains("dark-theme")) {
         setTheme("dark");
+        setUserManuallySetTheme(true);
+    } else {
+        const checkTimeAndSetTheme = () => {
+            // Don't override if user manually set the theme
+            // We use a ref-like check here by closing over the state, but since this effect runs once,
+            // we need to be careful. Actually, we should put this in a separate effect that depends on userManuallySetTheme.
+        };
+    }
+    
+    // Initial check
+    const currentHour = new Date().getHours();
+    if (currentHour >= 20 || currentHour < 6) {
+        if (!document.documentElement.classList.contains("dark-theme")) {
+             setTheme("dark");
+             document.documentElement.classList.add('dark-theme');
+        }
     }
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Periodic theme check
+  useEffect(() => {
+    if (userManuallySetTheme) return;
+
+    const checkTimeAndSetTheme = () => {
+        const currentHour = new Date().getHours();
+        const shouldBeDark = currentHour >= 20 || currentHour < 6;
+        
+        if (shouldBeDark && theme !== 'dark') {
+            setTheme("dark");
+            document.documentElement.classList.add('dark-theme');
+        } else if (!shouldBeDark && theme === 'dark') {
+            // Optional: Auto switch back to light? 
+            // The requirement was "automatically enable dark theme in dark time".
+            // It didn't explicitly say "disable it in light time", but that's usually implied for "auto" mode.
+            // Let's implement full auto-switching unless manually overridden.
+            setTheme("light");
+            document.documentElement.classList.remove('dark-theme');
+        }
+    };
+
+    // Check immediately
+    checkTimeAndSetTheme();
+
+    // Check every minute
+    const interval = setInterval(checkTimeAndSetTheme, 60000);
+    return () => clearInterval(interval);
+  }, [userManuallySetTheme, theme]);
+
   const toggleTheme = () => {
+      setUserManuallySetTheme(true);
       const newTheme = theme === 'light' ? 'dark' : 'light';
       setTheme(newTheme);
       if (newTheme === 'dark') {
