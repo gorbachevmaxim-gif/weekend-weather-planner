@@ -13,7 +13,6 @@ import {
 import AccordionContent from "../AccordionContent";
 import { WeatherDayStats } from "../../types";
 import { RouteData } from "../../services/gpxUtils";
-import { CITY_PLACES } from "../../config/constants";
 
 interface CityDetailsProps {
     routeStartCity: string;
