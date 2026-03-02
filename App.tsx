@@ -276,7 +276,12 @@ const App: React.FC = () => {
 
           if (!found) {
               // Fallback: Best option for W1 Saturday (least rain, then most sun)
-              const fallbackCandidates = data.filter(c => !MOUNTAIN_CITIES.includes(c.cityName));
+              // Strict fallback: must have route and be rideable
+              const fallbackCandidates = data.filter(c => 
+                  !MOUNTAIN_CITIES.includes(c.cityName) && 
+                  c.weekend1.saturday?.hasRoute && 
+                  c.weekend1.saturday?.isRideable
+              );
               
               fallbackCandidates.sort((a, b) => {
                   const statA = a.weekend1.saturday;
