@@ -31,7 +31,9 @@ export const CITIES: CityMap = {
     "Звенигород": { lat: 55.73, lon: 36.86 },
     "Минск": { lat: 53.90, lon: 27.55 },
     "Нижний Новгород": { lat: 56.32, lon: 44.00 },
-    "Псков": { lat: 57.81, lon: 28.34 }
+    "Псков": { lat: 57.81, lon: 28.34 },
+    "Ростов": { lat: 57.18, lon: 39.41 },
+    "Суздаль": { lat: 56.42, lon: 40.45 }
 };
 
 export const MIN_SUN_HOURS = 6;
@@ -68,7 +70,9 @@ export const CITY_FILENAMES: Record<string, string> = {
     // "Кемер": "Kemer",
     "Минск": "Minsk",
     "Нижний Новгород": "NNovgorod",
-    "Псков": "Pskov"
+    "Псков": "Pskov",
+    "Ростов": "Rostov",
+    "Суздаль": "Suzdal"
 };
 
 export const FLIGHT_CITIES: FlightCities = [/*"Кемер"*/];
@@ -427,5 +431,23 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         stationTo: "Псков-Пассажирский",
         stationFrom: "Псков-Пассажирский",
         moscowStation: "Ленинградский вокзал",
+    },
+    "Ростов": {
+        apiName: "Ростов-Ярославский",
+        displayName: "Ростов",
+        provider: "yandex",
+        yandexId: "s9600766",
+        stationTo: "Ростов-Ярославский",
+        stationFrom: "Ростов-Ярославский",
+        moscowStation: "Ярославский вокзал",
+    },
+    "Суздаль": {
+        apiName: "Владимир",
+        displayName: "Владимир",
+        provider: "yandex",
+        yandexId: "s9600756",
+        stationTo: "Владимир",
+        stationFrom: "Владимир",
+        moscowStation: "Курский вокзал", // or Восточный, often varies but commonly transit
     },
 };

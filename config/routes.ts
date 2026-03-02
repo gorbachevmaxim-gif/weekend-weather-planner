@@ -8,7 +8,8 @@ export interface RouteInfo {
 export const CITY_ROUTES: Record<string, RouteInfo[]> = {
     "Alexandrov": [
         { filename: "Alexandrov_N_1.gpx", direction: "N", variant: 1 },
-        { filename: "Alexandrov_N_2.gpx", direction: "N", variant: 2 }
+        { filename: "Alexandrov_N_2.gpx", direction: "N", variant: 2 },
+        { filename: "Alexandrov_W.gpx", direction: "W" }
     ],
     "Dubna": [
         { filename: "Dubna_N.gpx", direction: "N" },
@@ -95,6 +96,9 @@ export const CITY_ROUTES: Record<string, RouteInfo[]> = {
         { filename: "Pushkino_S.gpx", direction: "S" },
         { filename: "Pushkino_SW.gpx", direction: "SW" }
     ],
+    "Rostov": [
+        { filename: "Rostov_NW.gpx", direction: "NW" }
+    ],
     "Ryazan": [
         { filename: "Ryazan_E.gpx", direction: "E" },
         { filename: "Ryazan_S.gpx", direction: "S" },
@@ -123,6 +127,10 @@ export const CITY_ROUTES: Record<string, RouteInfo[]> = {
         { filename: "Stupino_S.gpx", direction: "S" },
         { filename: "Stupino_SW.gpx", direction: "SW" },
         { filename: "Stupino_W.gpx", direction: "W" }
+    ],
+    "Suzdal": [
+        { filename: "Suzdal_NW_1.gpx", direction: "NW", variant: 1 },
+        { filename: "Suzdal_NW_2.gpx", direction: "NW", variant: 2 }
     ],
     "Tula": [
         { filename: "Tula_N.gpx", direction: "N" },
