@@ -87,23 +87,6 @@ export const HOLIDAYS = [
 
 export const API_URL = "https://api.open-meteo.com/v1/forecast";
 
-// Recommended Places (Gastronomy)
-export const CITY_PLACES: Record<string, Place[]> = {
-    "Дубна": [
-        { name: "Пиццерони", type: "Пиццерия", address: "пр. Боголюбова, 16А", rating: "4.8", url: "https://yandex.ru/maps/-/CDu~mK3j" },
-        { name: "Ибару", type: "Кафе", address: "ул. Вернова, 5", rating: "4.7" },
-        { name: "Почемучка", type: "Кофейня", address: "ул. Сахарова, 10", rating: "5.0" },
-        { name: "Волга-Волга", type: "Ресторан", address: "наб. Менделеева", rating: "4.9" }
-    ],
-    "Звенигород": [
-         { name: "Здесь был Чехов", type: "Кафе", rating: "4.8" },
-         { name: "Луковка", type: "Музей-кафе", rating: "4.9" }
-    ],
-    "Коломна": [
-         { name: "Калачная", type: "Музей", rating: "5.0" },
-         { name: "Рульки Вверх", type: "Ресторан", rating: "4.7" }
-    ]
-};
 
 interface TransportConfig {
     apiName: string;
@@ -426,21 +409,21 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         moscowStation: "Восточный вокзал",
     },
     "Псков": {
-        apiName: "Псков-Пассажирский",
+        apiName: "Псков-Пасс.",
         displayName: "Псков",
         provider: "yandex",
-        yandexId: "c24",
-        stationTo: "Псков-Пассажирский",
-        stationFrom: "Псков-Пассажирский",
+        yandexId: "c25",
+        stationTo: "Псков",
+        stationFrom: "Псков",
         moscowStation: "Ленинградский вокзал",
     },
     "Ростов": {
-        apiName: "Ростов-Ярославский",
+        apiName: "Ростов Великий",
         displayName: "Ростов",
         provider: "yandex",
-        yandexId: "s9600766",
-        stationTo: "Ростов-Ярославский",
-        stationFrom: "Ростов-Ярославский",
+        yandexId: "s9604148",
+        stationTo: "Ростов Великий",
+        stationFrom: "Ростов Великий",
         moscowStation: "Ярославский вокзал",
     },
     "Суздаль": {
