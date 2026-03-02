@@ -43,5 +43,8 @@ export const generateTransportLink = (fromCityName: string, toCityName: string, 
     const year = date.getFullYear();
     const when = encodeURIComponent(`${day}.${month}.${year}`);
 
-    return `https://rasp.yandex.ru/search/suburban/?fromId=${fromId}&fromName=${fromName}&toId=${toId}&toName=${toName}&when=${when}`;
+    const isTrain = fromCityName === "Псков" || toCityName === "Псков" || fromCityName === "Нижний Новгород" || toCityName === "Нижний Новгород";
+    const searchType = isTrain ? "train" : "suburban";
+
+    return `https://rasp.yandex.ru/search/${searchType}/?fromId=${fromId}&fromName=${fromName}&toId=${toId}&toName=${toName}&when=${when}`;
 };

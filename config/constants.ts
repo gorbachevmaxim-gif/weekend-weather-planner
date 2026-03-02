@@ -403,7 +403,7 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         apiName: "Нижний Новгород",
         displayName: "Нижний Новгород",
         provider: "yandex",
-        yandexId: "c47",
+        yandexId: "c23243",
         stationTo: "Нижний Новгород",
         stationFrom: "Нижний Новгород",
         moscowStation: "Восточный вокзал",
