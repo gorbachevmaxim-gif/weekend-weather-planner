@@ -4,6 +4,7 @@ import { CITIES } from "./config/constants";
 import { CityAnalysisResult, LoadingState } from "./types";
 import { analyzeCity, getWeekendDates } from "./services/weatherService";
 import { MOUNTAIN_CITIES } from "./config/constants";
+import { useSummaryFiltering } from "./hooks/useSummaryFiltering";
 import LoadingScreen from "./components/LoadingScreen";
 import NewSummaryView from "./components/NewSummaryView";
 import CityDetail from "./components/CityDetail";
@@ -44,6 +45,9 @@ const App: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const dates = useMemo(() => getWeekendDates(), [refreshTrigger]);
   const lastFetchTimeRef = useRef<number>(Date.now());
+
+  const { sunnyCities: sunnyCitiesW1 } = useSummaryFiltering({ data, isSecondWeekend: false });
+  const { sunnyCities: sunnyCitiesW2 } = useSummaryFiltering({ data, isSecondWeekend: true });
 
   useEffect(() => {
     const handleRevalidation = () => {
@@ -234,89 +238,75 @@ const App: React.FC = () => {
   // Auto-select logic for desktop
   useEffect(() => {
       if (isDesktop && !selectedCity && data.length > 0 && !showLoading) {
-          const timeSlots: { tab: "w1" | "w2", day: string, getter: (c: CityAnalysisResult) => any }[] = [
-              { tab: "w1", day: "saturday", getter: c => c.weekend1.saturday },
-              { tab: "w1", day: "sunday", getter: c => c.weekend1.sunday },
-              { tab: "w2", day: "saturday", getter: c => c.weekend2.saturday },
-              { tab: "w2", day: "sunday", getter: c => c.weekend2.sunday }
-          ];
-
-          let found = false;
-
-          for (const slot of timeSlots) {
-              const candidates = data.filter(city => {
-                  const stats = slot.getter(city);
-                  // Ensure we use the exact same logic as visual list: isRideable + hasRoute + not mountain
-                  return stats && stats.isRideable && stats.hasRoute && !MOUNTAIN_CITIES.includes(city.cityName);
-              });
-
-              if (candidates.length > 0) {
-                  // Sort by sun descending, then alphabetical
-                  // If sun difference is small (less than 1 hour), prefer alphabetical to avoid jumping around similar cities
-                  candidates.sort((a, b) => {
-                      const sunA = slot.getter(a)?.sunSeconds || 0;
-                      const sunB = slot.getter(b)?.sunSeconds || 0;
-                      
-                      const diff = sunB - sunA;
-                      if (Math.abs(diff) > 3600) {
-                          return diff;
-                      }
-
-                      return a.cityName.localeCompare(b.cityName);
-                  });
-
-                  const winner = candidates[0];
-                  setInitialTab(slot.tab);
-                  setSelectedCity(winner.cityName);
-                  setInitialDay(slot.day);
-                  found = true;
-                  break;
-              }
+          // Priority 1: W1 Saturday
+          if (sunnyCitiesW1.saturday.length > 0) {
+             setInitialTab("w1");
+             setSelectedCity(sunnyCitiesW1.saturday[0].cityName);
+             setInitialDay("saturday");
+             return;
+          }
+          // Priority 2: W1 Sunday
+          if (sunnyCitiesW1.sunday.length > 0) {
+             setInitialTab("w1");
+             setSelectedCity(sunnyCitiesW1.sunday[0].cityName);
+             setInitialDay("sunday");
+             return;
+          }
+          // Priority 3: W2 Saturday
+          if (sunnyCitiesW2.saturday.length > 0) {
+             setInitialTab("w2");
+             setSelectedCity(sunnyCitiesW2.saturday[0].cityName);
+             setInitialDay("saturday");
+             return;
+          }
+          // Priority 4: W2 Sunday
+          if (sunnyCitiesW2.sunday.length > 0) {
+             setInitialTab("w2");
+             setSelectedCity(sunnyCitiesW2.sunday[0].cityName);
+             setInitialDay("sunday");
+             return;
           }
 
-          if (!found) {
-              // Fallback: Best option for W1 Saturday (least rain, then most sun)
-              // Strict fallback: must have route and be rideable
-              const fallbackCandidates = data.filter(c => 
-                  !MOUNTAIN_CITIES.includes(c.cityName) && 
-                  c.weekend1.saturday?.hasRoute && 
-                  c.weekend1.saturday?.isRideable
-              );
+          // Fallback if no ideal cities found
+          const fallbackCandidates = data.filter(c => 
+              !MOUNTAIN_CITIES.includes(c.cityName) && 
+              c.weekend1.saturday?.hasRoute && 
+              c.weekend1.saturday?.isRideable
+          );
+          
+          fallbackCandidates.sort((a, b) => {
+              const statA = a.weekend1.saturday;
+              const statB = b.weekend1.saturday;
               
-              fallbackCandidates.sort((a, b) => {
-                  const statA = a.weekend1.saturday;
-                  const statB = b.weekend1.saturday;
-                  
-                  if (!statA || !statB) return 0;
-                  
-                  // 1. Least rain
-                  if (Math.abs(statA.precipSum - statB.precipSum) > 0.1) {
-                      return statA.precipSum - statB.precipSum;
-                  }
-                  
-                  // 2. Most sun
-                  if (statA.sunSeconds !== statB.sunSeconds) {
-                      return statB.sunSeconds - statA.sunSeconds;
-                  }
-
-                  return a.cityName.localeCompare(b.cityName);
-              });
-
-              if (fallbackCandidates.length > 0) {
-                  const first = fallbackCandidates[0];
-                  setInitialTab("w1");
-                  setSelectedCity(first.cityName);
-                  setInitialDay("saturday");
-              } else if (data.length > 0) {
-                  // Absolute fallback
-                  const first = data[0];
-                  setInitialTab("w1");
-                  setSelectedCity(first.cityName);
-                  setInitialDay("saturday");
+              if (!statA || !statB) return 0;
+              
+              // 1. Least rain
+              if (Math.abs(statA.precipSum - statB.precipSum) > 0.1) {
+                  return statA.precipSum - statB.precipSum;
               }
+              
+              // 2. Most sun
+              if (statA.sunSeconds !== statB.sunSeconds) {
+                  return statB.sunSeconds - statA.sunSeconds;
+              }
+
+              return a.cityName.localeCompare(b.cityName);
+          });
+
+          if (fallbackCandidates.length > 0) {
+              const first = fallbackCandidates[0];
+              setInitialTab("w1");
+              setSelectedCity(first.cityName);
+              setInitialDay("saturday");
+          } else if (data.length > 0) {
+              // Absolute fallback
+              const first = data[0];
+              setInitialTab("w1");
+              setSelectedCity(first.cityName);
+              setInitialDay("saturday");
           }
       }
-  }, [isDesktop, data, selectedCity, showLoading]);
+  }, [isDesktop, data, selectedCity, showLoading, sunnyCitiesW1, sunnyCitiesW2]);
 
   const selectedData = useMemo(() => {
       if (!selectedCity) return null;
