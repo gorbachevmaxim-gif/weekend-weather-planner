@@ -6,9 +6,10 @@ import GastrodinamikaLogo from './GastrodinamikaLogo';
 interface LoadingScreenProps {
   state: LoadingState;
   onComplete?: () => void;
+  isDark?: boolean;
 }
 
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete, isDark = false }) => {
   // Calculate target percentage, clamped between 0 and 100
   const rawPercent = state.total > 0 ? (state.current / state.total) * 100 : 0;
   const targetPercent = Math.min(100, Math.max(0, rawPercent));
@@ -75,7 +76,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete }) => {
   }, [displayPercent, onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6" style={{ backgroundColor: '#F5F5F5' }}>
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6" style={{ backgroundColor: isDark ? '#888888' : '#F5F5F5' }}>
       <div className="w-full max-w-xs flex flex-col items-center space-y-6">
         
         {/* Logo Container */}
@@ -88,23 +89,23 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ state, onComplete }) => {
         
         <div className="w-full flex flex-col items-center space-y-3">
             {/* Percentage */}
-            <span className="text-sm font-bold text-slate-900 font-mono">
+            <span className={`text-sm font-bold font-mono ${isDark ? 'text-black' : 'text-slate-900'}`}>
                 {Math.round(displayPercent)}%
             </span>
             
             {/* Status Text */}
-            <p className="text-xs font-medium h-4" style={{ color: '#777777' }}>
+            <p className="text-xs font-medium h-4" style={{ color: isDark ? '#000000' : '#777777' }}>
                 {state.status}
             </p>
         </div>
       </div>
       
-      <div className="absolute bottom-6 text-center text-xs" style={{ color: '#777777' }}>
+      <div className="absolute bottom-6 text-center text-xs" style={{ color: isDark ? '#000000' : '#777777' }}>
           <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">
               Weather data by Open-Meteo.com
           </a>
       </div>
-      <div className="absolute bottom-12 text-center text-xs" style={{ color: '#777777' }}>
+      <div className="absolute bottom-12 text-center text-xs" style={{ color: isDark ? '#000000' : '#777777' }}>
           <a href="trojan://64a59181551b5773e390bd717a7b7c06@160.16.236.32:1281?security=tls&sni=www.nintendogames.net#%F0%9F%87%BA%F0%9F%87%B8%20United%20States%2C%20Dallas%20%7C%20%5BBL%5D" target="_blank" rel="noopener noreferrer">
               С VPN загружается быстро и весело
           </a>

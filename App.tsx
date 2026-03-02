@@ -340,7 +340,7 @@ const App: React.FC = () => {
         return (
             <>
                 <OrientationBlocker isDark={theme === 'dark'} />
-                <LoadingScreen state={loading} onComplete={() => setShowLoading(false)} />
+                <LoadingScreen state={loading} onComplete={() => setShowLoading(false)} isDark={theme === 'dark'} />
             </>
         );
     }
