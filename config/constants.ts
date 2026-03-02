@@ -433,7 +433,7 @@ export const CITY_TRANSPORT_CONFIG: Record<string, TransportConfig> = {
         yandexId: "c192",
         stationTo: "Владимир",
         stationFrom: "Владимир",
-        moscowStation: "Курский вокзал", // or Восточный, often varies but commonly transit
+        moscowStation: "Курский вокзал", // или Восточный бывает также
     },
     "Владимир": {
         apiName: "Владимир",
