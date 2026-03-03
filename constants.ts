@@ -28,7 +28,11 @@ export const CITIES: CityMap = {
     "Тула": { lat: 54.19, lon: 37.61 },
     "Пушкино": { lat: 56.01, lon: 37.85 },
     // "Кемер": { lat: 36.60, lon: 30.56 },
-    "Звенигород": { lat: 55.73, lon: 36.86 }
+    "Звенигород": { lat: 55.73, lon: 36.86 },
+    "Нижний Новгород": { lat: 56.32, lon: 44.00 },
+    "Псков": { lat: 57.81, lon: 28.34 },
+    "Суздаль": { lat: 56.42, lon: 40.45 },
+    "Ростов": { lat: 57.19, lon: 39.41 },
 };
 
 export const MIN_SUN_HOURS = 6;
@@ -63,7 +67,11 @@ export const CITY_FILENAMES: Record<string, string> = {
     "Тула": "Tula",
     "Пушкино": "Pushkino",
     "Звенигород": "Zvenigorod",
-    // "Кемер": "Kemer"
+    // "Кемер": "Kemer",
+    "Нижний Новгород": "NNovgorod",
+    "Псков": "Pskov",
+    "Суздаль": "Suzdal",
+    "Ростов": "Rostov",
 };
 
 export const FLIGHT_CITIES: FlightCities = [/*"Кемер"*/];
