@@ -23,6 +23,11 @@ body {
   transition: background-color 0.7s ease-out, color 0.7s ease-out;
 }
 
+::selection {
+  background-color: #ffd900;
+  color: black;
+}
+
 .open-meteo-link-hover:hover {
   color: #4f6814;
 }
