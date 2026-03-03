@@ -33,6 +33,7 @@ export const CITIES: CityMap = {
     "Псков": { lat: 57.81, lon: 28.34 },
     "Суздаль": { lat: 56.42, lon: 40.45 },
     "Ростов": { lat: 57.19, lon: 39.41 },
+    "Минск": { lat: 53.90, lon: 27.56 },
 };
 
 export const MIN_SUN_HOURS = 6;
@@ -40,6 +41,7 @@ export const MIN_SUN_HOURS = 6;
 // Map Cyrillic City Name -> Latin Filename prefix
 // If a city is missing here, it will default to the Cyrillic name.
 export const CITY_FILENAMES: Record<string, string> = {
+    "Минск": "Minsk",
     "Можайск": "Mozhaysk",
     "Жуковский": "Zhukovskyi",
     "Москва": "Moscow",
@@ -107,6 +109,7 @@ export const API_URL = "https://api.open-meteo.com/v1/forecast";
 export const gpxFiles = [
   "public/routes/Alexandrov_N_1.gpx",
   "public/routes/Alexandrov_N_2.gpx",
+  "public/routes/Alexandrov_W.gpx",
   "public/routes/Dubna_N.gpx",
   "public/routes/Dubna_NE.gpx",
   "public/routes/Istra_N.gpx",
@@ -118,6 +121,8 @@ export const gpxFiles = [
   "public/routes/Kemer_E.gpx",
   "public/routes/Kemer_N.gpx",
   "public/routes/Kemer_NE.gpx",
+  "public/routes/Kolomna_E_1.gpx",
+  "public/routes/Kolomna_E_2.gpx",
   "public/routes/Kolomna_N.gpx",
   "public/routes/Kolomna_NE.gpx",
   "public/routes/Kolomna_S.gpx",
@@ -125,6 +130,9 @@ export const gpxFiles = [
   "public/routes/Kolomna_SW.gpx",
   "public/routes/Kubinka_SW.gpx",
   "public/routes/Kubinka_W_1.gpx",
+  "public/routes/Minsk_N_1.gpx",
+  "public/routes/Minsk_N_2.gpx",
+  "public/routes/Minsk_W.gpx",
   "public/routes/Moscow_N.gpx",
   "public/routes/Moscow_NE.gpx",
   "public/routes/Moscow_NW.gpx",
@@ -163,7 +171,7 @@ export const gpxFiles = [
   "public/routes/Ryazan_SE.gpx",
   "public/routes/Ryazan_SW.gpx",
   "public/routes/SergievPosad_N.gpx",
-  "public/routes/SergievPosad_NE.gpx",
+  "public/routes/SergievPosad_SE.gpx",
   "public/routes/SergievPosad_SW.gpx",
   "public/routes/Serpukhov_N.gpx",
   "public/routes/Serpukhov_NW.gpx",
@@ -184,10 +192,10 @@ export const gpxFiles = [
   "public/routes/Tula_SE.gpx",
   "public/routes/Tula_SW.gpx",
   "public/routes/Tula_W.gpx",
-  "public/routes/Volokolamsk_NW.gpx",
   "public/routes/Volokolamsk_S.gpx",
   "public/routes/Volokolamsk_SW.gpx",
   "public/routes/Voskresensk_N.gpx",
+  "public/routes/Voskresensk_NW.gpx",
   "public/routes/Voskresensk_S.gpx",
   "public/routes/Voskresensk_SW.gpx",
   "public/routes/Yakhroma_S.gpx",

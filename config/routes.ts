@@ -31,6 +31,8 @@ export const CITY_ROUTES: Record<string, RouteInfo[]> = {
         { filename: "Kemer_NE.gpx", direction: "NE" }
     ],
     "Kolomna": [
+        { filename: "Kolomna_E_1.gpx", direction: "E", variant: 1 },
+        { filename: "Kolomna_E_2.gpx", direction: "E", variant: 2 },
         { filename: "Kolomna_N.gpx", direction: "N" },
         { filename: "Kolomna_NE.gpx", direction: "NE" },
         { filename: "Kolomna_S.gpx", direction: "S" },
