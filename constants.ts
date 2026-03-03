@@ -78,31 +78,6 @@ export const CITY_FILENAMES: Record<string, string> = {
 
 export const FLIGHT_CITIES: FlightCities = [/*"Кемер"*/];
 
-// Map City Name -> Komoot Tour ID
-export const KOMOOT_ROUTE_IDS: Record<string, string> = {
-    // Пример заполнения:
-    // "Коломна": "123456789",
-};
-
-// Recommended Places (Gastronomy)
-// Add your Yandex Favorites here manually
-export const CITY_PLACES: Record<string, Place[]> = {
-    "Дубна": [
-        { name: "Пиццерони", type: "Пиццерия", address: "пр. Боголюбова, 16А", rating: "4.8", url: "https://yandex.ru/maps/-/CDu~mK3j" },
-        { name: "Ибару", type: "Кафе", address: "ул. Вернова, 5", rating: "4.7" },
-        { name: "Почемучка", type: "Кофейня", address: "ул. Сахарова, 10", rating: "5.0" },
-        { name: "Волга-Волга", type: "Ресторан", address: "наб. Менделеева", rating: "4.9" }
-    ],
-    "Звенигород": [
-         { name: "Здесь был Чехов", type: "Кафе", rating: "4.8" },
-         { name: "Луковка", type: "Музей-кафе", rating: "4.9" }
-    ],
-    "Коломна": [
-         { name: "Калачная", type: "Музей", rating: "5.0" },
-         { name: "Рульки Вверх", type: "Ресторан", rating: "4.7" }
-    ]
-    // Add other cities here...
-};
 
 export const API_URL = "https://api.open-meteo.com/v1/forecast";
 
