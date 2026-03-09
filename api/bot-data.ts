@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import Redis from 'ioredis';
 
 export default async function handler(req: any, res: any) {
     // Only allow GET requests
@@ -12,11 +12,18 @@ export default async function handler(req: any, res: any) {
         return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
     }
 
+    if (!process.env.REDIS_URL) {
+        return res.status(500).json({ error: 'Missing REDIS_URL environment variable' });
+    }
+
+    const redis = new Redis(process.env.REDIS_URL);
+
     try {
-        // Retrieve data from Vercel KV
-        const botDataStr = await kv.get('bot_rides_data');
+        // Retrieve data from Redis
+        const botDataStr = await redis.get('bot_rides_data');
         
         if (!botDataStr) {
+            await redis.quit();
             return res.status(404).json({ 
                 error: 'Not Found', 
                 message: 'No ride data found. Cron job might not have run yet.' 
@@ -47,9 +54,11 @@ export default async function handler(req: any, res: any) {
             groupedByDate
         };
 
+        await redis.quit();
         return res.status(200).json(responseData);
     } catch (error: any) {
         console.error('Error fetching bot data:', error);
+        await redis.quit();
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 }
