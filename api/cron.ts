@@ -1,6 +1,8 @@
 import { generateBotData } from '../services/botDataService';
 import { kv } from '@vercel/kv';
 
+export const maxDuration = 60; // Max allowed for hobby/pro plans depending on setup
+
 export default async function handler(req: any, res: any) {
     // Check authorization to prevent unauthorized triggers
     const authHeader = req.headers['authorization'];

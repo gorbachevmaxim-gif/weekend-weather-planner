@@ -283,23 +283,28 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
 
     try {
         let data: any;
-        const cached = localStorage.getItem(cacheKey);
+        // Ensure localStorage is only used if it exists (e.g. in browser)
+        const isBrowser = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
         
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached);
-                if (Date.now() - parsed.timestamp < CACHE_DURATION) {
-                    // console.log(`Using cached data for ${cityName}`);
-                    data = parsed.data;
+        if (isBrowser) {
+            const cached = window.localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    if (Date.now() - parsed.timestamp < CACHE_DURATION) {
+                        data = parsed.data;
+                    }
+                } catch (e) {
+                    console.warn("Failed to parse cache", e);
+                    window.localStorage.removeItem(cacheKey);
                 }
-            } catch (e) {
-                console.warn("Failed to parse cache", e);
-                localStorage.removeItem(cacheKey);
             }
         }
 
         if (!data) {
-            track('API Request', { endpoint: 'open-meteo', city: cityName });
+            // track is safe because it checks window context internally usually, but let's wrap it just in case
+            try { track('API Request', { endpoint: 'open-meteo', city: cityName }); } catch (e) {}
+            
             const response = await retry(async () => {
                 const res = await fetchWithTimeout(`${API_URL}?${params.toString()}`);
                 if (!res.ok) throw new Error(`API Error: ${res.status}`);
@@ -310,14 +315,15 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
             // Even if only one model is requested.
             data = Array.isArray(jsonResponse) ? jsonResponse[0] : jsonResponse;
             
-            try {
-                localStorage.setItem(cacheKey, JSON.stringify({
-                    timestamp: Date.now(),
-                    data
-                }));
-            } catch (e) {
-                console.warn("Failed to save to cache (quota exceeded?)", e);
-                // Optional: Clear old cache entries if quota exceeded
+            if (isBrowser) {
+                try {
+                    window.localStorage.setItem(cacheKey, JSON.stringify({
+                        timestamp: Date.now(),
+                        data
+                    }));
+                } catch (e) {
+                    console.warn("Failed to save to cache (quota exceeded?)", e);
+                }
             }
         }
 

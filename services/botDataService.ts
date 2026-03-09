@@ -10,20 +10,30 @@ export async function generateBotData() {
     const targetDates = getWeekendDates();
     const allRides = [];
 
-    // Evaluate all cities
-    for (const [cityName, coords] of Object.entries(CITIES)) {
-        if (FLIGHT_CITIES.includes(cityName)) continue; // skip flight cities for bot for now
+    // Evaluate all cities concurrently to speed up serverless execution
+    const cityEntries = Object.entries(CITIES).filter(([cityName]) => !FLIGHT_CITIES.includes(cityName));
+    
+    // Process in small batches to avoid hitting Open-Meteo rate limits (max ~10 concurrent)
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < cityEntries.length; i += BATCH_SIZE) {
+        const batch = cityEntries.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(
+            batch.map(async ([cityName, coords]) => {
+                const analysis = await analyzeCity(cityName, coords, targetDates);
+                return { cityName, coords, analysis };
+            })
+        );
 
-        const analysis = await analyzeCity(cityName, coords, targetDates);
-        if (!analysis) continue;
+        for (const { cityName, coords, analysis } of batchResults) {
+            if (!analysis) continue;
 
-        const availableDays = [
-            analysis.weekend1.saturday,
-            analysis.weekend1.sunday,
-            analysis.weekend2.saturday,
-            analysis.weekend2.sunday,
-            ...analysis.extraDays
-        ].filter(d => d && d.isRideable && d.hasRoute);
+            const availableDays = [
+                analysis.weekend1.saturday,
+                analysis.weekend1.sunday,
+                analysis.weekend2.saturday,
+                analysis.weekend2.sunday,
+                ...analysis.extraDays
+            ].filter(d => d && d.isRideable && d.hasRoute);
 
         for (const day of availableDays) {
             if (!day) continue;
@@ -148,6 +158,7 @@ export async function generateBotData() {
                 }
             });
         }
+    }
     }
 
     return allRides;
