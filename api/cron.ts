@@ -1,4 +1,4 @@
-import { generateBotData } from '../services/botDataService';
+import { generateBotData } from '../services/botDataService.js';
 import { kv } from '@vercel/kv';
 
 export const maxDuration = 60; // Max allowed for hobby/pro plans depending on setup

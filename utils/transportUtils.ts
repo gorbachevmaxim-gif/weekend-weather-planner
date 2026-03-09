@@ -1,4 +1,4 @@
-import { CITY_TRANSPORT_CONFIG } from "../config/constants";
+import { CITY_TRANSPORT_CONFIG } from "../config/constants.js";
 
 export const getStationName = (city: string) => {
     return CITY_TRANSPORT_CONFIG[city]?.displayName || city;

@@ -1,8 +1,8 @@
-import { API_URL, CITY_FILENAMES, FLIGHT_CITIES, MOUNTAIN_CITIES, HOLIDAYS } from '../config/constants';
-import { CITY_ROUTES } from '../config/routes';
-import { parseGpx, RouteData } from './gpxUtils';
-import { calculateProfileScore } from '../utils/elevationUtils';
-import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types';
+import { API_URL, CITY_FILENAMES, FLIGHT_CITIES, MOUNTAIN_CITIES, HOLIDAYS } from '../config/constants.js';
+import { CITY_ROUTES } from '../config/routes.js';
+import { parseGpx, RouteData } from './gpxUtils.js';
+import { calculateProfileScore } from '../utils/elevationUtils.js';
+import { CityCoordinates, CityAnalysisResult, WeatherDayStats } from '../types.js';
 import { track } from '@vercel/analytics';
 
 export interface TargetDate {

@@ -1,4 +1,4 @@
-import { CityCoordinates } from '../types';
+import { CityCoordinates } from '../types.js';
 
 interface RouteData {
     points: [number, number, number][];
@@ -27,32 +27,34 @@ const getBearing = (lat1: number, lon1: number, lat2: number, lon2: number): num
 
 const parseGpx = (str: string): RouteData | null => {
     try {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(str, "text/xml");
-        if (xml.querySelector('parsererror')) return null;
-        const getAttr = (el: Element, name: string) => {
-            const val = el.getAttribute(name);
-            return val ? parseFloat(val) : NaN;
-        };
-        const allElements = Array.from(xml.getElementsByTagName('*'));
-        let pointsElements = allElements.filter(el => (el.localName === 'trkpt' || el.nodeName === 'trkpt'));
-        if (pointsElements.length === 0) pointsElements = allElements.filter(el => (el.localName === 'rtept' || el.nodeName === 'rtept'));
-        if (pointsElements.length === 0) return null;
         const points: [number, number, number][] = [];
         const cumulativeDistances: number[] = [0];
         let totalDist = 0;
         let totalElev = 0;
         let prevLat = 0, prevLon = 0, prevEle = -10000;
-        pointsElements.forEach((pt, index) => {
-            const lat = getAttr(pt, 'lat');
-            const lon = getAttr(pt, 'lon');
+
+        // RegExp to handle both browser and Node environments (DOMParser is browser only)
+        // Matches <trkpt lat="..." lon="...">...</trkpt> or <rtept ...>...</rtept>
+        const ptRegex = /<(?:trkpt|rtept)\s+lat="([^"]+)"\s+lon="([^"]+)">([\s\S]*?)<\/(?:trkpt|rtept)>/gi;
+        const eleRegex = /<ele>([^<]+)<\/ele>/i;
+        
+        let match;
+        let index = 0;
+        while ((match = ptRegex.exec(str)) !== null) {
+            const latStr = match[1];
+            const lonStr = match[2];
+            const innerContent = match[3];
+            
+            const lat = parseFloat(latStr);
+            const lon = parseFloat(lonStr);
             let ele = NaN;
-            const children = Array.from(pt.children);
-            const eleNode = children.find(c => c.localName === 'ele' || c.nodeName === 'ele');
-            if (eleNode && eleNode.textContent) ele = parseFloat(eleNode.textContent);
+            
+            const eleMatch = eleRegex.exec(innerContent);
+            if (eleMatch && eleMatch[1]) {
+                ele = parseFloat(eleMatch[1]);
+            }
+
             if (!isNaN(lat) && !isNaN(lon)) {
-                // If ele is NaN, use 0 or previous elevation, but ideally we want real data.
-                // For now, we store whatever we found. Consumers should handle NaN if necessary.
                 points.push([lat, lon, isNaN(ele) ? 0 : ele]);
                 if (index > 0) {
                     const dist = getDistanceFromLatLonInKm(prevLat, prevLon, lat, lon);
@@ -61,8 +63,10 @@ const parseGpx = (str: string): RouteData | null => {
                     if (!isNaN(ele) && prevEle !== -10000 && ele - prevEle > 0) totalElev += (ele - prevEle);
                 }
                 prevLat = lat; prevLon = lon; if (!isNaN(ele)) prevEle = ele;
+                index++;
             }
-        });
+        }
+        
         if (points.length === 0) return null;
         return { points, distanceKm: totalDist, elevationM: totalElev, cumulativeDistances };
     } catch (e) { return null; }

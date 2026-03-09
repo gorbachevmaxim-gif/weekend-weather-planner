@@ -1,10 +1,10 @@
-import { analyzeCity, getWeekendDates } from './weatherService';
-import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from '../config/constants';
-import { CITY_ROUTES } from '../config/routes';
-import { getCardinal } from './weatherService';
-import { parseGpx, getDistanceFromLatLonInKm } from './gpxUtils';
-import { getStationName, getMoscowStationName, generateTransportLink } from '../utils/transportUtils';
-import { getDifficultyLabel, getDistanceLabel } from '../utils/elevationUtils';
+import { analyzeCity, getWeekendDates } from './weatherService.js';
+import { CITIES, CITY_FILENAMES, FLIGHT_CITIES } from '../config/constants.js';
+import { CITY_ROUTES } from '../config/routes.js';
+import { getCardinal } from './weatherService.js';
+import { parseGpx, getDistanceFromLatLonInKm } from './gpxUtils.js';
+import { getStationName, getMoscowStationName, generateTransportLink } from '../utils/transportUtils.js';
+import { getDifficultyLabel, getDistanceLabel } from '../utils/elevationUtils.js';
 
 export async function generateBotData() {
     const targetDates = getWeekendDates();
