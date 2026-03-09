@@ -253,9 +253,8 @@ async function checkRouteAvailability(cityName: string, windDeg: number): Promis
 
     try {
         const isBrowser = typeof window !== 'undefined' && typeof window.location !== 'undefined';
-        const protocol = typeof process !== 'undefined' && process.env.VERCEL_URL ? 'https://' : (isBrowser ? window.location.origin + '/' : 'https://rain-free.vercel.app/');
-        const host = typeof process !== 'undefined' && process.env.VERCEL_URL ? process.env.VERCEL_URL + '/' : '';
-        const baseUrl = isBrowser ? window.location.origin + '/' : `${protocol}${host}`;
+        // Always use the primary production domain for fetching static files on the server
+        const baseUrl = isBrowser ? window.location.origin + '/' : 'https://rain-free.vercel.app/';
         const cacheBustedUrl = `${baseUrl}${url}?t=${Date.now()}`;
         
         const res = await fetch(cacheBustedUrl, { method: "GET" });
