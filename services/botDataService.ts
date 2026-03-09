@@ -35,7 +35,11 @@ export async function generateBotData() {
             if (!matchingRoute) continue;
 
             const url = `routes/${matchingRoute.filename}`;
-            const gpxUrl = `https://weekend-weather-planner.vercel.app/${url}`;
+            // Use VERCELL_URL environment variable if available (Vercel provides this automatically),
+            // otherwise fallback to the known production domain
+            const protocol = process.env.VERCEL_URL ? 'https' : 'https';
+            const host = process.env.VERCEL_URL || 'rain-free.vercel.app';
+            const gpxUrl = `${protocol}://${host}/${url}`;
 
             // Parse gpx text locally if possible or fetch from deployment URL.
             // In serverless environment, local fetch to relative path is hard, so we assume deployment URL.
