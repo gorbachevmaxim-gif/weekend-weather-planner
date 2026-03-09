@@ -252,7 +252,12 @@ async function checkRouteAvailability(cityName: string, windDeg: number): Promis
     const url = `routes/${matchingRoute.filename}`;
 
     try {
-        const cacheBustedUrl = `${url}?t=${Date.now()}`;
+        const isBrowser = typeof window !== 'undefined' && typeof window.location !== 'undefined';
+        const protocol = typeof process !== 'undefined' && process.env.VERCEL_URL ? 'https://' : (isBrowser ? window.location.origin + '/' : 'https://rain-free.vercel.app/');
+        const host = typeof process !== 'undefined' && process.env.VERCEL_URL ? process.env.VERCEL_URL + '/' : '';
+        const baseUrl = isBrowser ? window.location.origin + '/' : `${protocol}${host}`;
+        const cacheBustedUrl = `${baseUrl}${url}?t=${Date.now()}`;
+        
         const res = await fetch(cacheBustedUrl, { method: "GET" });
         if (res.ok) {
             const gpxText = await res.text();
