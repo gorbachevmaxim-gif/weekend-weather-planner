@@ -8,7 +8,7 @@ export default async function handler(req: any, res: any) {
 
     // Check custom API key from bot
     const apiKey = req.headers['x-api-key'];
-    if (apiKey !== process.env.BOT_API_KEY && !process.env.IS_LOCAL) {
+    if (apiKey !== process.env.BOT_API_KEY && process.env.IS_LOCAL !== 'true') {
         return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
     }
 
