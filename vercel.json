@@ -4,10 +4,5 @@
             "path": "/api/cron",
             "schedule": "0 0 * * *"
         }
-    ],
-    "env": {
-        "REDIS_URL": "@redis-url",
-        "BOT_API_KEY": "@bot-api-key",
-        "IS_LOCAL": "false"
-    }
+    ]
 }
