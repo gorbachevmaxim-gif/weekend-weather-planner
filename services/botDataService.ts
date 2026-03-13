@@ -160,5 +160,8 @@ export async function generateBotData() {
     }
     }
 
+    // Sort all rides by date in chronological order (from early to late)
+    allRides.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
     return allRides;
 }
