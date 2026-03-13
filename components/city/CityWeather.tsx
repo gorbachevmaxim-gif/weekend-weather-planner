@@ -51,7 +51,7 @@ const CityWeather: React.FC<CityWeatherProps> = ({ stats, cityName, isDesktop, i
                         Порывы {String(stats.windGusts)}
                     </p>
                 </div>
-                {renderWeatherBlock("ОСАДКИ", stats.isDry ? "0" : stats.precipSum.toFixed(1), " мм", (stats.isRideable && stats.rainHours) ? stats.rainHours : `Вероятность ${stats.precipitationProbability}%`)}
+                {renderWeatherBlock("ОСАДКИ", stats.isDry ? "0" : Number(stats.precipSum.toFixed(1)).toString(), " мм", (stats.isRideable && stats.rainHours) ? stats.rainHours : `Вероятность ${stats.precipitationProbability}%`)}
                 {renderWeatherBlock("СОЛНЦЕ", stats.sunStr.split(" ")[0], ` ч ${stats.sunStr.split(" ")[2]} мин`, "09:00 – 18:00")}
             </div>
         </div>
