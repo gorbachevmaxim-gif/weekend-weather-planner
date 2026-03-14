@@ -145,6 +145,7 @@ export async function generateBotData() {
                 // Используем транслитерацию для имени файла
                 routeName: `${routeStartCity}—${routeEndCity}`,
                 gpxUrl: gpxUrl,
+                gpxFilename: matchingRoute.filename,
                 routeParams: {
                     distance: Math.round(distance),
                     elevationGain: Math.round(elevation),
