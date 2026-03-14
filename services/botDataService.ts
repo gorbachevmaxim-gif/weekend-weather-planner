@@ -139,13 +139,17 @@ export async function generateBotData() {
                 ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" 
                 : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeEndCity)}`;
 
+            // Формируем транслитерированное имя файла из названия маршрута
+            const transliteratedRouteName = sanitizeFileName(`${routeStartCity}—${routeEndCity}`);
+            
             allRides.push({
                 date: day.dateStr,
                 dayName: day.dayName,
-                // Используем транслитерацию для имени файла
+                // Название маршрута на кнопках - на кириллице
                 routeName: `${routeStartCity}—${routeEndCity}`,
                 gpxUrl: gpxUrl,
-                gpxFilename: matchingRoute.filename,
+                // Имя файла для отправки - транслитерация на латинице
+                gpxFilename: `${transliteratedRouteName}.gpx`,
                 routeParams: {
                     distance: Math.round(distance),
                     elevationGain: Math.round(elevation),
