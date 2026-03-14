@@ -6,6 +6,31 @@ import { parseGpx, getDistanceFromLatLonInKm } from './gpxUtils.js';
 import { getStationName, getMoscowStationName, generateTransportLink } from '../utils/transportUtils.js';
 import { getDifficultyLabel, getDistanceLabel } from '../utils/elevationUtils.js';
 
+// Функция транслитерации кириллицы в латиницу для имен файлов
+function transliterateToLatin(text: string): string {
+    const cyrillicMap: Record<string, string> = {
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+        'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+        'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+        'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '',
+        'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+        'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo',
+        'Ж': 'Zh', 'З': 'Z', 'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M',
+        'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U',
+        'Ф': 'F', 'Х': 'H', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '',
+        'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya'
+    };
+    return text.split('').map(char => cyrillicMap[char] || char).join('');
+}
+
+// Функция для генерации безопасного имени файла (латиница)
+// Сохраняет дефис для формата "Moskva—Istra"
+function sanitizeFileName(name: string): string {
+    const latinName = transliterateToLatin(name);
+    // Разрешаем a-z, A-Z, 0-9 и дефис
+    return latinName.replace(/[^a-zA-Z0-9\-]/g, '_');
+}
+
 export async function generateBotData() {
     const targetDates = getWeekendDates();
     const allRides = [];
@@ -117,7 +142,8 @@ export async function generateBotData() {
             allRides.push({
                 date: day.dateStr,
                 dayName: day.dayName,
-                routeName: `${routeStartCity}—${routeEndCity}`,
+                // Используем транслитерацию для имени файла
+                routeName: `${sanitizeFileName(routeStartCity)}—${sanitizeFileName(routeEndCity)}`,
                 gpxUrl: gpxUrl,
                 routeParams: {
                     distance: Math.round(distance),
