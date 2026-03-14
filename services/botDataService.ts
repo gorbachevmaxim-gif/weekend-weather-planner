@@ -143,7 +143,7 @@ export async function generateBotData() {
                 date: day.dateStr,
                 dayName: day.dayName,
                 // Используем транслитерацию для имени файла
-                routeName: `${sanitizeFileName(routeStartCity)}—${sanitizeFileName(routeEndCity)}`,
+                routeName: `${routeStartCity}—${routeEndCity}`,
                 gpxUrl: gpxUrl,
                 routeParams: {
                     distance: Math.round(distance),
