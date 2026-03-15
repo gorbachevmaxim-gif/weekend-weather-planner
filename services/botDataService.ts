@@ -129,6 +129,22 @@ export async function generateBotData() {
             const routeStartCity = findClosestCityName(routeStartLat, routeStartLon);
             const routeEndCity = findClosestCityName(routeEndLat, routeEndLon);
 
+            // Проверяем, является ли маршрут круговым (начало и конец в одном городе)
+            const isCircular = routeStartCity === routeEndCity;
+
+            // Формируем название маршрута для отображения на кнопках
+            // Если круговой - показываем только город старта с пометкой (круговой)
+            let routeNameForDisplay: string;
+            let transliteratedRouteName: string;
+            
+            if (isCircular) {
+                routeNameForDisplay = `${routeStartCity} (круговой)`;
+                transliteratedRouteName = sanitizeFileName(`${routeStartCity}_circular`);
+            } else {
+                routeNameForDisplay = `${routeStartCity}—${routeEndCity}`;
+                transliteratedRouteName = sanitizeFileName(`${routeStartCity}—${routeEndCity}`);
+            }
+
             const toLink = routeStartCity !== "Москва" ? generateTransportLink("Москва", routeStartCity, day.dateObj) : "";
             const fromLink = routeEndCity !== "Москва" ? generateTransportLink(routeEndCity, "Москва", day.dateObj) : "";
 
@@ -138,15 +154,12 @@ export async function generateBotData() {
             const foodEndLink = routeEndCity === "Завидово" 
                 ? "https://yandex.ru/maps/?bookmarks%5Bid%5D=b0a25cf5-b1bc-431d-bf0e-b7fe324c82ad&ll=36.534234%2C56.588437&mode=bookmarks&utm_campaign=bookmarks&utm_source=share&z=14" 
                 : `https://yandex.ru/maps/?bookmarks%5BpublicId%5D=OfCmg0o9&utm_source=share&utm_campaign=bookmarks&text=${encodeURIComponent(routeEndCity)}`;
-
-            // Формируем транслитерированное имя файла из названия маршрута
-            const transliteratedRouteName = sanitizeFileName(`${routeStartCity}—${routeEndCity}`);
             
             allRides.push({
                 date: day.dateStr,
                 dayName: day.dayName,
                 // Название маршрута на кнопках - на кириллице
-                routeName: `${routeStartCity}—${routeEndCity}`,
+                routeName: routeNameForDisplay,
                 gpxUrl: gpxUrl,
                 // Имя файла для отправки - транслитерация на латинице
                 gpxFilename: `${transliteratedRouteName}.gpx`,
