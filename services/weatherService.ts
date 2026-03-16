@@ -470,13 +470,6 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
             if (HOLIDAY_NAMES[tStr]) {
                 dayName = HOLIDAY_NAMES[tStr];
             }
-            const days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-            let dayName = days[moscowDate.getDay()];
-            
-            // Check if this date is a holiday - use holiday name instead of weekday
-            if (HOLIDAY_NAMES[tStr]) {
-                dayName = HOLIDAY_NAMES[tStr];
-            }
 
             const dayStats: WeatherDayStats = {
                 dateObj: targetDate,
