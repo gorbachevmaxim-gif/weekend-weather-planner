@@ -85,6 +85,14 @@ export const HOLIDAYS = [
   "2026-05-01", "2026-05-11", "2026-06-12", "2026-11-04"
 ];
 
+// Holiday names to display instead of weekday names
+export const HOLIDAY_NAMES: Record<string, string> = {
+  "2026-05-01": "Праздник",
+  "2026-05-11": "Праздник",
+  "2026-06-12": "День России",
+  "2026-11-04": "День народного единства"
+};
+
 export const API_URL = "https://api.open-meteo.com/v1/forecast";
 
 

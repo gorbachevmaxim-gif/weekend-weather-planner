@@ -1,4 +1,4 @@
-import { API_URL, CITY_FILENAMES, FLIGHT_CITIES, MOUNTAIN_CITIES, HOLIDAYS } from '../config/constants.js';
+import { API_URL, CITY_FILENAMES, FLIGHT_CITIES, MOUNTAIN_CITIES, HOLIDAYS, HOLIDAY_NAMES } from '../config/constants.js';
 import { CITY_ROUTES } from '../config/routes.js';
 import { parseGpx, RouteData } from './gpxUtils.js';
 import { calculateProfileScore } from '../utils/elevationUtils.js';
@@ -460,8 +460,23 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
                 }
             }
 
+            // Use Moscow timezone to get correct day name
+            const moscowDateStr = targetDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
+            const moscowDate = new Date(moscowDateStr);
             const days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-            const dayName = days[targetDate.getDay()];
+            let dayName = days[moscowDate.getDay()];
+            
+            // Check if this date is a holiday - use holiday name instead of weekday
+            if (HOLIDAY_NAMES[tStr]) {
+                dayName = HOLIDAY_NAMES[tStr];
+            }
+            const days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+            let dayName = days[moscowDate.getDay()];
+            
+            // Check if this date is a holiday - use holiday name instead of weekday
+            if (HOLIDAY_NAMES[tStr]) {
+                dayName = HOLIDAY_NAMES[tStr];
+            }
 
             const dayStats: WeatherDayStats = {
                 dateObj: targetDate,
