@@ -121,21 +121,38 @@ function getMoscowTime() {
     };
 }
 
+// Helper to get current date in Moscow timezone
+function getTodayInMoscow(): Date {
+    const now = new Date();
+    const moscowStr = now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
+    const moscowDate = new Date(moscowStr);
+    // Reset to noon to avoid timezone edge cases
+    moscowDate.setHours(12, 0, 0, 0);
+    return moscowDate;
+}
+
 export function getWeekendDates(): TargetDate[] {
     const { dayOfWeek, hour } = getMoscowTime();
-    const today = new Date();
-    today.setHours(12, 0, 0, 0);
+    const today = getTodayInMoscow();
 
     let sat1: Date;
     let sat2: Date;
 
+    // Calculate first Saturday based on Moscow day of week
     if (dayOfWeek === 0) {
+        // Today is Sunday - this Saturday is yesterday
         sat1 = new Date(today);
         sat1.setDate(today.getDate() - 1);
         sat2 = new Date(sat1);
         sat2.setDate(sat1.getDate() + 7);
+    } else if (dayOfWeek === 6) {
+        // Today is Saturday - use today as sat1
+        sat1 = new Date(today);
+        sat2 = new Date(sat1);
+        sat2.setDate(sat1.getDate() + 7);
     } else {
-        const daysUntilSat = (6 - dayOfWeek + 7) % 7;
+        // Calculate days until Saturday
+        const daysUntilSat = 6 - dayOfWeek;
         sat1 = new Date(today);
         sat1.setDate(today.getDate() + daysUntilSat);
         sat2 = new Date(sat1);
