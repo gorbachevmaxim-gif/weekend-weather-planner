@@ -480,7 +480,7 @@ export async function analyzeCity(cityName: string, coords: CityCoordinates, tar
             // Use Moscow timezone to get correct day name
             const moscowDateStr = targetDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
             const moscowDate = new Date(moscowDateStr);
-            const days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+            const days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
             let dayName = days[moscowDate.getDay()];
             
             // Check if this date is a holiday - use holiday name instead of weekday
