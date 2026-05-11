@@ -1,7 +1,21 @@
-const getApiKey = () => process.env.OLLAMA_API_KEY || process.env.VITE_OLLAMA_API_KEY;
-const getApiBaseUrl = () => {
-  const url = process.env.OLLAMA_API_URL || process.env.VITE_OLLAMA_API_URL || 'http://localhost:11434';
-  return url.replace(/\/+$/, '');
+const getApiKeyInfo = () => {
+  if (process.env.OLLAMA_API_KEY) {
+    return { value: process.env.OLLAMA_API_KEY, source: 'OLLAMA_API_KEY' };
+  }
+  if (process.env.VITE_OLLAMA_API_KEY) {
+    return { value: process.env.VITE_OLLAMA_API_KEY, source: 'VITE_OLLAMA_API_KEY' };
+  }
+  return { value: undefined, source: 'none' };
+};
+
+const getApiBaseUrlInfo = () => {
+  if (process.env.OLLAMA_API_URL) {
+    return { value: process.env.OLLAMA_API_URL.replace(/\/+$/, ''), source: 'OLLAMA_API_URL' };
+  }
+  if (process.env.VITE_OLLAMA_API_URL) {
+    return { value: process.env.VITE_OLLAMA_API_URL.replace(/\/+$/, ''), source: 'VITE_OLLAMA_API_URL' };
+  }
+  return { value: undefined, source: 'none' };
 };
 
 const getAuthHeaders = (apiKey: string, targetUrl: string) => {
@@ -9,7 +23,7 @@ const getAuthHeaders = (apiKey: string, targetUrl: string) => {
     'Content-Type': 'application/json',
   };
 
-  if (targetUrl.includes('ollama.com') || targetUrl.includes('ollama.ai')) {
+  if (apiKey && (targetUrl.includes('ollama.com') || targetUrl.includes('ollama.ai'))) {
     headers.Authorization = `Bearer ${apiKey}`;
   }
 
@@ -25,9 +39,25 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const apiKey = getApiKey();
-  if (!apiKey) {
+  const apiKeyInfo = getApiKeyInfo();
+  const apiBaseUrlInfo = getApiBaseUrlInfo();
+
+  if (!apiKeyInfo.value) {
     return res.status(500).json({ error: 'Missing Ollama API key in server environment' });
+  }
+
+  if (!apiBaseUrlInfo.value) {
+    return res.status(500).json({
+      error: 'Missing Ollama API URL in server environment',
+      detail: 'Set OLLAMA_API_URL or VITE_OLLAMA_API_URL in your production environment variables',
+    });
+  }
+
+  if (apiBaseUrlInfo.value.startsWith('http://localhost') && process.env.NODE_ENV === 'production') {
+    return res.status(500).json({
+      error: 'Invalid Ollama API URL in production',
+      detail: 'OLLAMA_API_URL must point to a remote Ollama Cloud endpoint, not localhost',
+    });
   }
 
   const requestBody = req.body;
@@ -35,7 +65,18 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Invalid request body' });
   }
 
-  const targetUrl = `${getApiBaseUrl()}/generate`;
+  const apiKey = apiKeyInfo.value;
+  const apiKeySource = apiKeyInfo.source;
+  const apiBaseUrl = apiBaseUrlInfo.value;
+  const baseUrlSource = apiBaseUrlInfo.source;
+  const targetUrl = `${apiBaseUrl}/generate`;
+
+  console.log('api/ollama env:', {
+    apiKeySource,
+    baseUrlSource,
+    targetUrl,
+    production: process.env.NODE_ENV === 'production',
+  });
 
   try {
     const response = await fetch(targetUrl, {
