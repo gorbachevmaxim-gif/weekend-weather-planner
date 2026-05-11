@@ -2,45 +2,98 @@ import { useState } from 'react';
 import { AI_API_CONFIG, RIDE_ANNOUNCEMENT_PROMPT } from '../prompts/rideAnnouncementPrompt';
 
 const generateAIAnnouncement = async (summaryText: string): Promise<string> => {
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error("API key not configured. Check VITE_GOOGLE_AI_API_KEY in .env.local");
-  }
-
+  const apiUrl = '/api/ollama';
   const prompt = `${RIDE_ANNOUNCEMENT_PROMPT}\n\n${summaryText}`;
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_API_CONFIG.model}:generateContent?key=${apiKey}`;
+  const requestedModel = AI_API_CONFIG.model;
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: AI_API_CONFIG.temperature,
-        topP: AI_API_CONFIG.topP,
-        topK: AI_API_CONFIG.topK,
-        maxOutputTokens: AI_API_CONFIG.maxOutputTokens,
-      },
-    }),
+  const buildRequestBody = (model: string) => ({
+    model,
+    prompt,
+    temperature: AI_API_CONFIG.temperature,
+    top_p: AI_API_CONFIG.topP,
+    top_k: AI_API_CONFIG.topK,
+    max_tokens: AI_API_CONFIG.maxOutputTokens,
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`API error (${response.status}): ${error}`);
-  }
+  console.log('Using backend Ollama proxy:', apiUrl);
+  console.log('Ollama Model:', requestedModel);
 
-  const data = await response.json();
-  
-  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    return data.candidates[0].content.parts[0].text;
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(buildRequestBody(requestedModel)),
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      console.error('Ollama proxy error response:', response.status, responseText);
+
+      if (response.status === 404 && /model .* not found/i.test(responseText)) {
+        throw new Error(
+          `Модель Ollama не найдена: ${requestedModel}. ` +
+          `Укажите рабочую модель в VITE_OLLAMA_MODEL / OLLAMA_MODEL и перезапустите dev сервер.`
+        );
+      }
+
+      throw new Error(`AI proxy error (${response.status}): ${responseText}`);
+    }
+
+    // Handle Ollama response - it might be streaming or plain JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      // If it's not valid JSON, it might be a streaming response with multiple JSON objects
+      console.log('Response is not valid JSON, trying to parse as streaming response');
+      const lines = responseText.trim().split('\n');
+      let fullResponse = '';
+
+      for (const line of lines) {
+        if (line.trim()) {
+          try {
+            const chunk = JSON.parse(line);
+            if (chunk.response) {
+              fullResponse += chunk.response;
+            }
+            if (chunk.done) {
+              break; // Last chunk
+            }
+          } catch (chunkParseError) {
+            console.warn('Failed to parse chunk:', line);
+          }
+        }
+      }
+
+      if (fullResponse) {
+        data = { response: fullResponse };
+      } else {
+        throw new Error(`Failed to parse Ollama response: ${responseText.substring(0, 200)}...`);
+      }
+    }
+
+    console.log('Ollama proxy response data:', data);
+
+    const announcement = data?.response;
+    if (typeof announcement === 'string' && announcement.length > 0) {
+      return announcement.trim();
+    }
+
+    console.error('Invalid announcement text from backend:', data);
+    if (data?.error) {
+      throw new Error(`AI error: ${JSON.stringify(data.error)}`);
+    }
+
+    throw new Error('AI proxy returned no announcement text');
+  } catch (error: any) {
+    console.error('AI announcement generation error:', error);
+    if (error instanceof TypeError) {
+      throw new Error(`Connection error: ${error.message}. Check the backend Ollama proxy or API key configuration.`);
+    }
+    throw error;
   }
-  
-  if (data.error) {
-    throw new Error(`API error: ${JSON.stringify(data.error)}`);
-  }
-  
-  throw new Error("No response from AI");
 };
 
 export const useRideAnnouncement = () => {
@@ -64,7 +117,7 @@ export const useRideAnnouncement = () => {
             if (errorMessage.includes("400") && errorMessage.includes("User location is not supported")) {
                 errorMessage = "Необходимо включить VPN";
             } else if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("quota")) {
-                errorMessage = "Ошибка: квота Google AI API исчерпана";
+                errorMessage = "Ошибка: квота AI API исчерпана";
             }
             
             setError(errorMessage);

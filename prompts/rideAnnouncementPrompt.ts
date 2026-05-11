@@ -1,5 +1,5 @@
 /**
- * Prompt for generating friendly ride announcements using Google AI
+ * Prompt for generating friendly ride announcements using Ollama
  */
 
 // Main instruction for transforming summary text into a friendly ride announcement
@@ -54,10 +54,12 @@ Cделай из этого текста анонс для райда с дру�
 
 `;
 
-// API configuration constants
+// API configuration constants for Ollama
+const defaultOllamaModel = import.meta.env.VITE_OLLAMA_MODEL || 'llama3.1';
+
 export const AI_API_CONFIG = {
-  model: "gemini-2.0-flash",
-  temperature: 1,
+  model: defaultOllamaModel,
+  temperature: 0.7,
   topP: 0.95,
   topK: 40,
   maxOutputTokens: 2048,
